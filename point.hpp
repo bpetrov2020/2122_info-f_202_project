@@ -1,0 +1,20 @@
+#ifndef POINT_HPP
+#define POINT_HPP
+
+#include <ostream>
+
+/**
+  Coordinate in the plan
+  */
+struct Point
+{
+    int x;
+    int y;
+
+    Point operator+(const Point& other) const;
+    Point operator-(const Point& other) const;
+    Point operator*(const int& multiplier) const;
+    bool operator==(const Point& other) const = default;
+};
+
+#endif
