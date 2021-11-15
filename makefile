@@ -4,20 +4,27 @@ DEBUG=-g
 
 CC=g++ $(FLAGS) $(DEBUG) -lfltk
 
-OBJ=\
+OBJDIR = build
+POBJ=\
 	main.o\
 	point.o\
 	shape.o\
 	game.o
+OBJ=$(addprefix $(OBJDIR)/, $(POBJ))
 
 main.out : $(OBJ)
 	$(CC) -o $@ $^
 
--include *.d  # include dependencies
+-include $(OBJDIR)/*.d  # include dependencies
 
-%.o : %.cpp
+$(OBJ): | $(OBJDIR)
+
+$(OBJDIR):
+	mkdir $(OBJDIR)
+
+$(OBJDIR)/%.o : %.cpp
 	$(CC) -o $@ -c $< -MMD
 
 .PHONY : clean
 clean :
-	rm *.o
+	rm $(OBJDIR)/*.o
