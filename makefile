@@ -5,11 +5,13 @@ DEBUG=-g
 CC=g++ $(FLAGS) $(DEBUG) -lfltk
 
 OBJ=\
-	animation.o\
-	common.o\
-	point.o
+	main.o\
+	point.o\
+	shape.o\
+	game.o
 
 main.out : $(OBJ)
+	$(CC) -o $@ $^
 
 -include *.d  # include dependencies
 

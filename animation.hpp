@@ -55,11 +55,19 @@ class Animation
         int elapsed = 0;
         int duration;
     public:
-        Animation(S* drawable, int duration);
+        Animation(S* drawable, int duration)
+            : drawable{drawable}, duration{duration} { }
+
+        Animation(const Animation& a) = delete;
+        Animation operator=(const Animation& a) = delete;
+
         virtual ~Animation() noexcept = default;
 
         virtual void draw() = 0;
-        bool isComplete() const;
+        bool isComplete() const
+        {
+            return elapsed>duration;
+        }
 };
 
 /**
@@ -72,9 +80,14 @@ template <typename S>
 class StillAnimation : public Animation<S>
 {
     public:
-        StillAnimation(S* drawable, int duration);
+        StillAnimation(S* drawable, int duration)
+            : Animation<S>{drawable, duration} { }
 
-        void draw() override;
+        void draw() override
+        {
+            ++this->elapsed;
+            this->drawable->draw();
+        }
 };
 
 /**
@@ -87,11 +100,23 @@ template <typename S>
 class ClearAnimation : public Animation<S>
 {
     private:
-        double currentScale() const;
+        double currentScale() const
+        {
+            if (!this->isComplete())
+                return 1-(0.95/this->duration * time);
+            else
+                return 0;
+        }
     public:
-        ClearAnimation(S* drawable, int duration);
+        ClearAnimation(S* drawable, int duration)
+            : Animation<S>{drawable, duration} { }
 
-        void draw() override;
+        void draw() override
+        {
+            ++this->elapsed;
+            Scale s{this->drawable->getCenter(), currentScale()};
+            this->drawable->draw();
+        }
 };
 
 /**
@@ -108,11 +133,23 @@ class MoveAnimation : public Animation<S>
     private:
         Point start;
         Point end;
-        Point currentTranslation() const;
+        Point currentTranslation() const
+        {
+            if (!this->isComplete())
+                return (end-start)/this->duration * time;
+            else
+                return {0, 0};
+        }
     public:
-        MoveAnimation(S* drawable, int duration, Point start, Point end);
+        MoveAnimation(S* drawable, int duration, Point start, Point end)
+            : Animation<S>{drawable, duration}, start{start}, end{end} { }
 
-        void draw() override;
+        void draw() override
+        {
+            ++this->elapsed;
+            Translation t{ currentTranslation() };
+            this->drawable->draw();
+        }
 };
 
 #endif
