@@ -1,7 +1,7 @@
 /* #include <Fl/Fl.H> */
 #include <FL/Fl_Box.H>
 #include <FL/fl_draw.H>
-#include "point.h"
+#include "point.hpp"
 
 #ifndef SHAPECLASS
 #define SHAPECLASS

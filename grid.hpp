@@ -1,6 +1,6 @@
-#include "shape.h"
-#include "point.h"
-#include "cell_content.h"
+#include "shape.hpp"
+#include "point.hpp"
+#include "cell_content.hpp"
 
 #include <memory>
 #include <vector>

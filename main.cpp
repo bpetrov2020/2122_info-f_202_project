@@ -13,7 +13,7 @@
 
 #include <time.h>
 
-#include "grid.h"
+#include "grid.hpp"
 
 const int windowWidth = 480;
 const int windowHeight = 800;

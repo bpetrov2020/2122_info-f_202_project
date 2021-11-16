@@ -1,4 +1,4 @@
-#include "cell_content.h"
+#include "cell_content.hpp"
 
 /*----------------------------------------------------------
  * CellContent

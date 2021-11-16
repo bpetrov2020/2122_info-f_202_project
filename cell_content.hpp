@@ -1,6 +1,6 @@
 #include <random>
-#include "point.h"
-#include "shape.h"
+#include "point.hpp"
+#include "shape.hpp"
 
 #ifndef CELL_CONTENT_H
 #define CELL_CONTENT_H

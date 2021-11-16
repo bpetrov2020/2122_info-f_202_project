@@ -1,4 +1,4 @@
-#include "point.h"
+#include "point.hpp"
 
 std::ostream &operator<<(std::ostream &o, const Point &p)
 {
