@@ -121,7 +121,7 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
     }
 }
 
-Grid::Grid(Point center, int width, int height, std::size_t side)
+Grid::Grid(Point center, int width, int height, int side)
     : Grid(center, width, height, side, side) { }
 
 Cell &Grid::at(const Point &p)
