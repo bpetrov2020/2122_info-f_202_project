@@ -1,6 +1,6 @@
-/* #include <FL/fl_draw.H> */
-/* #include <FL/Fl_Double_Window.H> */
-/* #include <FL/Fl_Box.H> */
+#include <FL/fl_draw.H>
+#include <FL/Fl_Double_Window.H>
+#include <FL/Fl_Box.H>
 /* #include <string> */
 /* #include <math.h> */
 /* #include <chrono> */
@@ -12,6 +12,8 @@
 #include <time.h>
 
 #include "game.hpp"
+#include "animation.hpp"
+#include "shape.hpp"
 
 const int windowWidth = 480;
 const int windowHeight = 800;
@@ -25,6 +27,7 @@ class MainWindow : public Fl_Window
 {
     private:
         Game game;
+        Rectangle a{Point{500, 500}, 600, 400};
     public:
         MainWindow()
             : Fl_Window(500, 500, windowWidth, windowHeight, "Candy Crush"), game{*this}
@@ -36,7 +39,9 @@ class MainWindow : public Fl_Window
         void draw() override
         {
             Fl_Window::draw();
-            game.draw();
+            /* game.draw(); */
+            Scale s{Point{50, 50}, 0.5};
+            a.draw();
         }
 
         int handle(int event) override

@@ -4,6 +4,8 @@
 #include "point.hpp"
 
 #include <FL/fl_draw.H>
+#include <iostream>
+#include <memory>
 
 /*----------------------------------------------------------
                        Transformations
@@ -47,15 +49,14 @@ struct Rotation {
                         Animations
  *--------------------------------------------------------*/
 
-template <typename S>
 class Animation
 {
     protected:
-        S* drawable;
+        std::shared_ptr<Shape> drawable;
         int elapsed = 0;
         int duration;
     public:
-        Animation(S* drawable, int duration)
+        Animation(int duration, std::shared_ptr<Shape> drawable = nullptr)
             : drawable{drawable}, duration{duration} { }
 
         Animation(const Animation& a) = delete;
@@ -68,6 +69,12 @@ class Animation
         {
             return elapsed>duration;
         }
+        void attachTo(std::shared_ptr<Shape> drawable_)
+        {
+            /* std::cout << drawable << std::endl; */
+            drawable = drawable_;
+            /* std::cout << drawable << std::endl; */
+        }
 };
 
 /**
@@ -76,17 +83,21 @@ class Animation
  * @param drawable pointer to the drawable that has the animation
  * @param duration time during which the animation is active
  */
-template <typename S>
-class StillAnimation : public Animation<S>
+class StillAnimation : public Animation
 {
     public:
-        StillAnimation(S* drawable, int duration)
-            : Animation<S>{drawable, duration} { }
+        StillAnimation(int duration, std::shared_ptr<Shape> drawable = nullptr) noexcept
+            : Animation{duration, drawable} { }
 
         void draw() override
         {
-            ++this->elapsed;
-            this->drawable->draw();
+            /* std::cout << this->drawable; */
+            if (drawable) {
+                /* std::cout << "in here"; */
+                ++elapsed;
+                drawable->draw();
+                /* this->drawable->drawWithoutAnimate(); */
+            }
         }
 };
 
@@ -96,26 +107,28 @@ class StillAnimation : public Animation<S>
  * @param drawable pointer to the drawable that has the animation
  * @param duration time during which the animation is active
  */
-template <typename S>
-class ClearAnimation : public Animation<S>
+class ClearAnimation : public Animation
 {
     private:
         double currentScale() const
         {
-            if (!this->isComplete())
-                return 1-(0.95/this->duration * time);
+            if (!isComplete())
+                return 1-(0.95/duration * elapsed);
             else
                 return 0;
         }
     public:
-        ClearAnimation(S* drawable, int duration)
-            : Animation<S>{drawable, duration} { }
+        ClearAnimation(int duration, std::shared_ptr<Shape> drawable = nullptr) noexcept
+            : Animation{duration, drawable} { }
 
         void draw() override
         {
-            ++this->elapsed;
-            Scale s{this->drawable->getCenter(), currentScale()};
-            this->drawable->draw();
+            if (drawable) {
+                ++elapsed;
+                Scale s{drawable->getCenter(), currentScale()};
+                drawable->draw();
+                /* drawable->drawWithoutAnimate(); */
+            }
         }
 };
 
@@ -127,28 +140,30 @@ class ClearAnimation : public Animation<S>
  * @param start begining point
  * @param end finishing point
  */
-template <typename S>
-class MoveAnimation : public Animation<S>
+class MoveAnimation : public Animation
 {
     private:
         Point start;
         Point end;
         Point currentTranslation() const
         {
-            if (!this->isComplete())
-                return (end-start)/this->duration * time;
+            if (!isComplete())
+                return (end-start)/duration * elapsed;
             else
                 return {0, 0};
         }
     public:
-        MoveAnimation(S* drawable, int duration, Point start, Point end)
-            : Animation<S>{drawable, duration}, start{start}, end{end} { }
+        MoveAnimation(int duration, Point start, Point end, std::shared_ptr<Shape> drawable=nullptr) noexcept
+            : Animation{duration, drawable}, start{start}, end{end} { }
 
         void draw() override
         {
-            ++this->elapsed;
-            Translation t{ currentTranslation() };
-            this->drawable->draw();
+            if (drawable) {
+                ++elapsed;
+                Translation t{ currentTranslation() };
+                /* drawable->drawWithoutAnimate(); */
+                drawable->draw();
+            }
         }
 };
 

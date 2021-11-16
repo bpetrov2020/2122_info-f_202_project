@@ -6,6 +6,7 @@
 #include <Fl/Fl.H>
 #include <FL/Fl_Box.H>
 #include <FL/fl_draw.H>
+#include <iostream>
 
 /**
     Base class of all shapes
@@ -22,7 +23,7 @@ class Shape
         virtual bool contains(const Point& p) const = 0;
 
         // Center
-        auto getCenter() const;
+        Point getCenter() const;
         void setCenter(const Point& p);
 };
 

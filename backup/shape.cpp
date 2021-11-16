@@ -7,7 +7,7 @@
 Shape::Shape(Point center)
     : center{center} { }
 
-auto Shape::getCenter() const
+Point Shape::getCenter() const
 {
     return center;
 }
@@ -26,6 +26,7 @@ Rectangle::Rectangle(Point center, int width, int height, Fl_Color fillColor, Fl
 
 void Rectangle::draw()
 {
+    std::cerr << "between" << std::endl;
     fl_draw_box(
             FL_FLAT_BOX,
             center.x-width/2,
