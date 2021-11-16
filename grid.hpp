@@ -1,3 +1,6 @@
+#ifndef GRID_HPP
+#define GRID_HPP
+
 #include "shape.hpp"
 #include "point.hpp"
 #include "cell_content.hpp"
@@ -152,3 +155,5 @@ class Grid : public DrawableObject<Rectangle>
         void clearCell(std::vector<Cell*> &v);
         void clearCell(const Point &point);
 };
+
+#endif

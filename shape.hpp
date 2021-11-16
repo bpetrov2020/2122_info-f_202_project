@@ -1,10 +1,11 @@
+#ifndef SHAPE_HPP
+#define SHAPE_HPP
+
 /* #include <Fl/Fl.H> */
 #include <FL/Fl_Box.H>
 #include <FL/fl_draw.H>
 #include "point.hpp"
 
-#ifndef SHAPECLASS
-#define SHAPECLASS
 
 class Shape
 {

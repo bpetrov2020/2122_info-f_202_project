@@ -1,7 +1,7 @@
-#include <ostream>
+#ifndef POINT_HPP
+#define POINT_HPP
 
-#ifndef POINTCLASS
-#define POINTCLASS
+#include <ostream>
 
 // 2D coordinates
 struct Point {

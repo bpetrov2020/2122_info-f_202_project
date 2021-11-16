@@ -1,9 +1,10 @@
+#ifndef CELL_CONTENT_HPP
+#define CELL_CONTENT_HPP
+
 #include <random>
 #include "point.hpp"
 #include "shape.hpp"
 
-#ifndef CELL_CONTENT_H
-#define CELL_CONTENT_H
 
 class CellContent
 {
