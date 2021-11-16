@@ -86,7 +86,7 @@ void Cell::mouseDrag(Point mouseLoc)
  *                      Grid
  *--------------------------------------------------------*/
 
-Grid::Grid(Point center, int width, int height, std::size_t rows, std::size_t columns)
+Grid::Grid(Point center, int width, int height, int rows, int columns)
     : DrawableObject<Rectangle>(Rectangle{center, width, height, FL_BLACK})
 {
     // Down left corner

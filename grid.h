@@ -92,8 +92,8 @@ class Grid : public DrawableObject<Rectangle>
         std::vector< std::vector<Cell> > matrix;
         int selectedCount = 0;
     public:
-        Grid(Point center, int width, int height, std::size_t rows, std::size_t columns);
-        Grid(Point center, int width, int height, std::size_t side);
+        Grid(Point center, int width, int height, int rows, int columns);
+        Grid(Point center, int width, int height, int side);
 
         virtual ~Grid() = default;
 
@@ -111,7 +111,7 @@ class Grid : public DrawableObject<Rectangle>
                     coord.x %= xs;
                     return *this;
                 }
-                Cell &operator*() { return g->matrix[coord.y][coord.x]; }
+                Cell &operator*() { return g->at(coord); }
                 bool operator==(const Iterator &other) { return coord == other.coord; }
         };
 
