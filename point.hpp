@@ -3,19 +3,19 @@
 
 #include <ostream>
 
-// 2D coordinates
-struct Point {
+/**
+  Coordinate in the plan
+  */
+struct Point
+{
     int x;
     int y;
-    Point operator+(const Point &other) const 
-    {
-        return Point{x+other.x, y+other.y};
-    }
-    Point operator-(const Point &other) const 
-    {
-        return Point{x-other.x, y-other.y};
-    }
-    bool operator==(const Point &other) const = default;
+
+    Point operator+(const Point& other) const;
+    Point operator-(const Point& other) const;
+    Point operator*(const int& multiplier) const;
+    Point operator/(const int& divisor) const;
+    bool operator==(const Point& other) const = default;
 };
 
 std::ostream &operator<<(std::ostream &o, const Point &p);
