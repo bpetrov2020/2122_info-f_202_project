@@ -10,19 +10,18 @@
 #include <vector>
 #include <iostream>
 
-template <typename S>
 class DrawableObject
 {
     protected:
-        S drawable;
+        std::shared_ptr<Shape> drawable;
     public:
-        DrawableObject(const S &d) : drawable{d} { }
+        DrawableObject(std::shared_ptr<Shape> d) : drawable{std::move(d)} { }
         virtual ~DrawableObject() = default;
 
-        virtual void draw() { drawable.draw(); }
+        virtual void draw() { drawable->draw(); }
 
-        Point getCenter() const { return drawable.getCenter(); }
-        void setCenter(const Point &p) const { drawable.setCenter(p); }
+        Point getCenter() const { return drawable->getCenter(); }
+        void setCenter(const Point &p) const { drawable->setCenter(p); }
 };
 
 class Grid;
@@ -30,7 +29,7 @@ class Grid;
 // A Cell and its content should
 // have the same center, the only exception
 // is in the case of animations.
-class Cell : public DrawableObject<Rectangle>, public Interactive
+class Cell : public DrawableObject, public Interactive
 {
     protected:
         std::shared_ptr<CellContent> content;
@@ -69,7 +68,7 @@ class Cell : public DrawableObject<Rectangle>, public Interactive
 };
 
 
-class Grid : public DrawableObject<Rectangle>, public Interactive
+class Grid : public DrawableObject, public Interactive
 {
     public:
         enum class Direction {

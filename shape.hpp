@@ -4,8 +4,14 @@
 #include <Fl/Fl.H>
 #include <FL/Fl_Box.H>
 #include <FL/fl_draw.H>
+#include <array>
+#include <cmath>
+#include <memory>
 
 #include "point.hpp"
+#include "animation.hpp"
+
+class Animation;
 
 /**
  * Base class of all shapes
@@ -27,13 +33,22 @@ class Shape
         void setCenter(Point p) { center = p; }
 };
 
+class AnimatableShape : public Shape
+{
+    protected:
+        std::unique_ptr<Animation> animation;  // an animation can be tied to at most one object
+    public:
+        AnimatableShape(Point center)
+            : Shape{center}, animation{nullptr} { }
+};
+
 /**
  * Rectangle class.
  *
  * Used to display a filled-in rectangle on the screen
  * with different colors for the fill and the border.
  */
-class Rectangle : public Shape
+class Rectangle : public AnimatableShape
 {
     private:
         int width;
@@ -57,6 +72,39 @@ class Rectangle : public Shape
 
         int getHeight() const { return height; }
         void setHeight(int h) { height = h; }
+
+        Fl_Color getFillColor() const { return fillColor; }
+        void setFillColor(const Fl_Color& c) { fillColor = c; }
+
+        Fl_Color getFrameColor() const { return frameColor; }
+        void setFrameColor(const Fl_Color& c) { frameColor = c; }
+};
+
+/**
+ * Circle shape
+ *
+ * Used to display a filled-in circle on the screen
+ * with different colors for the fill and the border.
+ */
+class Circle : public AnimatableShape
+{
+    private:
+        int radius;
+        Fl_Color fillColor;
+        Fl_Color frameColor;
+    public:
+        Circle(
+                Point center,
+                int radius,
+                Fl_Color fillColor = FL_WHITE,
+                Fl_Color frameColor = FL_BLACK
+                );
+
+        void draw() override;
+        bool contains(const Point& p) const override;
+
+        int getRadius() const { return radius; }
+        void setRadius(int r) { radius = r; }
 
         Fl_Color getFillColor() const { return fillColor; }
         void setFillColor(const Fl_Color& c) { fillColor = c; }

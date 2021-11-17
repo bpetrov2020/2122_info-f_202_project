@@ -5,7 +5,7 @@
  *--------------------------------------------------------*/
 
 Cell::Cell(Point center, int width, int height, Point coordinate, Grid &grid)
-    : DrawableObject<Rectangle>(Rectangle{center, width, height}),
+    : DrawableObject(std::make_shared<Rectangle>(center, width, height)),
     content{nullptr},
     coordinate{coordinate},
     grid{grid}
@@ -53,7 +53,8 @@ void Cell::swapContentWith(Cell &other)
 bool Cell::toggleSelected()
 {
     selected = !selected;
-    drawable.setFillColor(selected ? FL_YELLOW : FL_WHITE);
+    std::shared_ptr<Rectangle> r{std::dynamic_pointer_cast<Rectangle>(drawable)};  // TODO COLORS IN SHAPE
+    r->setFillColor(selected ? FL_YELLOW : FL_WHITE);
     return selected;
 }
 
@@ -64,7 +65,7 @@ void Cell::mouseMove(Point mouseLoc)
 
 void Cell::mouseClick(Point mouseLoc)
 {
-    if (drawable.contains(mouseLoc)) {
+    if (drawable->contains(mouseLoc)) {
         grid.select(coordinate);
     /*     /1* clear(); *1/ */
     /*     /1* grid.makeFall(grid.at(coordinate, Grid::Direction::North).getCoordinate()); *1/ */
@@ -76,7 +77,7 @@ void Cell::mouseClick(Point mouseLoc)
 // with maybe a variable counting the selected
 void Cell::mouseDrag(Point mouseLoc)
 {
-    if (grid.getSelectedCount() == 1 && drawable.contains(mouseLoc) && !isSelected())
+    if (grid.getSelectedCount() == 1 && drawable->contains(mouseLoc) && !isSelected())
         for (auto &n: grid.neighboursOf(coordinate))
             if (n->isSelected())
                 grid.select(coordinate);
@@ -87,14 +88,14 @@ void Cell::mouseDrag(Point mouseLoc)
  *--------------------------------------------------------*/
 
 Grid::Grid(Point center, int width, int height, int rows, int columns)
-    : DrawableObject<Rectangle>(Rectangle{center, width, height, FL_BLACK})
+    : DrawableObject(std::make_shared<Rectangle>(center, width, height, FL_BLACK))
 {
     // Down left corner
-    Point z = drawable.getCenter() - Point{drawable.getWidth()/2, -drawable.getHeight()/2};
+    Point z = center - Point{width/2, -height/2};
 
     // Space allocated for each column/row
-    int col_s = drawable.getWidth()/columns;
-    int row_s = drawable.getHeight()/rows;
+    int col_s = width/columns;
+    int row_s = height/rows;
 
     // Between cells
     int space = 10;
@@ -112,11 +113,13 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
                         w, h, Point{x, y}, *this});
     }
 
+    const int content_side = w>h ? h-10 : w-10;
+
     for (auto &c: *this) {
-        c.setContent(std::shared_ptr<CellContent>(new StandardCandy{c.getCenter(), 40}));
+        c.setContent(std::shared_ptr<CellContent>(new StandardCandy{c.getCenter(), content_side}));
         while (isInCombination(c.getCoordinate())) {
             clearCell(c.getCoordinate());
-            c.setContent(std::shared_ptr<CellContent>(new StandardCandy{c.getCenter(), 40}));
+            c.setContent(std::shared_ptr<CellContent>(new StandardCandy{c.getCenter(), content_side}));
         }
     }
 }
@@ -223,7 +226,7 @@ bool Grid::makeFall(const Point &p)
         /*     moveCellContent(c, cellSouthEastOf(c)); */
         } catch (const std::out_of_range& err) {}
     } else if (at(p).isEmpty() && p.y == matrix.size()-1) {
-        at(p).setContent(std::shared_ptr<CellContent>(new StandardCandy{at(p).getCenter(), 40}));
+        at(p).setContent(std::shared_ptr<CellContent>(new StandardCandy{at(p).getCenter(), 20}));  //TODO SAME VALUE AS IN CONSTRUCTOR
         hasFallen = true;
         processCombinationFrom(p);
     }

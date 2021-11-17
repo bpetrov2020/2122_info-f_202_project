@@ -8,6 +8,7 @@ OBJDIR = build
 
 POBJ=\
 	main.o\
+	animation.o\
 	grid.o\
 	cell_content.o\
 	point.o\
