@@ -15,7 +15,7 @@ class CellContent
     public:
         CellContent(bool movable, bool matchable)
             : movable{movable}, matchable{matchable} { }
-        virtual ~CellContent();
+        virtual ~CellContent() noexcept = default;
 
         virtual void draw() = 0;
         virtual void setCenter(const Point) = 0;
@@ -62,7 +62,11 @@ class StandardCandy : public CellContent
             FL_RED,
             FL_YELLOW
         };
-
+    private:
+        Rectangle drawableContent;
+        Color color;  // identifier of a candy
+        /* Grid grid; */
+    public:
         StandardCandy(Point center, int side);
         StandardCandy(Point center, int side, Color c);
 
@@ -78,10 +82,6 @@ class StandardCandy : public CellContent
         virtual void setCenter(const Point p) override { drawableContent.setCenter(p); }
 
         /* void clear(); */
-    private:
-        Rectangle drawableContent;
-        Color color;  // identifier of a candy
-        /* Grid grid; */
 };
 
 #endif

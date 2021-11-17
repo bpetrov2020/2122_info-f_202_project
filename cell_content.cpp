@@ -1,12 +1,6 @@
 #include "cell_content.hpp"
 
 /*----------------------------------------------------------
- * CellContent
- *--------------------------------------------------------*/
-
-CellContent::~CellContent() { }
-
-/*----------------------------------------------------------
  * StandardCandy
  *--------------------------------------------------------*/
 
@@ -33,8 +27,8 @@ bool StandardCandy::operator==(CellContent &other) const
     try {
         StandardCandy& otherCandy { dynamic_cast<StandardCandy&>(other) };
         return getColor() == otherCandy.getColor();
-    } catch (std::bad_cast) {
-        /* throw std::bad_cast("StandardCandy::operator== -> provided argument could not be converted to a StandardCandy"); */
+    } catch (const std::bad_cast& err) {
+        throw std::runtime_error("StandardCandy::operator== -> provided argument could not be converted to a StandardCandy");
     }
 }
 
