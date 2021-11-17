@@ -4,6 +4,7 @@
 #include "shape.hpp"
 #include "point.hpp"
 #include "cell_content.hpp"
+#include "common.hpp"
 
 #include <memory>
 #include <vector>
@@ -29,7 +30,7 @@ class Grid;
 // A Cell and its content should
 // have the same center, the only exception
 // is in the case of animations.
-class Cell : public DrawableObject<Rectangle>
+class Cell : public DrawableObject<Rectangle>, public Interactive
 {
     protected:
         std::shared_ptr<CellContent> content;
@@ -60,15 +61,15 @@ class Cell : public DrawableObject<Rectangle>
 
         bool toggleSelected();
 
-        void mouseMove(Point mouseLoc);
-        void mouseClick(Point mouseLoc);
-        void mouseDrag(Point mouseLoc);
+        void mouseMove(Point mouseLoc) override;
+        void mouseClick(Point mouseLoc) override;
+        void mouseDrag(Point mouseLoc) override;
 
         bool operator==(const Cell &other) { return coordinate == other.coordinate; }
 };
 
 
-class Grid : public DrawableObject<Rectangle>
+class Grid : public DrawableObject<Rectangle>, public Interactive
 {
     public:
         enum class Direction {
@@ -135,9 +136,9 @@ class Grid : public DrawableObject<Rectangle>
         virtual void draw() override { DrawableObject::draw(); for (auto &c: *this) c.draw(); }
 
         // Mouse interactions
-        void mouseMove(Point mouseLoc)  { for (auto &c: *this) c.mouseMove(mouseLoc); }
-        void mouseClick(Point mouseLoc) { for (auto &c: *this) c.mouseClick(mouseLoc); }
-        void mouseDrag(Point mouseLoc)  { for (auto &c: *this) c.mouseDrag(mouseLoc); }
+        void mouseMove(Point mouseLoc) override { for (auto &c: *this) c.mouseMove(mouseLoc); }
+        void mouseClick(Point mouseLoc) override { for (auto &c: *this) c.mouseClick(mouseLoc); }
+        void mouseDrag(Point mouseLoc) override { for (auto &c: *this) c.mouseDrag(mouseLoc); }
 
         bool makeFall(const Point &p);
         /*         /1* void clearCell(GridCell &c); *1/ */

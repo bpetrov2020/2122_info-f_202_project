@@ -1,7 +1,7 @@
 #include "grid.hpp"
 
 /*----------------------------------------------------------
- *                          Cell
+ * Cell
  *--------------------------------------------------------*/
 
 Cell::Cell(Point center, int width, int height, Point coordinate, Grid &grid)
@@ -201,7 +201,7 @@ std::vector<Cell*> Grid::neighboursOf(const Point& p)
         try {
             Cell &neighbour = at(p+directionModifier[i]);  // Catch coordinates not part of the grid
             ret.push_back(&neighbour);
-        } catch (std::out_of_range) { }
+        } catch (const std::out_of_range& err) { }
     }
     for (auto &a: ret) std::cout << a->getCoordinate();
     return ret;
@@ -221,7 +221,7 @@ bool Grid::makeFall(const Point &p)
         /*     moveCellContent(c, cellSouthWestOf(c)); */
         /* }  else if (!isFillableByFall(cellSouthEastOf(c))) { */
         /*     moveCellContent(c, cellSouthEastOf(c)); */
-        } catch (std::out_of_range) {}
+        } catch (const std::out_of_range& err) {}
     } else if (at(p).isEmpty() && p.y == matrix.size()-1) {
         at(p).setContent(std::shared_ptr<CellContent>(new StandardCandy{at(p).getCenter(), 40}));
         hasFallen = true;
@@ -298,7 +298,7 @@ std::vector<std::vector<Cell*>> Grid::combinationsFrom(const Point &origin)
                     curr = next;
                     next = &at(curr->getCoordinate(), direction);
                 }
-            } catch (std::out_of_range) { }  // don't do anything, just ignore it
+            } catch (const std::out_of_range& err) { }  // don't do anything, just ignore it
         }
     }
 
