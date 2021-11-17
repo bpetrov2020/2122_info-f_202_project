@@ -5,7 +5,7 @@
  *--------------------------------------------------------*/
 
 Cell::Cell(Point center, int width, int height, Point index, Grid &grid)
-    : DrawableObject(std::make_shared<Rectangle>(center, width, height)),
+    : DrawableContainer(std::make_shared<Rectangle>(center, width, height)),
     content{nullptr},
     index{index},
     grid{grid}
@@ -13,7 +13,7 @@ Cell::Cell(Point center, int width, int height, Point index, Grid &grid)
 
 void Cell::draw()
 {
-    DrawableObject::draw();  // draw itself, i.e. background
+    DrawableContainer::draw();  // draw itself, i.e. background
     if (content) content->draw();
 }
 
@@ -88,7 +88,7 @@ void Cell::mouseDrag(Point mouseLoc)
  *--------------------------------------------------------*/
 
 Grid::Grid(Point center, int width, int height, int rows, int columns)
-    : DrawableObject(std::make_shared<Rectangle>(center, width, height, FL_BLACK))
+    : DrawableContainer(std::make_shared<Rectangle>(center, width, height, FL_BLACK))
 {
     // Down left corner
     Point z = center - Point{width/2, -height/2};

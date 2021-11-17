@@ -10,26 +10,26 @@
 #include <vector>
 #include <iostream>
 
-class DrawableObject
-{
-    protected:
-        std::shared_ptr<Shape> drawable;
-    public:
-        DrawableObject(std::shared_ptr<Shape> d) : drawable{std::move(d)} { }
-        virtual ~DrawableObject() = default;
+/* class DrawableObject */
+/* { */
+/*     protected: */
+/*         std::shared_ptr<Shape> drawable; */
+/*     public: */
+/*         DrawableObject(std::shared_ptr<Shape> d) : drawable{std::move(d)} { } */
+/*         virtual ~DrawableObject() = default; */
 
-        virtual void draw() { drawable->draw(); }
+/*         virtual void draw() { drawable->draw(); } */
 
-        Point getCenter() const { return drawable->getCenter(); }
-        void setCenter(const Point &p) const { drawable->setCenter(p); }
-};
+/*         Point getCenter() const { return drawable->getCenter(); } */
+/*         void setCenter(const Point &p) const { drawable->setCenter(p); } */
+/* }; */
 
 class Grid;
 
 // A Cell and its content should
 // have the same center, the only exception
 // is in the case of animations.
-class Cell : public DrawableObject, public Interactive
+class Cell : public DrawableContainer, public Interactive
 {
     protected:
         std::shared_ptr<CellContent> content;
@@ -68,7 +68,7 @@ class Cell : public DrawableObject, public Interactive
 };
 
 
-class Grid : public DrawableObject, public Interactive
+class Grid : public DrawableContainer, public Interactive
 {
     public:
         enum class Direction {
@@ -116,7 +116,7 @@ class Grid : public DrawableObject, public Interactive
                     return *this;
                 }
                 Cell &operator*() { return g->at(coord); }
-                bool operator==(const Iterator &other) { return coord == other.coord; }
+                bool operator!=(const Iterator &other) { return coord != other.coord; }
         };
 
         Iterator begin() { return Iterator{this, {0, 0}}; }
@@ -133,7 +133,7 @@ class Grid : public DrawableObject, public Interactive
         bool areNeighbours(const Cell &c1, const Cell &c2);
         std::vector<Cell*> neighboursOf(const Point& c);
 
-        virtual void draw() override { DrawableObject::draw(); for (auto &c: *this) c.draw(); }
+        virtual void draw() override { DrawableContainer::draw(); for (auto &c: *this) c.draw(); }
 
         // Mouse interactions
         void mouseMove(Point mouseLoc) override { for (auto &c: *this) c.mouseMove(mouseLoc); }

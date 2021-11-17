@@ -24,44 +24,22 @@ struct Interactive
 
   Can have an animation
   */
-/* class DrawableContainer : public Interactive */
-/* { */
-/*     protected: */
-/*         std::shared_ptr<Shape> drawable; */
-/*         std::shared_ptr<Animation> animation; */
-/*     public: */
-/*         DrawableContainer(std::shared_ptr<Shape> s) noexcept */
-/*             : drawable{s}, animation{nullptr} { } */
+class DrawableContainer
+{
+    protected:
+        std::shared_ptr<Shape> drawable;
+    public:
+        DrawableContainer(std::shared_ptr<Shape> s) noexcept
+            : drawable{s} { }
+        virtual ~DrawableContainer() noexcept = default;
 
-/*         void mouseMove(Point mouseLoc) override { mouseLoc;} */
-/*         void mouseClick(Point mouseLoc) override { mouseLoc;} */
-/*         void mouseDrag(Point mouseLoc) override { mouseLoc;} */
+        Point getCenter() const { return drawable->getCenter(); }
+        void setCenter(const Point& p) { drawable->setCenter(p); }
 
-/*         Point getCenter() const { return drawable->getCenter(); } */
-/*         void setCenter(const Point& p) { drawable->setCenter(p); } */
+        /// Draws the content
+        virtual void draw() { drawable->draw(); }
 
-/*         /// Draws the content with the animation (if available) */
-/*         virtual void draw() */
-/*         { */
-/*             if (animation && animation->isComplete()) animation.reset(); */
-/*             if (animation) animation->draw(); */
-/*             else drawable->draw(); */
-/*         } */
-
-/*         virtual void addAnimation(std::shared_ptr<Animation> new_anim) */
-/*         { */
-/*             removeAnimation(); */
-/*             new_anim->attachTo(drawable); */
-/*             animation = new_anim; */
-/*         } */
-
-/*         virtual void removeAnimation() { animation.reset(); } */
-/*         virtual bool hasAnimation() { return static_cast<bool>(animation); } */
-/* }; */
-/// Draws the content without the animation
-/* virtual void drawWithoutAnimate() */
-/* { */
-/*     drawable.draw(); */
-/* } */
+        /* virtual bool hasAnimation() { return drawable->hasAnimation(); } */
+};
 
 #endif
