@@ -17,7 +17,7 @@ class CellContent
             : movable{movable}, matchable{matchable} { }
         virtual ~CellContent();
 
-        virtual void draw() const = 0;
+        virtual void draw() = 0;
         virtual void setCenter(const Point) = 0;
 
         bool isMovable() const { return movable; }
@@ -66,7 +66,7 @@ class StandardCandy : public CellContent
         StandardCandy(Point center, int side);
         StandardCandy(Point center, int side, Color c);
 
-        virtual void draw() const override;
+        virtual void draw() override;
         /* virtual bool hasMatch(const StandardCandy &other) const override; */
 
         virtual bool operator==(CellContent &other) const override;

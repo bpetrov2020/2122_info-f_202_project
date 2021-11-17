@@ -23,7 +23,7 @@ StandardCandy::StandardCandy(Point center, int side, StandardCandy::Color c)
         color{c}
 { }
 
-void StandardCandy::draw() const
+void StandardCandy::draw()
 {
     drawableContent.draw();
 }

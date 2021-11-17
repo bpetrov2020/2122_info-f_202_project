@@ -1,15 +1,8 @@
 #include "shape.hpp"
 
-Shape::Shape(
-        Point center,
-        Fl_Color fillColor,
-        Fl_Color frameColor
-        )
-    :
-        center{center},
-        fillColor{fillColor},
-        frameColor{frameColor}
-{}
+/*----------------------------------------------------------
+ * Rectangle
+ * -------------------------------------------------------*/
 
 Rectangle::Rectangle(
         Point center,
@@ -19,14 +12,14 @@ Rectangle::Rectangle(
         Fl_Color frameColor
         )
     :
-        Shape{center, fillColor, frameColor},
+        Shape{center},
         width{width},
-        height{height}
+        height{height},
+        fillColor{fillColor},
+        frameColor{frameColor}
 {}
 
-Shape::~Shape() {}
-
-void Rectangle::draw() const
+void Rectangle::draw()
 {
     fl_draw_box(
             FL_FLAT_BOX,
@@ -46,8 +39,45 @@ void Rectangle::draw() const
             );
 }
 
-bool Rectangle::contains(Point p) const
+bool Rectangle::contains(const Point& p) const
 {
+    return p.x >= center.x - width/2 &&
+        p.x < center.x + width/2 &&
+        p.y >= center.y - height/2 &&
+        p.y < center.y + height/2;
+}
+
+/*----------------------------------------------------------
+ * Text
+ *--------------------------------------------------------*/
+
+Text::Text(
+        Point center,
+        std::string str,
+        int fontSize,
+        Fl_Color color
+        )
+    :
+        Shape{center},
+        str{str},
+        fontSize{fontSize},
+        color{color}
+{}
+
+void Text::draw()
+{
+    fl_color(color);
+    fl_font(FL_HELVETICA, fontSize);
+    int width, height;
+    fl_measure(str.c_str(), width, height, false);
+    fl_draw(str.c_str(), center.x-width/2, center.y-fl_descent()+height/2);
+}
+
+bool Text::contains(const Point& p) const
+{
+    int width, height;
+    fl_measure(str.c_str(), width, height, false);
+
     return p.x >= center.x - width/2 &&
         p.x < center.x + width/2 &&
         p.y >= center.y - height/2 &&
