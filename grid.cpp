@@ -4,10 +4,10 @@
  * Cell
  *--------------------------------------------------------*/
 
-Cell::Cell(Point center, int width, int height, Point coordinate, Grid &grid)
+Cell::Cell(Point center, int width, int height, Point index, Grid &grid)
     : DrawableObject(std::make_shared<Rectangle>(center, width, height)),
     content{nullptr},
-    coordinate{coordinate},
+    index{index},
     grid{grid}
 { }
 
@@ -66,9 +66,9 @@ void Cell::mouseMove(Point mouseLoc)
 void Cell::mouseClick(Point mouseLoc)
 {
     if (drawable->contains(mouseLoc)) {
-        grid.select(coordinate);
+        grid.select(index);
     /*     /1* clear(); *1/ */
-    /*     /1* grid.makeFall(grid.at(coordinate, Grid::Direction::North).getCoordinate()); *1/ */
+    /*     /1* grid.makeFall(grid.at(index, Grid::Direction::North).getIndex()); *1/ */
     /*     /1* grid.fillGrid(); *1/ */
     }
 }
@@ -78,9 +78,9 @@ void Cell::mouseClick(Point mouseLoc)
 void Cell::mouseDrag(Point mouseLoc)
 {
     if (grid.getSelectedCount() == 1 && drawable->contains(mouseLoc) && !isSelected())
-        for (auto &n: grid.neighboursOf(coordinate))
+        for (auto &n: grid.neighboursOf(index))
             if (n->isSelected())
-                grid.select(coordinate);
+                grid.select(index);
 }
 
 /*----------------------------------------------------------
@@ -113,13 +113,13 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
                         w, h, Point{x, y}, *this});
     }
 
-    const int content_side = w>h ? h-10 : w-10;
+    cellContentSide = w>h ? h-10 : w-10;
 
     for (auto &c: *this) {
-        c.setContent(std::shared_ptr<CellContent>(new StandardCandy{c.getCenter(), content_side}));
-        while (isInCombination(c.getCoordinate())) {
-            clearCell(c.getCoordinate());
-            c.setContent(std::shared_ptr<CellContent>(new StandardCandy{c.getCenter(), content_side}));
+        c.setContent(std::shared_ptr<CellContent>(new StandardCandy{c.getCenter(), cellContentSide}));
+        while (isInCombination(c.getIndex())) {
+            clearCell(c.getIndex());
+            c.setContent(std::shared_ptr<CellContent>(new StandardCandy{c.getCenter(), cellContentSide}));
         }
     }
 }
@@ -141,7 +141,7 @@ void Grid::select(const Point &p)
 {
     at(p).toggleSelected() ? ++selectedCount : --selectedCount;
     /* for (auto &i: s) */
-    /*     std::cout << i->getCoordinate() << std::endl; */
+    /*     std::cout << i->getIndex() << std::endl; */
     if (getSelectedCount()==2) {
 
         auto selection = selected();
@@ -157,8 +157,8 @@ void Grid::select(const Point &p)
 
             for (auto &s: selection) {
                 /* std::cout << "in a process\n"; */
-                if (isInCombination(s->getCoordinate())) {
-                    processCombinationFrom(s->getCoordinate());
+                if (isInCombination(s->getIndex())) {
+                    processCombinationFrom(s->getIndex());
                     oneCombination = true;
                 }
             }
@@ -186,7 +186,7 @@ std::vector<Cell*> Grid::selected()
 // Here diagonal neighbours are not considered as neighbours
 bool Grid::areNeighbours(const Cell &c1, const Cell &c2)
 {
-    for (auto &n: neighboursOf(c1.getCoordinate()))
+    for (auto &n: neighboursOf(c1.getIndex()))
         if (*n == c2)
             return true;
     return false;
@@ -202,11 +202,11 @@ std::vector<Cell*> Grid::neighboursOf(const Point& p)
     std::vector<Cell*> ret;
     for (int i = 0; i<4; ++i) {
         try {
-            Cell &neighbour = at(p+directionModifier[i]);  // Catch coordinates not part of the grid
+            Cell &neighbour = at(p+directionModifier[i]);  // Catch Index not part of the grid
             ret.push_back(&neighbour);
         } catch (const std::out_of_range& err) { }
     }
-    for (auto &a: ret) std::cout << a->getCoordinate();
+    for (auto &a: ret) std::cout << a->getIndex();
     return ret;
 }
 
@@ -218,7 +218,7 @@ bool Grid::makeFall(const Point &p)
             if (at(p, Direction::South).isEmpty()) {
                 at(p).moveContentTo(at(p, Direction::South));
                 hasFallen = true;
-                processCombinationFrom(at(p, Direction::South).getCoordinate());
+                processCombinationFrom(at(p, Direction::South).getIndex());
         }
         /* } else if (!isFillableByFall(cellSouthWestOf(c))) { */
         /*     moveCellContent(c, cellSouthWestOf(c)); */
@@ -226,7 +226,7 @@ bool Grid::makeFall(const Point &p)
         /*     moveCellContent(c, cellSouthEastOf(c)); */
         } catch (const std::out_of_range& err) {}
     } else if (at(p).isEmpty() && p.y == matrix.size()-1) {
-        at(p).setContent(std::shared_ptr<CellContent>(new StandardCandy{at(p).getCenter(), 20}));  //TODO SAME VALUE AS IN CONSTRUCTOR
+        at(p).setContent(std::shared_ptr<CellContent>(new StandardCandy{at(p).getCenter(), cellContentSide}));  //TODO SAME VALUE AS IN CONSTRUCTOR
         hasFallen = true;
         processCombinationFrom(p);
     }
@@ -246,7 +246,7 @@ void Grid::fillGrid()
     while (hasFallen) {
         hasFallen = false;
         for (auto &a: *this)
-            hasFallen = hasFallen || makeFall(a.getCoordinate());
+            hasFallen = hasFallen || makeFall(a.getIndex());
     }
 }
 
@@ -294,12 +294,12 @@ std::vector<std::vector<Cell*>> Grid::combinationsFrom(const Point &origin)
 
             try {
                 Cell* curr{ &at(origin) };
-                Cell* next{ &at(curr->getCoordinate(), direction) };
+                Cell* next{ &at(curr->getIndex(), direction) };
 
                 while (!next->isEmpty() && *(curr->getContent()) == *(next->getContent())) {
                     ret[axis].push_back(next);
                     curr = next;
-                    next = &at(curr->getCoordinate(), direction);
+                    next = &at(curr->getIndex(), direction);
                 }
             } catch (const std::out_of_range& err) { }  // don't do anything, just ignore it
         }
@@ -307,7 +307,7 @@ std::vector<std::vector<Cell*>> Grid::combinationsFrom(const Point &origin)
 
     /* for (auto &d: retVect) { */
     /*     for (auto &s: d) { */
-    /*         std::cout << s->getCoordinate() << std::endl; */
+    /*         std::cout << s->getIndex() << std::endl; */
     /*     } */
     /* } */
 
@@ -339,7 +339,7 @@ std::vector<std::vector<Cell*>> Grid::combinationsFrom(const Point &origin)
 
 /*     /1* for (auto &d: retVect) { *1/ */
 /*     /1*     for (auto &s: d) { *1/ */
-/*     /1*         std::cout << s->getCoordinate() << std::endl; *1/ */
+/*     /1*         std::cout << s->getIndex() << std::endl; *1/ */
 /*     /1*     } *1/ */
 /*     /1* } *1/ */
 
@@ -360,7 +360,7 @@ bool Grid::isInCombination(const Point &point)
 
 /* void Grid::processCombinationFrom(Cell &c) */
 /* { */
-/*     auto combi = combinationsFrom(c.getCoordinate()); */
+/*     auto combi = combinationsFrom(c.getIndex()); */
 
 /*     for (auto &dir: combi) {     // Vertical & Horizontal */
 /*         switch (dir.size()) { */
@@ -410,7 +410,7 @@ void Grid::processCombinationFrom(const Point& point)
 void Grid::clearCell(std::vector<Cell*> &vect)
 {
     for (auto &p_cell: vect)
-        clearCell(p_cell->getCoordinate());
+        clearCell(p_cell->getIndex());
 }
 
 // Clear the content of a Cell

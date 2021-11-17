@@ -33,11 +33,11 @@ class Cell : public DrawableObject, public Interactive
 {
     protected:
         std::shared_ptr<CellContent> content;
-        Point coordinate;  // position in the grid
+        Point index;  // position in the grid
         Grid &grid;
         bool selected = false;
     public:
-        Cell(Point center, int width, int height, Point coordinate, Grid &grid);
+        Cell(Point center, int width, int height, Point index, Grid &grid);
 
         // Draw the background and the content on it
         virtual void draw() override;
@@ -56,7 +56,7 @@ class Cell : public DrawableObject, public Interactive
         // Functions acting on the relations between the cell and its grid
         bool isSelected() const { return selected; }
 
-        const Point getCoordinate() const { return coordinate; }
+        const Point getIndex() const { return index; }
 
         bool toggleSelected();
 
@@ -64,7 +64,7 @@ class Cell : public DrawableObject, public Interactive
         void mouseClick(Point mouseLoc) override;
         void mouseDrag(Point mouseLoc) override;
 
-        bool operator==(const Cell &other) { return coordinate == other.coordinate; }
+        bool operator==(const Cell &other) { return index == other.index; }
 };
 
 
@@ -94,6 +94,7 @@ class Grid : public DrawableObject, public Interactive
     protected:
         std::vector< std::vector<Cell> > matrix;
         int selectedCount = 0;
+        int cellContentSide = 10;
     public:
         Grid(Point center, int width, int height, int rows, int columns);
         Grid(Point center, int width, int height, int side);

@@ -15,7 +15,7 @@
 
 #include "grid.hpp"
 
-const int windowWidth = 480;
+const int windowWidth = 800;
 const int windowHeight = 800;
 const int refreshPerSecond = 60;
 
