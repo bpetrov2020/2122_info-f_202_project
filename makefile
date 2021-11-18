@@ -2,7 +2,7 @@ FLAGS=-std=c++20 -masm=intel -fconcepts -mlong-double-128 -ggdb3 -Wpedantic -Wal
 
 DEBUG=-g
 
-CC=g++ $(FLAGS) $(DEBUG) -lfltk
+CC=g++-11 -I/usr/local/include -L/usr/local/lib $(FLAGS) $(DEBUG) -lfltk
 
 OBJDIR = build
 
