@@ -24,9 +24,13 @@ Point Point::operator/(const int& div) const
     return {x/div, y/div};
 }
 
+bool Point::operator==(const Point& other) const
+{
+    return x==other.x && y==other.y;
+}
+
 std::ostream &operator<<(std::ostream &o, const Point &p)
 {
     o << "(" << p.x << ", " << p.y << ")";
     return o;
 }
-

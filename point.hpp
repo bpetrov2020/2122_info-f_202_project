@@ -15,7 +15,7 @@ struct Point
     Point operator-(const Point& other) const;
     Point operator*(const int& multiplier) const;
     Point operator/(const int& divisor) const;
-    bool operator==(const Point& other) const = default;
+    bool operator==(const Point& other) const;
 };
 
 std::ostream &operator<<(std::ostream &o, const Point &p);
