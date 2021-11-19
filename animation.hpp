@@ -52,8 +52,20 @@ struct Rotation {
  * Animations
  *--------------------------------------------------------*/
 
+enum class AnimationT
+{
+    StillAnimation,
+    ScaleAnimation,
+    MoveAnimation
+};
+
 /**
  * Base class of all animations
+ *
+ * The drawable can be nullptr so to be able to create
+ * animations and tie them to drawables after their
+ * creation. The timers will start decreasing the moment
+ * the animations are tied.
  */
 class Animation
 {
@@ -62,7 +74,7 @@ class Animation
         int elapsed = 0;
         int duration;
     public:
-        Animation(int duration, std::shared_ptr<AnimatableShape> drawable = nullptr)
+        Animation(int duration, std::shared_ptr<AnimatableShape> drawable = nullptr) noexcept
             : drawable{drawable}, duration{duration} { }
 
         Animation(const Animation& a) = delete;
@@ -71,14 +83,18 @@ class Animation
         virtual ~Animation() noexcept = default;
 
         virtual void draw() = 0;
+
         bool isComplete() const
         {
             return elapsed>duration;
         }
+
         void attachTo(std::shared_ptr<AnimatableShape> drawable_)
         {
             drawable = drawable_;
         }
+
+        virtual AnimationT type() const = 0;
 };
 
 /**
@@ -94,6 +110,10 @@ class StillAnimation : public Animation
             : Animation{duration, drawable} { }
 
         void draw() override;
+        AnimationT type() const override
+        {
+            return AnimationT::StillAnimation;
+        }
 };
 
 /**
@@ -111,6 +131,7 @@ class ScaleAnimation : public Animation
             : Animation{duration, drawable} { }
 
         void draw() override;
+        AnimationT type() const override { return AnimationT::ScaleAnimation; }
 };
 
 /**
@@ -132,6 +153,10 @@ class MoveAnimation : public Animation
             : Animation{duration, drawable}, start{start}, end{end} { }
 
         void draw() override;
+        AnimationT type() const override { return AnimationT::MoveAnimation; }
+
+        Point getStart() const { return start; }
+        Point getEnd() const { return end; }
 };
 
 #endif

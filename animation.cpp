@@ -39,10 +39,13 @@ void ScaleAnimation::draw()
 
 Point MoveAnimation::currentTranslation() const
 {
-    if (!isComplete())
-        return (end-start)/duration * elapsed;
+    if (!isComplete()) {
+        double x = (end.x-start.x)/static_cast<double>(duration) * elapsed;
+        double y = (end.y-start.y)/static_cast<double>(duration) * elapsed;
+        return {static_cast<int>(x), static_cast<int>(y)};
+    }
     else
-        return {0, 0};
+        return end-start;
 }
 
 void MoveAnimation::draw()
