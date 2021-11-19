@@ -13,10 +13,11 @@
 
 #include <time.h>
 
-#include "grid.hpp"
+/* #include "grid.hpp" */
+#include "game.hpp"
 
-const int windowWidth = 800;
-const int windowHeight = 800;
+const int windowWidth = 450;
+const int windowHeight = 450;
 const int refreshPerSecond = 60;
 
 /*--------------------------------------------------
@@ -26,11 +27,12 @@ const int refreshPerSecond = 60;
 class MainWindow : public Fl_Window
 {
 private:
-        Grid game;
+        /* Grid game; */
+        Game game;
 public:
     MainWindow()
         : Fl_Window(500, 500, windowWidth, windowHeight, "Candy Crush"),
-        game{{windowWidth/2, windowHeight/2}, windowWidth, windowHeight, 10}
+        game{*this}
     {
         Fl::add_timeout(1.0/refreshPerSecond, Timer_CB, this);
         resizable(this);
