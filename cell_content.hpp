@@ -94,12 +94,12 @@ class StandardCandy : public CellContent
             Yellow
         };
         static constexpr Fl_Color flRelative[6] = {
-            FL_BLUE,
-            FL_GREEN,
-            FL_DARK_CYAN,
-            FL_MAGENTA,
-            FL_RED,
-            FL_YELLOW
+            0x22a0fd00,  // Blue
+            0x4ad81200,  // Green
+            0xfe810200,  // Orange
+            0xd31ded00,  // Purple
+            0xe3010200,  // Red
+            0xfad40000  // Yellow
         };
     protected:
         Color color;  // identifier of a candy
