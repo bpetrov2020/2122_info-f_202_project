@@ -50,7 +50,7 @@ class AnimatableShape : public Shape
  */
 class Rectangle : public AnimatableShape
 {
-    private:
+    protected:
         int width;
         int height;
         Fl_Color fillColor;
@@ -78,6 +78,35 @@ class Rectangle : public AnimatableShape
 
         Fl_Color getFrameColor() const { return frameColor; }
         void setFrameColor(const Fl_Color& c) { frameColor = c; }
+};
+
+enum class Axis
+{
+    Vertical,
+    Horizontal
+};
+
+/**
+ * Striped rectangle
+ */
+class StripedRectangle : public Rectangle
+{
+    protected:
+        Axis axis;
+    public:
+        StripedRectangle(
+                Point center,
+                int width,
+                int height,
+                Axis axis = Axis::Horizontal,
+                Fl_Color fillColor = FL_WHITE,
+                Fl_Color frameColor = FL_BLACK
+                );
+
+        void draw() override;
+
+        Axis getAxis() const { return axis; }
+        void setAxis(Axis newdir) { axis = newdir; }
 };
 
 /**

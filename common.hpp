@@ -9,7 +9,7 @@
 #include "animation.hpp"
 
 // Constants
-const int ANIM_TIME = 15;
+const int ANIM_TIME = 10;
 
 /**
   Part of the program the user can interact with

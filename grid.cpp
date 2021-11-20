@@ -26,7 +26,8 @@ void Cell::drawContent()
 void Cell::clear()
 {
     /* content.reset(); */
-    content->addAnimation(std::make_shared<ScaleAnimation>(20));
+    /* content->addAnimation(std::make_shared<ScaleAnimation>(20)); */
+    content->clear();
 }
 
 void Cell::clearWithoutAnimation()
@@ -127,6 +128,7 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
     // Space allocated for each column/row
     int col_s = width/columns;
     int row_s = height/rows;
+    cellContainerSide = row_s;
     /* std::cout << col_s << row_s; */
 
     // Between cells
@@ -267,7 +269,7 @@ bool Grid::makeFall(const Point &p)
                 /* std::cout << "4\n"; */
                 hasFallen = true;
                 if (p.y == matrix.size()-1) {
-                    Cell buffer{at(p).getCenter()-Point{0, cellContentSide}, cellContentSide, cellContentSide, {-1, -1}, *this};
+                    Cell buffer{at(p).getCenter()-Point{0, cellContainerSide}, cellContentSide, cellContentSide, {-1, -1}, *this};
                     buffer.setContent(std::make_shared<StandardCandy>(*this, &buffer, buffer.getCenter(), cellContentSide));
                     buffer.moveContentTo(at(p));
                     moveQueue.push_back(p);
@@ -284,7 +286,7 @@ bool Grid::makeFall(const Point &p)
     } else if (at(p).isEmpty() && p.y == matrix.size()-1) {
         /* std::cout << "5\n"; */
         /* assert(!this->animationPlaying()); */
-        Cell buffer{at(p).getCenter()+Point{0, -60}, cellContentSide, cellContentSide, {-1, -1}, *this};
+        Cell buffer{at(p).getCenter()+Point{0, -60}, cellContainerSide, cellContentSide, {-1, -1}, *this};
         buffer.setContent(std::make_shared<StandardCandy>(*this, &buffer, buffer.getCenter(), cellContentSide));
         buffer.moveContentTo(at(p));
         moveQueue.push_back(p);
@@ -383,7 +385,12 @@ bool Grid::isInCombination(const Point &point)
 
 void Grid::processCombinationFrom(const Point& point)
 {
+    if (at(point).isClearing())
+        return ;
     auto combi = combinationsFrom(point);
+
+    unsigned verticalCount = combi.at(0).size();
+    unsigned horizontalCount = combi.at(1).size();
 
     for (auto &dir: combi) {     // Vertical & Horizontal
         switch (dir.size()) {
@@ -392,9 +399,13 @@ void Grid::processCombinationFrom(const Point& point)
                 clearCell(point);    // the origin
                 break;
             case 3:
+                {
                 clearCell(dir);  // other cells in combination
-                clearCell(point);    // the origin
+                /* clearCell(point);    // the origin */
+                StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(at(point).getContent())->getColor()};
+                at(point).setContent(std::make_shared<StripedCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, color, verticalCount==3?Axis::Vertical : Axis::Horizontal));
                 break;
+                }
             case 4:
                 clearCell(dir);  // other cells in combination
                 clearCell(point);    // the origin
@@ -474,9 +485,9 @@ void Grid::moveDone()
 
             bool moreFall = fillGrid();
             if (!moreFall) {
-                for (auto &i: moveQueue)
-                    if (isInCombination(i))
-                        processCombinationFrom(i);
+                for (auto &i: *this)
+                    if (isInCombination(i.getIndex()))
+                        processCombinationFrom(i.getIndex());
 
                 // Cleaning
                 moveQueue.clear();

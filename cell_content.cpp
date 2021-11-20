@@ -53,6 +53,11 @@ bool CellContent::isMoving()
     return animation && animation->type() == AnimationT::MoveAnimation;
 }
 
+void CellContent::clear()
+{
+    addAnimation(std::make_shared<ScaleAnimation>(20));
+}
+
 /*----------------------------------------------------------
  * StandardCandy
  *--------------------------------------------------------*/
@@ -60,31 +65,49 @@ bool CellContent::isMoving()
 StandardCandy::StandardCandy(
         Grid &grid,
         Cell *cell,
-        Point center,
-        int side)
+        Color color,
+        std::shared_ptr<AnimatableShape> shape
+        )
     :
-        StandardCandy{
-                grid,
-                cell,
-                center,
-                side,
-                static_cast<StandardCandy::Color>(std::rand()%6)}  // if no color provided, pick random
-{ }
+        CellContent{
+            grid,
+            cell,
+            shape,
+            true,
+            true
+        },
+        color{color}
+{}
 
 StandardCandy::StandardCandy(
         Grid &grid,
         Cell *cell,
         Point center,
         int side,
-        StandardCandy::Color color)
+        Color color)
     :
-        CellContent{
+        StandardCandy{
             grid,
             cell,
-            std::make_shared<Rectangle>(center, side, side, flRelative[static_cast<int>(color)]),
-            true,
-            true},
-        color{color}
+            color,
+            std::make_shared<Rectangle>(center, side, side, flRelative[static_cast<int>(color)])
+        }
+{ }
+
+StandardCandy::StandardCandy(
+        Grid &grid,
+        Cell *cell,
+        Point center,
+        int side
+        )
+    :
+        StandardCandy{
+            grid,
+            cell,
+            center,
+            side,
+            static_cast<StandardCandy::Color>(std::rand()%6)  // if no color provided, pick random
+        }
 { }
 
 void StandardCandy::draw()
@@ -117,3 +140,39 @@ bool StandardCandy::operator==(CellContent &other) const
 /* { */
 /*     return getColor() == other.getColor(); */
 /* } */
+
+/*----------------------------------------------------------
+ * StripedCandy
+ *--------------------------------------------------------*/
+
+StripedCandy::StripedCandy(
+        Grid &grid,
+        Cell *cell,
+        Point center,
+        int side,
+        StandardCandy::Color color,
+        Axis axis
+        )
+    :
+        StandardCandy{
+            grid,
+            cell,
+            color,
+            std::make_shared<StripedRectangle>(center, side, side, axis, flRelative[static_cast<int>(color)])
+        },
+        axis{axis}
+{ }
+
+void StripedCandy::clear()
+{
+    StandardCandy::clear();
+    if (axis == Axis::Horizontal) {
+        for (unsigned i=0; i<grid.colCount(); ++i) {
+            grid.clearCell(Point{i, containerCell->getIndex().y});
+        }
+    } else if (axis == Axis::Vertical) {
+        for (unsigned i=0; i<grid.rowCount(); ++i) {
+            grid.clearCell(Point{containerCell->getIndex().x, i});
+        }
+    }
+}

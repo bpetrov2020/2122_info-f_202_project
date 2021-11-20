@@ -55,6 +55,56 @@ bool Rectangle::contains(const Point& p) const
 }
 
 /*----------------------------------------------------------
+ * StripedRectangle
+ *--------------------------------------------------------*/
+
+StripedRectangle::StripedRectangle(
+        Point center,
+        int width,
+        int height,
+        Axis axis,
+        Fl_Color fillColor,
+        Fl_Color frameColor
+        )
+    :
+        Rectangle{center, width, height, fillColor, frameColor},
+        axis{axis}
+{}
+
+void StripedRectangle::draw()
+{
+    Rectangle::draw();
+    std::array<Point, 6> pointsStrip;
+
+    if (axis == Axis::Vertical) {
+        pointsStrip = {
+            Point{getCenter().x - width/4, getCenter().y - height/2},
+            Point{getCenter().x - width/4, getCenter().y + height/2},
+            Point{getCenter().x, getCenter().y + height/2},
+            Point{getCenter().x, getCenter().y - height/2},
+            Point{getCenter().x + width/4, getCenter().y - height/2},
+            Point{getCenter().x + width/4, getCenter().y + height/2},
+        };
+    } else if (axis == Axis::Horizontal) {
+        pointsStrip = {
+            Point{getCenter().x - width/2, getCenter().y - height/4},
+            Point{getCenter().x + width/2, getCenter().y - height/4},
+            Point{getCenter().x + width/2, getCenter().y},
+            Point{getCenter().x - width/2, getCenter().y},
+            Point{getCenter().x - width/2, getCenter().y + height/4},
+            Point{getCenter().x + width/2, getCenter().y + height/4}
+        };
+    }
+
+    fl_color(frameColor);
+    fl_begin_line();
+    for (auto &point : pointsStrip) {
+        fl_vertex(point.x, point.y);
+    }
+    fl_end_line();
+}
+
+/*----------------------------------------------------------
  * Circle
  * -------------------------------------------------------*/
 
@@ -74,8 +124,8 @@ Circle::Circle(
 void Circle::draw()
 {
     std::array<Point,37> points;
-    for (int i=0;i<36;i++)
-        points[i]={static_cast<int>(center.x+radius*std::sin(i*10*std::numbers::pi/180)),
+    for (int i=0; i<36; i++)
+        points[static_cast<unsigned>(i)] = {static_cast<int>(center.x+radius*std::sin(i*10*std::numbers::pi/180)),
             static_cast<int>(center.y+radius*std::cos(i*10*std::numbers::pi/180))};
     points[36]=points[0];
 

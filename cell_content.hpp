@@ -45,6 +45,8 @@ class CellContent : public DrawableContainer
         bool isMatchable() const { return matchable; }
         bool isClearable() const { return clearable; }
 
+        virtual void clear();
+
         // State of animation
         bool isClearing();
         bool isMoving();
@@ -101,6 +103,8 @@ class StandardCandy : public CellContent
         };
     protected:
         Color color;  // identifier of a candy
+
+        StandardCandy(Grid &grid, Cell *cell, Color color, std::shared_ptr<AnimatableShape> shape);
     public:
         StandardCandy(Grid &grid, Cell *cell, Point center, int side);
         StandardCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
@@ -113,6 +117,18 @@ class StandardCandy : public CellContent
 
         // Getters
         Color getColor() const { return color; }
+};
+
+class StripedCandy : public StandardCandy
+{
+    protected:
+        Axis axis;  // wheter horizontal or vertical
+    public:
+        /* StripedCandy(Grid &grid, Cell *cell, Point center, int side); */
+        /* StripedCandy(Grid &grid, Cell *cell, Point center, int side, Direction direction); */
+        StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color, Axis axis);
+
+        void clear() override;
 };
 
 #endif

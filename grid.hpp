@@ -13,21 +13,26 @@
 
 class Grid;
 
-// A Cell and its content should
-// have the same center, the only exception
-// is in the case of animations.
+/**
+ * A Cell, part of a grid
+ *
+ * A Cell and its content should
+ * have the same center, the only exception
+ * is in the case of animations.
+ */
 class Cell : public DrawableContainer, public Interactive
 {
     protected:
-        std::shared_ptr<CellContent> content;
-        Point index;  // position in the grid
         Grid &grid;
+        Point index;  // position in the grid
+        std::shared_ptr<CellContent> content;
         bool selected = false;
     public:
         Cell(Point center, int width, int height, Point index, Grid &grid);
 
-        // Draw the background and the content on it
-        virtual void draw() override;
+        // Two functions are needed to have the background
+        // and foreground drawn separately
+        void draw() override;
         void drawContent();
 
         // Functions acting on the content of the cell
@@ -162,17 +167,21 @@ class Grid : public DrawableContainer, public Interactive
     protected:
         std::vector<std::vector<std::shared_ptr<Cell>>> matrix;
         int selectedCount = 0;
-        int cellContentSide = 10;
         bool swapWait = false;  // true if a program is waiting a swap
 
+        // Dimentions
+        int cellContentSide = 10;
+        int cellSide = 15;
+        int cellContainerSide = 20;
+
         // Counters for animations that have finished
-        int moveQCount = 0;
-        int clearQCount = 0;
+        unsigned moveQCount = 0;
+        unsigned clearQCount = 0;
 
         // Vectors containing cells to be processed
         // once their animation is finished
-        std::vector<Point> moveQueue;
-        std::vector<Point> clearQueue;
+        std::vector<Point> moveQueue {};
+        std::vector<Point> clearQueue {};
     public:
         Grid(Point center, int width, int height, int rows, int columns);
         Grid(Point center, int width, int height, int side);
@@ -256,6 +265,9 @@ class Grid : public DrawableContainer, public Interactive
                     return true;
             return false;
         }
+
+        unsigned colCount() { return matrix.at(0).size(); }
+        unsigned rowCount() { return matrix.size(); }
 };
 
 #endif
