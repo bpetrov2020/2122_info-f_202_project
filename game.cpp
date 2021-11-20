@@ -49,7 +49,7 @@ SplashScreen::SplashScreen(
         int duration
         )
     : View{win, game},
-    author{std::make_shared<Text>(Point{win.w()/2, win.h()/2}, authors, 40)}
+    author{std::make_shared<Text>(Point{win.w()/2, win.h()/2}, authors, fontSize)}
 {
     addAnimation(std::make_shared<StillAnimation>(duration));
 }
@@ -62,11 +62,14 @@ void SplashScreen::draw()
         game.loadView(std::make_shared<Level>(window, game));
 }
 
-void SplashScreen::animationFinished(AnimationT a)
+void SplashScreen::animationFinished(AnimationT animationType)
 {
-    switch (a) {
+    switch (animationType) {
         case AnimationT::StillAnimation:
             toBeReplaced = true;
+            break;
+        case AnimationT::ScaleAnimation:
+        case AnimationT::MoveAnimation:
             break;
     }
 }

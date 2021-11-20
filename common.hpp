@@ -8,6 +8,9 @@
 #include "shape.hpp"
 #include "animation.hpp"
 
+// Constants
+const int ANIM_TIME = 15;
+
 /**
   Part of the program the user can interact with
   */
