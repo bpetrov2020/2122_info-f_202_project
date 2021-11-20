@@ -2,29 +2,55 @@
 #define CELL_CONTENT_HPP
 
 #include <random>
+
+#include "common.hpp"
 #include "point.hpp"
 #include "shape.hpp"
 
+// Classes from grid.hpp
+class Grid;
+class Cell;
 
-class CellContent
+/**
+ * CellContent, base class of everything that can go on a Cell
+ *
+ * @param grid grid the cell (on wich the content is put) is part of
+ * @param cell cell on which the content is put
+ * @param drawable the shape of the content
+ * @param movable should the content be moved
+ * @param matchable can the content be matched with others
+ * @param clearable should it be clearable
+ */
+class CellContent : public DrawableContainer
 {
-        /* bool isClearable; */
     protected:
+        Grid &grid;
+        Cell *containerCell;
+
+        // Properties
         bool movable;
         bool matchable;
-    public:
-        CellContent(bool movable, bool matchable)
-            : movable{movable}, matchable{matchable} { }
-        virtual ~CellContent() noexcept = default;
+        bool clearable;
 
-        virtual void draw() = 0;
-        virtual void setCenter(const Point) = 0;
+        // Animations states
+        bool moveFinished = false;
+        bool clearFinished = false;
+    public:
+        CellContent(Grid &grid, Cell *cell, std::shared_ptr<Shape> drawable, bool movable, bool matchable, bool clearable = true);
+
+        CellContent(const CellContent& c) = delete;
+        CellContent operator=(const CellContent& c) = delete;
 
         bool isMovable() const { return movable; }
         bool isMatchable() const { return matchable; }
+        bool isClearable() const { return clearable; }
 
-        // To implement if matchable, else delete it
-        /* virtual bool hasMatch(const T &other) const = 0; */
+        // State of animation
+        bool isClearing();
+        bool isMoving();
+
+        void moveTo(const Point &cell);
+        void animationFinished(AnimationT a) override;
 
         // Used in combinations
         virtual bool operator==(CellContent &other) const = 0;
@@ -32,7 +58,6 @@ class CellContent
 
 // A CellContent object that is matchable should be
 // an instance of a derived class from MatchableCellContent.
-/* template <typename T> */
 /* class MatchableCellContent : public CellContent */
 /* { */
 /*     public: */
@@ -40,7 +65,19 @@ class CellContent
 /*         virtual bool hasMatch(const T &other) const = 0; */
 /* }; */
 
-/* class StandardCandy : public MatchableCellContent<StandardCandy> */
+/**
+ * A standard candy
+ *
+ * It has no powers, can fall, be matched, etc.
+ * It is represented by a square, for now.
+ *
+ * If no color is provided, a random one is chosen.
+ *
+ * @param grid grid that contains it
+ * @param cell cell that contains it
+ * @param center its position on the window
+ * @param side size of its side
+ */
 class StandardCandy : public CellContent
 {
     public:
@@ -62,26 +99,20 @@ class StandardCandy : public CellContent
             FL_RED,
             FL_YELLOW
         };
-    private:
-        Rectangle drawableContent;
+    protected:
         Color color;  // identifier of a candy
-        /* Grid grid; */
     public:
-        StandardCandy(Point center, int side);
-        StandardCandy(Point center, int side, Color c);
+        StandardCandy(Grid &grid, Cell *cell, Point center, int side);
+        StandardCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
-        virtual void draw() override;
-        /* virtual bool hasMatch(const StandardCandy &other) const override; */
+        /* virtual bool hasMatch(const StandardCandy &other) const override; TODO implement subclasses */
 
-        virtual bool operator==(CellContent &other) const override;
+        void draw() override;
+
+        virtual bool operator==(CellContent &other) const override;  // TODO replace with hasmatchwith
 
         // Getters
         Color getColor() const { return color; }
-
-        // Setters
-        virtual void setCenter(const Point p) override { drawableContent.setCenter(p); }
-
-        /* void clear(); */
 };
 
 #endif
