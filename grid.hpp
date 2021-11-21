@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "shape.hpp"
+#include "colors.hpp"
 #include "point.hpp"
 #include "cell_content.hpp"
 #include "common.hpp"
@@ -172,7 +173,8 @@ class Grid : public DrawableContainer, public Interactive
         // Dimentions
         int cellContentSide = 10;
         int cellSide = 15;
-        int cellContainerSide = 20;
+        int colSize;
+        int rowSize;
 
         // Counters for animations that have finished
         unsigned moveQCount = 0;
@@ -266,8 +268,8 @@ class Grid : public DrawableContainer, public Interactive
             return false;
         }
 
-        unsigned colCount() { return matrix.at(0).size(); }
-        unsigned rowCount() { return matrix.size(); }
+        unsigned colCount() { return static_cast<unsigned>(matrix.at(0).size()); }
+        unsigned rowCount() { return static_cast<unsigned>(matrix.size()); }
 };
 
 #endif

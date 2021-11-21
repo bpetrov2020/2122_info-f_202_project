@@ -99,7 +99,8 @@ class StandardCandy : public CellContent
             0xfe810200,  // Orange
             0xd31ded00,  // Purple
             0xe3010200,  // Red
-            0xfad40000  // Yellow
+            /* 0xfad40000   // Yellow */
+            0xFFFF8A00   // Yellow
         };
     protected:
         Color color;  // identifier of a candy
