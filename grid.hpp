@@ -241,20 +241,17 @@ class Grid : public DrawableContainer, public Interactive
         }
 
         bool makeFall(const Point &p);
-        /*         /1* void clearCell(GridCell &c); *1/ */
-
-        /*         /1* void makeFall(GridCell &c); *1/ */
 
         bool fillGrid();
 
-        /* std::vector<Cell*> combinationsFrom(const Point &p); */
         std::vector< std::vector<Point> > combinationsFrom(const Point &p);
         bool isInCombination(const Point &point);
-        /* void processCombinationFrom(std::vector< std::vector<Cell*>> v); */
         void processCombinationFrom(const Point &point);
 
         void clearCell(std::vector<Point> &v);
         void clearCell(const Point &point);
+
+        void put(const Point &point, ContentT content, StandardCandy::Color color = StandardCandy::Color::Red, Axis axis = Axis::Vertical);
 
         // Signals from CellContents
         void clearDone();

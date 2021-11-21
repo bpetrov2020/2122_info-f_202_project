@@ -138,21 +138,21 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
     }
 
     Point point{3, 3};
-    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point={2, 1};
-    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point={2, 2};
-    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {2, 4};
-    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {1, 3};
-    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {3, 2};
-    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {4, 1};
-    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {5, 1};
-    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
 }
 
 Grid::Grid(Point center, int width, int height, int side)
@@ -347,8 +347,8 @@ void Grid::processCombinationFrom(const Point& point)
 
     // 4 in one axis
     } else if ((verticalCount==3 && horizontalCount<2) || (horizontalCount==3 && verticalCount<2)) {
-        StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(at(point).getContent())->getColor()};
-        at(point).setContent(std::make_shared<StripedCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, color, verticalCount>horizontalCount ? Axis::Vertical : Axis::Horizontal));
+        StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(at(point).getContent())->getColor()};  // TODO simplify this
+        put(point, ContentT::StripedCandy, color, verticalCount>horizontalCount ? Axis::Vertical : Axis::Horizontal);
         clearCell(combi.at(horizontalCount>verticalCount ? H : V));
 
     // 5 or more in one axis
@@ -359,7 +359,7 @@ void Grid::processCombinationFrom(const Point& point)
     // More than 3 on both axis
     } else if (verticalCount>=2 && horizontalCount>=2) {
         StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(at(point).getContent())->getColor()};
-        at(point).setContent(std::make_shared<WrappedCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, color));
+        put(point, ContentT::WrappedCandy, color);
         for (auto &a: combi)
             clearCell(a);
     }
@@ -402,6 +402,26 @@ void Grid::clearCell(const Point &point)
         at(point).clear();
         clearQueue.push_back(point);
     }
+}
+
+void Grid::put(const Point &point, ContentT content, StandardCandy::Color color, Axis axis)
+{
+    std::shared_ptr<CellContent> toPut;
+
+    switch (content) {
+        case ContentT::StandardCandy:
+            toPut = std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, color);
+            break;
+        case ContentT::StripedCandy:
+            toPut = std::make_shared<StripedCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, color, axis);
+            break;
+        case ContentT::WrappedCandy:
+            toPut = std::make_shared<WrappedCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, color);
+            break;
+    }
+
+    assert(toPut);
+    at(point).setContent(toPut);
 }
 
 void Grid::clearDone()
