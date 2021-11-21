@@ -70,16 +70,14 @@ void Cell::swapContentWith(Cell &other)
 bool Cell::toggleSelected()
 {
     selected = !selected;
-    std::shared_ptr<Rectangle> r{std::dynamic_pointer_cast<Rectangle>(drawable)};  // TODO COLORS IN SHAPE
-    r->setFillColor(selected ? CELL_SELECT_CLR : CELL_CLR);
+    drawable->setFillColor(selected ? CELL_SELECT_CLR : CELL_CLR);
     return selected;
 }
 
 void Cell::mouseMove(Point mouseLoc)
 {
-    std::shared_ptr<Rectangle> r{std::dynamic_pointer_cast<Rectangle>(drawable)};  // TODO COLORS IN SHAPE
     if (!selected)
-        r->setFillColor(drawable->contains(mouseLoc) ? CELL_HOVER_CLR : CELL_CLR);
+        drawable->setFillColor(drawable->contains(mouseLoc) ? CELL_HOVER_CLR : CELL_CLR);
 }
 
 void Cell::mouseClick(Point mouseLoc)

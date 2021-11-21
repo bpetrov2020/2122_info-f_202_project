@@ -20,9 +20,10 @@ class Shape
 {
     protected:
         Point center;
+        Fl_Color fillColor;
+        Fl_Color frameColor;
     public:
-        Shape(Point center)
-            : center{center} { }
+        Shape(Point center, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
         virtual ~Shape() noexcept = default;
 
         virtual void draw() = 0;
@@ -31,6 +32,14 @@ class Shape
         // Center
         Point getCenter() const { return center; }
         void setCenter(Point p) { center = p; }
+
+        // Fill Color
+        Fl_Color getFillColor() const { return fillColor; }
+        void setFillColor(const Fl_Color& c) { fillColor = c; }
+
+        // Frame Color
+        Fl_Color getFrameColor() const { return frameColor; }
+        void setFrameColor(const Fl_Color& c) { frameColor = c; }
 };
 
 class AnimatableShape : public Shape
@@ -38,8 +47,8 @@ class AnimatableShape : public Shape
     protected:
         std::unique_ptr<Animation> animation;  // an animation can be tied to at most one object
     public:
-        AnimatableShape(Point center)
-            : Shape{center}, animation{nullptr} { }
+        AnimatableShape(Point center, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK)
+            : Shape{center, fillColor, frameColor}, animation{nullptr} { }
 };
 
 /**
@@ -53,8 +62,6 @@ class Rectangle : public AnimatableShape
     protected:
         int width;
         int height;
-        Fl_Color fillColor;
-        Fl_Color frameColor;
     public:
         Rectangle(
                 Point center,
@@ -72,12 +79,6 @@ class Rectangle : public AnimatableShape
 
         int getHeight() const { return height; }
         void setHeight(int h) { height = h; }
-
-        Fl_Color getFillColor() const { return fillColor; }
-        void setFillColor(const Fl_Color& c) { fillColor = c; }
-
-        Fl_Color getFrameColor() const { return frameColor; }
-        void setFrameColor(const Fl_Color& c) { frameColor = c; }
 };
 
 enum class Axis
@@ -136,8 +137,6 @@ class Circle : public AnimatableShape
 {
     private:
         int radius;
-        Fl_Color fillColor;
-        Fl_Color frameColor;
     public:
         Circle(
                 Point center,
@@ -151,12 +150,6 @@ class Circle : public AnimatableShape
 
         int getRadius() const { return radius; }
         void setRadius(int r) { radius = r; }
-
-        Fl_Color getFillColor() const { return fillColor; }
-        void setFillColor(const Fl_Color& c) { fillColor = c; }
-
-        Fl_Color getFrameColor() const { return frameColor; }
-        void setFrameColor(const Fl_Color& c) { frameColor = c; }
 };
 
 /**
@@ -170,7 +163,6 @@ class Text : public Shape
     private:
         std::string str;
         int fontSize;
-        Fl_Color color;
     public:
         Text(Point center, std::string s, int fontSize = 10, Fl_Color color = FL_BLACK);
 
@@ -182,9 +174,6 @@ class Text : public Shape
 
         int getFontSize() { return fontSize; }
         void setFontSize(int newFontSize) { fontSize = newFontSize; }
-
-        auto getColor() const { return color; }
-        void setColor(const Fl_Color& c) { color = c; }
 };
 
 #endif

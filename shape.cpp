@@ -4,6 +4,21 @@
  * Rectangle
  *--------------------------------------------------------*/
 
+Shape::Shape(
+        Point center,
+        Fl_Color fillColor,
+        Fl_Color frameColor
+        )
+    :
+        center{center},
+        fillColor{fillColor},
+        frameColor{frameColor}
+{ }
+
+/*----------------------------------------------------------
+ * Rectangle
+ *--------------------------------------------------------*/
+
 Rectangle::Rectangle(
         Point center,
         int width,
@@ -12,11 +27,9 @@ Rectangle::Rectangle(
         Fl_Color frameColor
         )
     :
-        AnimatableShape{center},
+        AnimatableShape{center, fillColor, frameColor},
         width{width},
-        height{height},
-        fillColor{fillColor},
-        frameColor{frameColor}
+        height{height}
 {}
 
 void Rectangle::draw()
@@ -114,8 +127,8 @@ Star::Star(
         int height,
         Fl_Color fillColor,
         Fl_Color frameColor
-)
-        :
+        )
+    :
         Rectangle{center, width, height, fillColor, frameColor}
 {}
 
@@ -158,10 +171,8 @@ Circle::Circle(
         Fl_Color frameColor
         )
     :
-        AnimatableShape{center},
-        radius{radius},
-        fillColor{fillColor},
-        frameColor{frameColor}
+        AnimatableShape{center, fillColor, frameColor},
+        radius{radius}
 {}
 
 void Circle::draw()
@@ -172,6 +183,7 @@ void Circle::draw()
             static_cast<int>(center.y+radius*std::cos(i*10*std::numbers::pi/180))};
     points[36]=points[0];
 
+    // Fill
     fl_color(fillColor);
     fl_begin_polygon();
     for (auto& point : points) {
@@ -179,6 +191,7 @@ void Circle::draw()
     }
     fl_end_polygon();
 
+    // Frame
     fl_color(frameColor);
     fl_begin_line();
     for (auto& point : points) {
@@ -204,15 +217,14 @@ Text::Text(
         Fl_Color color
         )
     :
-        Shape{center},
+        Shape{center, color},
         str{str},
-        fontSize{fontSize},
-        color{color}
+        fontSize{fontSize}
 {}
 
 void Text::draw()
 {
-    fl_color(color);
+    fl_color(fillColor);
     fl_font(FL_HELVETICA, fontSize);
     int width, height;
     fl_measure(str.c_str(), width, height, false);
