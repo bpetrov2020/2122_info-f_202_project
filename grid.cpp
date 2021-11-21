@@ -138,6 +138,18 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
             c.setContent(std::make_shared<StandardCandy>(*this, &c, c.getCenter(), cellContentSide));
         }
     }
+
+    Point point{3, 3};
+    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+    point={2, 1};
+    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+    point={2, 2};
+    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+    point = {2, 4};
+    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+    point = {1, 3};
+    at(point).setContent(std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(4)));
+
 }
 
 Grid::Grid(Point center, int width, int height, int side)
@@ -342,10 +354,11 @@ void Grid::processCombinationFrom(const Point& point)
         clearCell(point);
 
     // More than 3 on both axis
-    } else if ((verticalCount>=2 && horizontalCount>=2) || (horizontalCount>=2 && verticalCount>=2)) {
+    } else if (verticalCount>=2 && horizontalCount>=2) {
         for (auto &a: combi)
             clearCell(a);
-        clearCell(point);
+        StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(at(point).getContent())->getColor()};
+        at(point).setContent(std::make_shared<WrappedCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, color));
     }
 
     /* for (auto &dir: combi) {     // Vertical & Horizontal */

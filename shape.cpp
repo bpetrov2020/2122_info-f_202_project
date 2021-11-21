@@ -105,6 +105,49 @@ void StripedRectangle::draw()
 }
 
 /*----------------------------------------------------------
+ * Star
+ *--------------------------------------------------------*/
+
+Star::Star(
+        Point center,
+        int width,
+        int height,
+        Fl_Color fillColor,
+        Fl_Color frameColor
+)
+        :
+        Rectangle{center, width, height, fillColor, frameColor}
+{}
+
+void Star::draw()
+{
+    Rectangle::draw();
+    std::array<Point, 5> pointsStar {
+            Point{center.x - width/1.5, center.y},
+            Point{center.x, center.y + height/1.5},
+            Point{center.x + width/1.5, center.y},
+            Point{center.x, center.y - height/1.5},
+            Point{center.x - width/1.5, center.y}
+    };
+
+    // Fill
+    fl_color(fillColor);
+    fl_begin_polygon();
+    for (auto &point : pointsStar) {
+        fl_vertex(point.x, point.y);
+    }
+    fl_end_polygon();
+
+    // Frame
+    fl_color(frameColor);
+    fl_begin_line();
+    for (auto &point : pointsStar) {
+        fl_vertex(point.x, point.y);
+    }
+    fl_end_line();
+}
+
+/*----------------------------------------------------------
  * Circle
  * -------------------------------------------------------*/
 

@@ -110,6 +110,23 @@ class StripedRectangle : public Rectangle
 };
 
 /**
+ * Star shape for WrappedCandie
+ */
+class Star : public Rectangle
+{
+public:
+    Star(
+            Point center,
+            int width,
+            int height,
+            Fl_Color fillColor = FL_WHITE,
+            Fl_Color frameColor = FL_BLACK
+    );
+
+    void draw() override;
+};
+
+/**
  * Circle shape
  *
  * Used to display a filled-in circle on the screen

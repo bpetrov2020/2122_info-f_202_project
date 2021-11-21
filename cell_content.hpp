@@ -132,4 +132,12 @@ class StripedCandy : public StandardCandy
         void clear() override;
 };
 
+class WrappedCandy : public StandardCandy
+{
+    public:
+        WrappedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
+
+        void clear() override;
+};
+
 #endif
