@@ -213,7 +213,9 @@ void WrappedCandy::clear()
     };
 
     for (auto &p: directionModifier) {
-        grid.clearCell(p+containerCell->getIndex());
+        try {
+            grid.clearCell(p+containerCell->getIndex());
+        } catch (const std::out_of_range& err) {}
     }
 
 }
