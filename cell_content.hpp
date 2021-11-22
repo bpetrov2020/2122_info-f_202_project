@@ -11,6 +11,13 @@
 class Grid;
 class Cell;
 
+enum class ContentT {
+    StandardCandy,
+    StripedCandy,
+    WrappedCandy,
+    ColourfulBomb
+};
+
 /**
  * CellContent, base class of everything that can go on a Cell
  *
