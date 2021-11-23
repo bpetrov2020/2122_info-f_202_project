@@ -42,6 +42,9 @@ class CellContent : public DrawableContainer
         // Animations states
         bool moveFinished = false;
         bool clearFinished = false;
+
+        // Clearing
+        bool m_isClearing = false;
     public:
         CellContent(Grid &grid, Cell *cell, std::shared_ptr<Shape> drawable, bool movable, bool matchable, bool clearable = true);
 
@@ -53,6 +56,7 @@ class CellContent : public DrawableContainer
         bool isClearable() const { return clearable; }
 
         virtual void clear();
+        virtual void clearWithoutAnimation();
 
         // State of animation
         bool isClearing();
@@ -136,7 +140,7 @@ class StripedCandy : public StandardCandy
         /* StripedCandy(Grid &grid, Cell *cell, Point center, int side, Direction direction); */
         StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color, Axis axis);
 
-        void clear() override;
+        void clearWithoutAnimation() override;
 };
 
 class WrappedCandy : public StandardCandy
@@ -144,7 +148,7 @@ class WrappedCandy : public StandardCandy
     public:
         WrappedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
-        void clear() override;
+        void clearWithoutAnimation() override;
 };
 
 #endif
