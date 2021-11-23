@@ -109,12 +109,36 @@ void StripedRectangle::draw()
         };
     }
 
-    fl_color(frameColor);
-    fl_begin_line();
-    for (auto &point : pointsStrip) {
-        fl_vertex(point.x, point.y);
+    fl_color(FL_WHITE);
+    fl_line_style(0, width/8);
+
+    Point p;
+    for (int i=0; i<3; ++i) {
+        fl_begin_line();
+        p = pointsStrip.at(2*i);
+        fl_vertex(p.x, p.y);
+        p = pointsStrip.at(2*i + 1);
+        fl_vertex(p.x, p.y);
+        fl_end_line();
     }
-    fl_end_line();
+
+    fl_line_style(0); // back to default
+
+    /* std::array<Point, 5> points { */
+    /*     Point{center.x - width/2, center.y - height/2}, */
+    /*         Point{center.x - width/2, center.y + height/2}, */
+    /*         Point{center.x + width/2, center.y + height/2}, */
+    /*         Point{center.x + width/2, center.y - height/2}, */
+    /*         Point{center.x - width/2, center.y - height/2} */
+    /* }; */
+
+    /* // Frame */
+    /* fl_color(frameColor); */
+    /* fl_begin_line(); */
+    /* for (auto &point : points) { */
+    /*     fl_vertex(point.x, point.y); */
+    /* } */
+    /* fl_end_line(); */
 }
 
 /*----------------------------------------------------------
