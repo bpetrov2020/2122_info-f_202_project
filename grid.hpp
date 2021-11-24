@@ -39,6 +39,8 @@ class Cell : public DrawableContainer, public Interactive
         // Functions acting on the content of the cell
         void clear();
         void clearWithoutAnimation();
+        void removeContent();
+
         bool isEmpty() const;
         bool isContentMovable() const;
         bool isClearing() { return content->isClearing(); }
