@@ -45,7 +45,7 @@ void CellContent::moveTo(const Point& cell)
 
 bool CellContent::isClearing()
 {
-    return animation && animation->type() == AnimationT::ScaleAnimation;
+    return m_isClearing;
 }
 
 bool CellContent::isMoving()
@@ -55,7 +55,13 @@ bool CellContent::isMoving()
 
 void CellContent::clear()
 {
+    clearWithoutAnimation();
     addAnimation(std::make_shared<ScaleAnimation>(20));
+}
+
+void CellContent::clearWithoutAnimation()
+{
+    m_isClearing = true;
 }
 
 /*----------------------------------------------------------
@@ -163,9 +169,9 @@ StripedCandy::StripedCandy(
         axis{axis}
 { }
 
-void StripedCandy::clear()
+void StripedCandy::clearWithoutAnimation()
 {
-    StandardCandy::clear();
+    StandardCandy::clearWithoutAnimation();
     if (axis == Axis::Horizontal) {
         for (unsigned i=0; i<grid.colCount(); ++i) {
             grid.clearCell(Point{i, containerCell->getIndex().y});
@@ -197,9 +203,9 @@ WrappedCandy::WrappedCandy(
         }
 { }
 
-void WrappedCandy::clear()
+void WrappedCandy::clearWithoutAnimation()
 {
-    StandardCandy::clear();
+    StandardCandy::clearWithoutAnimation();
 
     constexpr static std::array<Point, 8> directionModifier {
         Point{ 0, -1},  // South

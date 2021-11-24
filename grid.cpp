@@ -30,6 +30,7 @@ void Cell::clear()
 
 void Cell::clearWithoutAnimation()
 {
+    if (content) content->clearWithoutAnimation();
     content.reset();
 }
 
@@ -348,6 +349,7 @@ void Grid::processCombinationFrom(const Point& point)
     // 4 in one axis
     } else if ((verticalCount==3 && horizontalCount<2) || (horizontalCount==3 && verticalCount<2)) {
         StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(at(point).getContent())->getColor()};  // TODO simplify this
+        at(point).clearWithoutAnimation();
         put(point, ContentT::StripedCandy, color, verticalCount>horizontalCount ? Axis::Vertical : Axis::Horizontal);
         clearCell(combi.at(horizontalCount>verticalCount ? H : V));
 
@@ -359,6 +361,7 @@ void Grid::processCombinationFrom(const Point& point)
     // More than 3 on both axis
     } else if (verticalCount>=2 && horizontalCount>=2) {
         StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(at(point).getContent())->getColor()};
+        at(point).clearWithoutAnimation();
         put(point, ContentT::WrappedCandy, color);
         for (auto &a: combi)
             clearCell(a);
