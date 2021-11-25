@@ -65,6 +65,32 @@ void CellContent::clearWithoutAnimation()
 }
 
 /*----------------------------------------------------------
+ * Wall
+ *--------------------------------------------------------*/
+
+Wall::Wall(
+        Grid &grid,
+        Cell *cell,
+        const Point &center,
+        int side
+        )
+    :
+        CellContent{
+            grid,
+            cell,
+            std::make_shared<Rectangle>(center, side, side, FL_BLACK),
+            false,
+            false,
+            false
+        }
+{ }
+
+bool Wall::operator==(CellContent &other) const
+{
+    return true;
+}
+
+/*----------------------------------------------------------
  * StandardCandy
  *--------------------------------------------------------*/
 

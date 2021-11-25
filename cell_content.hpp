@@ -15,7 +15,8 @@ enum class ContentT {
     StandardCandy,
     StripedCandy,
     WrappedCandy,
-    ColourfulBomb
+    ColourfulBomb,
+    Wall
 };
 
 /**
@@ -67,6 +68,14 @@ class CellContent : public DrawableContainer
 
         // Used in combinations
         virtual bool operator==(CellContent &other) const = 0;
+};
+
+class Wall : public CellContent
+{
+    public:
+        Wall(Grid &grid, Cell *cell, const Point &center, int side);
+
+        bool operator==(CellContent &other) const override;
 };
 
 // A CellContent object that is matchable should be

@@ -269,6 +269,8 @@ class Grid : public DrawableContainer, public Interactive
 
         unsigned colCount() { return static_cast<unsigned>(matrix.at(0).size()); }
         unsigned rowCount() { return static_cast<unsigned>(matrix.size()); }
+
+        bool isFillableByFall(const Point &point);
 };
 
 #endif

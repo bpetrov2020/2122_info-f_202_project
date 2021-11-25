@@ -159,6 +159,8 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
     put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {5, 1};
     put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    point = {1, 4};
+    put(point, ContentT::Wall);
 }
 
 Grid::Grid(Point center, int width, int height, int side)
@@ -245,11 +247,21 @@ bool Grid::makeFall(const Point &p)
                 at(p).moveContentTo(at(p, Direction::South));
                 moveQueue.push_back(p-directionModifier.at(static_cast<int>(Direction::South)));
                 hasFallen = true;
-                /* } else if (!isFillableByFall(cellSouthWestOf(c))) { */
-                /*     moveCellContent(c, cellSouthWestOf(c)); */
-                /* }  else if (!isFillableByFall(cellSouthEastOf(c))) { */
-                /*     moveCellContent(c, cellSouthEastOf(c)); */
-        }
+            } else if (
+                    at(p, Direction::SouthWest).isEmpty()
+                    && !isFillableByFall(at(p, Direction::SouthWest).getIndex())
+                    ) {
+                at(p).moveContentTo(at(p, Direction::SouthWest));
+                moveQueue.push_back(p-directionModifier.at(static_cast<int>(Direction::SouthWest)));
+                hasFallen = true;
+            }  else if (
+                    at(p, Direction::SouthEast).isEmpty()
+                    && !isFillableByFall(at(p, Direction::SouthEast).getIndex())
+                    ) {
+                at(p).moveContentTo(at(p, Direction::SouthEast));
+                moveQueue.push_back(p-directionModifier.at(static_cast<int>(Direction::SouthEast)));
+                hasFallen = true;
+            }
         } catch (const std::out_of_range& err) {}
     }
     if (at(p).isEmpty() && p.y == matrix.size()-1) {
@@ -355,8 +367,8 @@ void Grid::processCombinationFrom(const Point& point)
     } else if ((verticalCount==3 && horizontalCount<2) || (horizontalCount==3 && verticalCount<2)) {
         StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(at(point).getContent())->getColor()};  // TODO simplify this
         at(point).clearWithoutAnimation();
-        put(point, ContentT::StripedCandy, color, verticalCount>horizontalCount ? Axis::Vertical : Axis::Horizontal);
         clearCell(combi.at(horizontalCount>verticalCount ? H : V));
+        put(point, ContentT::StripedCandy, color, verticalCount>horizontalCount ? Axis::Vertical : Axis::Horizontal);
 
     // 5 or more in one axis
     } else if ((verticalCount>=4 && horizontalCount<2) || (horizontalCount>=4 && verticalCount<2)) {
@@ -406,7 +418,7 @@ void Grid::clearCell(std::vector<Point> &vect)
 // Clear the content of a Cell
 void Grid::clearCell(const Point &point)
 {
-    if (!at(point).isClearing()) {
+    if (!at(point).isEmpty() && !at(point).isClearing()) {
         at(point).clear();
         clearQueue.push_back(point);
     }
@@ -425,6 +437,9 @@ void Grid::put(const Point &point, ContentT content, StandardCandy::Color color,
             break;
         case ContentT::WrappedCandy:
             toPut = std::make_shared<WrappedCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, color);
+            break;
+        case ContentT::Wall:
+            toPut = std::make_shared<Wall>(*this, &at(point), at(point).getCenter(), cellContentSide);
             break;
     }
 
@@ -494,6 +509,26 @@ void Grid::moveDone()
         }
     }
 
+}
+
+/**
+ * Return whether a cell can be filled by vertical fall
+ *
+ * Conditions:
+ *  - a cell above is not movable;
+ *  - cells between the current and the one note movable are empty
+ *      and not buffers
+ */
+bool Grid::isFillableByFall(const Point &point)
+{
+    bool ret{false};
+
+    while (!ret && point.y<rowCount()) {
+        Point current{at(point, Direction::North).getIndex()};
+        ret = !at(current).isEmpty() && !at(current).getContent()->isMovable();
+    }
+
+    return ret;
 }
 
 // NOTE: passing by Point is probably better even if 
