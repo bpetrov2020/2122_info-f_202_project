@@ -31,6 +31,11 @@ void Cell::clear()
 void Cell::clearWithoutAnimation()
 {
     if (content) content->clearWithoutAnimation();
+    removeContent();
+}
+
+void Cell::removeContent()
+{
     content.reset();
 }
 
@@ -47,7 +52,7 @@ bool Cell::isContentMovable() const
 void Cell::moveContentTo(Cell &other)
 {
     assert(!other.content);  // From game logic perspective
-    other.clearWithoutAnimation();  // Warning: whatever was is other cell is destroyed
+    other.removeContent();  // Warning: whatever was is other cell is destroyed
     content->moveTo(other.getIndex());
     other.content = std::move(content);
 }
@@ -133,7 +138,7 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
     for (auto &c: *this) {
         c.setContent(std::make_shared<StandardCandy>(*this, &c, c.getCenter(), cellContentSide));
         while (isInCombination(c.getIndex())) {
-            c.clearWithoutAnimation();
+            c.removeContent();
             c.setContent(std::make_shared<StandardCandy>(*this, &c, c.getCenter(), cellContentSide));
         }
     }
@@ -436,7 +441,7 @@ void Grid::clearDone()
     if (clearQCount == clearQueue.size()) {
         // Clearing
         for (auto &i: clearQueue)
-            at(i).clearWithoutAnimation();
+            at(i).removeContent();
 
         // Cleaning
         clearQueue.clear();
