@@ -52,7 +52,8 @@ void MoveAnimation::draw()
 {
     if (drawable) {
         ++elapsed;
-        Translation t{ currentTranslation() };
+        drawable->setCenter(getStart()+currentTranslation());
+        /* Translation t{ currentTranslation() }; */
         drawable->draw();
     }
 }
