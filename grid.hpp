@@ -37,16 +37,21 @@ class Cell : public DrawableContainer, public Interactive
         void drawContent();
 
         // Functions acting on the content of the cell
-        void clear();
+        bool clear();
         void clearWithoutAnimation();
         void removeContent();
 
         bool isEmpty() const;
         bool isContentMovable() const;
-        bool isClearing() { return content->isClearing(); }
+        /* bool isClearing() { return content->isClearing(); } */
+        bool isContentClearing()
+        {
+            std::shared_ptr<ClearableCellContent> c{std::dynamic_pointer_cast<ClearableCellContent>(content)};
+            return c && c->isClearing();
+        }
 
-        void moveContentTo(Cell &other);
-        void swapContentWith(Cell &other);
+        bool moveContentTo(Cell &other);
+        bool swapContentWith(Cell &other);
 
         auto &getContent() { return content; }
         void setContent(std::shared_ptr<CellContent> c) { content = std::move(c); }
@@ -65,6 +70,8 @@ class Cell : public DrawableContainer, public Interactive
         bool hasContentAnimation() { return content ? content->hasAnimation() : false; }
 
         bool operator==(const Cell &other) { return index == other.index; }
+
+        bool hasMatchWith(const Point &point);
 };
 
 /* class Grid : public DrawableContainer, public Interactive */
@@ -243,6 +250,7 @@ class Grid : public DrawableContainer, public Interactive
         }
 
         bool makeFall(const Point &p);
+        bool canFall(const Point &p, Direction target);
 
         bool fillGrid();
 
@@ -269,6 +277,13 @@ class Grid : public DrawableContainer, public Interactive
 
         unsigned colCount() { return static_cast<unsigned>(matrix.at(0).size()); }
         unsigned rowCount() { return static_cast<unsigned>(matrix.size()); }
+
+        bool isFillableByFall(const Point &point);
+
+        bool isIndexValid(const Point &p, Direction d);
+        bool isIndexValid(const Point &p);
+
+        int getCellContentSide() { return cellContentSide; }
 };
 
 #endif

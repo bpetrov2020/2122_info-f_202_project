@@ -15,7 +15,9 @@ enum class ContentT {
     StandardCandy,
     StripedCandy,
     WrappedCandy,
-    ColourfulBomb
+    WrappedCandySecPhase,
+    ColourfulBomb,
+    Wall
 };
 
 /**
@@ -31,52 +33,81 @@ enum class ContentT {
 class CellContent : public DrawableContainer
 {
     protected:
-        Grid &grid;
-        Cell *containerCell;
-
-        // Properties
-        bool movable;
-        bool matchable;
-        bool clearable;
-
-        // Animations states
-        bool moveFinished = false;
-        bool clearFinished = false;
-
-        // Clearing
-        bool m_isClearing = false;
+        Grid &grid;           // reference because always the same
+        Cell *containerCell;  // may change, when cellContent is moved (if movable)
     public:
-        CellContent(Grid &grid, Cell *cell, std::shared_ptr<Shape> drawable, bool movable, bool matchable, bool clearable = true);
+        CellContent(Grid &grid, Cell *cell, std::shared_ptr<Shape> drawable);
 
         CellContent(const CellContent& c) = delete;
         CellContent operator=(const CellContent& c) = delete;
 
-        bool isMovable() const { return movable; }
-        bool isMatchable() const { return matchable; }
-        bool isClearable() const { return clearable; }
+        /* bool isClearable() const { return std::dynamic_pointer_cast<ClearableCellContent>(this)} */
+        /* bool isMovable() const { return movable; } */
+        /* bool isMatchable() const { return matchable; } */
+};
+
+class Wall : public CellContent
+{
+    public:
+        Wall(Grid &grid, Cell *cell, const Point &center, int side);
+};
+
+// A CellContent object that is matchable should be
+// an instance of a derived class from MatchableCellContent.
+
+class ClearableCellContent : public virtual CellContent
+{
+    protected:
+        bool clearableByOther;
+
+        // Animations states
+        bool clearFinished = false;
+        bool m_isClearing = false;
+    public:
+        ClearableCellContent(Grid &grid, Cell *cell, std::shared_ptr<Shape> drawable, bool clearableByOther);
+
+        void draw() override;
 
         virtual void clear();
         virtual void clearWithoutAnimation();
 
         // State of animation
-        bool isClearing();
-        bool isMoving();
+        bool isClearing() { return m_isClearing; }
 
-        void moveTo(const Point &cell);
         void animationFinished(AnimationT a) override;
-
-        // Used in combinations
-        virtual bool operator==(CellContent &other) const = 0;
 };
 
-// A CellContent object that is matchable should be
-// an instance of a derived class from MatchableCellContent.
-/* class MatchableCellContent : public CellContent */
-/* { */
-/*     public: */
-/*         MatchableCellContent(bool movable) : CellContent(movable, true) { } */
-/*         virtual bool hasMatch(const T &other) const = 0; */
-/* }; */
+class MovableCellContent : public virtual CellContent
+{
+    protected:
+        // Animations states
+        bool moveFinished = false;
+        bool m_isMoving = false;
+    public:
+        MovableCellContent(Grid &grid, Cell *cell, std::shared_ptr<Shape> drawable);
+
+        void draw() override;
+
+        virtual void moveTo(const Point &point);
+        virtual void moveToWithoutAnimation(const Point &point);
+
+        // State of animation
+        bool isMoving() { return m_isMoving; }
+
+        void animationFinished(AnimationT a) override;
+};
+
+/**
+ * A CellContent object that is matchable should be
+ * an instance of a derived class from MatchableCellContent.
+ */
+class MatchableCellContent : public virtual CellContent
+{
+    public:
+        MatchableCellContent(Grid &grid, Cell *cell, std::shared_ptr<Shape> drawable);
+
+        virtual bool hasMatchWith(const Point &point) const = 0;
+};
 
 /**
  * A standard candy
@@ -91,7 +122,7 @@ class CellContent : public DrawableContainer
  * @param center its position on the window
  * @param side size of its side
  */
-class StandardCandy : public CellContent
+class StandardCandy : public ClearableCellContent, public MovableCellContent, public MatchableCellContent
 {
     public:
         // This is different than FL colors
@@ -116,16 +147,18 @@ class StandardCandy : public CellContent
     protected:
         Color color;  // identifier of a candy
 
+        // This constructor is for derived classes to change appearance of candy
         StandardCandy(Grid &grid, Cell *cell, Color color, std::shared_ptr<AnimatableShape> shape);
     public:
         StandardCandy(Grid &grid, Cell *cell, Point center, int side);
         StandardCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
-        /* virtual bool hasMatch(const StandardCandy &other) const override; TODO implement subclasses */
+        bool hasMatchWith(const Point &point) const override;
 
         void draw() override;
 
-        virtual bool operator==(CellContent &other) const override;  // TODO replace with hasmatchwith
+        void animationFinished(AnimationT a) override;
+        /* virtual bool operator==(CellContent &other) const override;  // TODO replace with hasmatchwith */
 
         // Getters
         Color getColor() const { return color; }
@@ -134,10 +167,8 @@ class StandardCandy : public CellContent
 class StripedCandy : public StandardCandy
 {
     protected:
-        Axis axis;  // wheter horizontal or vertical
+        Axis axis;  // wether horizontal or vertical
     public:
-        /* StripedCandy(Grid &grid, Cell *cell, Point center, int side); */
-        /* StripedCandy(Grid &grid, Cell *cell, Point center, int side, Direction direction); */
         StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color, Axis axis);
 
         void clearWithoutAnimation() override;
@@ -149,6 +180,14 @@ class WrappedCandy : public StandardCandy
         WrappedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
         void clearWithoutAnimation() override;
+};
+
+class WrappedCandySecPhase : public StandardCandy
+{
+public:
+    WrappedCandySecPhase(Grid &grid, Cell *cell, Point center, int side, Color color);
+
+    void clearWithoutAnimation() override;
 };
 
 #endif
