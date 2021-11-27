@@ -23,15 +23,30 @@ void Cell::drawContent()
 
 // CONTENT
 
-void Cell::clear()
+/**
+ * @return whether or not the clearing process began
+ */
+bool Cell::clear()
 {
-    if (content) content->clear();
+    if (content) {
+        std::shared_ptr<ClearableCellContent> c{std::dynamic_pointer_cast<ClearableCellContent>(content)};
+        if (c && !c->isClearing()) {
+            c->clear();
+            return true;
+        }
+    }
+    return false;
 }
 
 void Cell::clearWithoutAnimation()
 {
-    if (content) content->clearWithoutAnimation();
-    removeContent();
+    if (content) {
+        std::shared_ptr<ClearableCellContent> c{std::dynamic_pointer_cast<ClearableCellContent>(content)};
+        if (c && !c->isClearing()) {
+            c->clearWithoutAnimation();
+            removeContent();
+        }
+    }
 }
 
 void Cell::removeContent()
@@ -46,29 +61,42 @@ bool Cell::isEmpty() const
 
 bool Cell::isContentMovable() const
 {
-    return content->isMovable();
+    return static_cast<bool>(std::dynamic_pointer_cast<MovableCellContent>(content));
 }
 
-void Cell::moveContentTo(Cell &other)
+bool Cell::moveContentTo(Cell &other)
 {
     assert(!other.content);  // From game logic perspective
     other.removeContent();  // Warning: whatever was is other cell is destroyed
-    content->moveTo(other.getIndex());
-    other.content = std::move(content);
+
+    std::shared_ptr<MovableCellContent> c{std::dynamic_pointer_cast<MovableCellContent>(content)};
+    if (c) {
+        c->moveTo(other.getIndex());
+        other.content = std::move(content);
+        return true;
+    }
+    return false;
 }
 
-void Cell::swapContentWith(Cell &other)
+bool Cell::swapContentWith(Cell &other)
 {
     // Should not be swapping with itself
     assert(getIndex() != other.getIndex());
     assert(getCenter() != other.getCenter());
     assert(content->getCenter() != other.content->getCenter());
 
-    // Add animations
-    content->moveTo(other.getIndex());
-    other.content->moveTo(getIndex());
-    // Swap pointers
-    std::swap(content, other.content);
+    std::shared_ptr<MovableCellContent> c{std::dynamic_pointer_cast<MovableCellContent>(content)};
+    std::shared_ptr<MovableCellContent> o{std::dynamic_pointer_cast<MovableCellContent>(other.content)};
+    if (c && o) {
+        // Add animations
+        c->moveTo(other.getIndex());
+        o->moveTo(getIndex());
+
+        // Swap pointers
+        std::swap(content, other.content);
+        return true;
+    }
+    return false;
 }
 
 // GRID
@@ -99,6 +127,13 @@ void Cell::mouseDrag(Point mouseLoc)
         for (auto &n: grid.neighboursOf(index))
             if (grid.at(n).isSelected())
                 grid.select(index);
+}
+
+bool Cell::hasMatchWith(const Point &point)
+{
+    std::shared_ptr<MatchableCellContent> c{std::dynamic_pointer_cast<MatchableCellContent>(content)};
+    /* std::shared_ptr<MatchableCellContent> o{std::dynamic_pointer_cast<MatchableCellContent>(grid.at(point).getContent())}; */
+    return c && c->hasMatchWith(point);
 }
 
 /*----------------------------------------------------------
@@ -153,12 +188,18 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
     put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {1, 3};
     put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point = {3, 2};
+    point = {3, 1};
     put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {4, 1};
     put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {5, 1};
     put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    point = {2, 5};
+    put(point, ContentT::Wall);
+    point = {3, 5};
+    put(point, ContentT::Wall);
+    point = {4, 5};
+    put(point, ContentT::Wall);
 }
 
 Grid::Grid(Point center, int width, int height, int side)
@@ -189,12 +230,12 @@ void Grid::select(const Point &p)
                 && areNeighbours(selection.at(0), selection.at(1))
                 ) {
 
-            at(selection.at(0)).swapContentWith(at(selection.at(1)));
+            if ( at(selection.at(0)).swapContentWith(at(selection.at(1)))) {
+                for (auto &p: selection)
+                    moveQueue.push_back(p);
 
-            for (auto &p: selection)
-                moveQueue.push_back(p);
-
-            swapWait = true;
+                swapWait = true;
+            }
         }
         for (auto &s: selection) {
             at(s).toggleSelected();
@@ -228,11 +269,41 @@ std::vector<Point> Grid::neighboursOf(const Point& p)
     std::vector<Point> ret;
     for (int i = 0; i<4; ++i) {
         try {
-            Cell &neighbour = at(p+directionModifier[i]);  // Catch Index not part of the grid
-            ret.push_back(neighbour.getIndex());
-        } catch (const std::out_of_range& err) { }
+            Point idx{p+directionModifier[i]};
+            if (isIndexValid(idx)) {
+                ret.push_back(idx);
+            }
+            /* Cell &neighbour = at(p+directionModifier[i]);  // Catch Index not part of the grid */
+            /* ret.push_back(neighbour.getIndex()); */
+        } catch (const std::out_of_range& err) {std::cout << "Fuck neighboursoF"; }
     }
     return ret;
+}
+
+bool Grid::canFall(const Point &p, Direction target)
+{
+    bool canFall{false};
+
+    if (target == Direction::South) {
+        canFall = isIndexValid(p, Direction::South) && at(p, Direction::South).isEmpty();
+
+    } else if (target==Direction::SouthWest || target==Direction::SouthEast) {
+        Direction helper{ target==Direction::SouthWest ? Direction::West : Direction::East};
+        canFall =
+            isIndexValid(p, target)
+            && at(p, target).isEmpty()
+            && (
+                    isIndexValid(p, helper)
+                    && !at(p, helper).isEmpty()
+                    && !at(p, helper).isContentMovable()
+                    || (
+                        !isFillableByFall(at(p, target).getIndex())
+                        && !isFillableByFall(p)
+                       )
+               );
+    }
+
+    return canFall;
 }
 
 bool Grid::makeFall(const Point &p)
@@ -240,17 +311,15 @@ bool Grid::makeFall(const Point &p)
     bool hasFallen = false;
 
     if (!at(p).isEmpty() && at(p).isContentMovable()) {
-        try {
-            if (at(p, Direction::South).isEmpty()) {
-                at(p).moveContentTo(at(p, Direction::South));
-                moveQueue.push_back(p-directionModifier.at(static_cast<int>(Direction::South)));
-                hasFallen = true;
-                /* } else if (!isFillableByFall(cellSouthWestOf(c))) { */
-                /*     moveCellContent(c, cellSouthWestOf(c)); */
-                /* }  else if (!isFillableByFall(cellSouthEastOf(c))) { */
-                /*     moveCellContent(c, cellSouthEastOf(c)); */
+        for (auto &d: {Direction::South, Direction::SouthWest, Direction::SouthEast}) {
+            if (canFall(p, d)) {
+                if (at(p).moveContentTo(at(p, d))) {
+                    moveQueue.push_back(at(p, d).getIndex());
+                    hasFallen = true;
+                }
+                break;
+            }
         }
-        } catch (const std::out_of_range& err) {}
     }
     if (at(p).isEmpty() && p.y == matrix.size()-1) {
         Cell buffer{at(p).getCenter() - Point{0, rowSize}, 0, 0, {-1, -1}, *this};
@@ -304,16 +373,28 @@ std::vector<std::vector<Point>> Grid::combinationsFrom(const Point& origin)
 
             Direction direction{ static_cast<Direction>(2*axis + card) };
 
-            try {
-                Cell* curr{ &at(origin) };
-                Cell* next{ &at(curr->getIndex(), direction) };
+            Point curr{origin};
 
-                while (!next->isEmpty() && *(curr->getContent()) == *(next->getContent())) {
-                    ret[axis].push_back(next->getIndex());
-                    curr = next;
-                    next = &at(curr->getIndex(), direction);
-                }
-            } catch (const std::out_of_range& err) { }  // don't do anything, just ignore it
+            try {
+            while (
+                    isIndexValid(curr, direction)
+                    && !at(curr, direction).isEmpty()
+                    && at(curr).hasMatchWith(at(curr, direction).getIndex())
+                    )
+            {
+                curr = at(curr, direction).getIndex();
+                ret[axis].push_back(curr);
+            }
+
+            /*     Cell* curr{ &at(origin) }; */
+            /*     Cell* next{ &at(curr->getIndex(), direction) }; */
+
+            /*     while (!next->isEmpty() && curr->hasMatchWith(next->getIndex())) { */
+            /*         ret[axis].push_back(next->getIndex()); */
+            /*         curr = next; */
+            /*         next = &at(curr->getIndex(), direction); */
+            /*     } */
+            } catch (const std::out_of_range& err) {std::cout << "Fuck combinationsFrom";  }  // don't do anything, just ignore it
         }
     }
 
@@ -335,7 +416,7 @@ bool Grid::isInCombination(const Point &point)
 // TODO trigger clear on FOURTH even when in combination
 void Grid::processCombinationFrom(const Point& point)
 {
-    if (at(point).isClearing())
+    if (at(point).isContentClearing())
         return ;
 
     auto combi = combinationsFrom(point);
@@ -355,8 +436,8 @@ void Grid::processCombinationFrom(const Point& point)
     } else if ((verticalCount==3 && horizontalCount<2) || (horizontalCount==3 && verticalCount<2)) {
         StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(at(point).getContent())->getColor()};  // TODO simplify this
         at(point).clearWithoutAnimation();
-        put(point, ContentT::StripedCandy, color, verticalCount>horizontalCount ? Axis::Vertical : Axis::Horizontal);
         clearCell(combi.at(horizontalCount>verticalCount ? H : V));
+        put(point, ContentT::StripedCandy, color, verticalCount>horizontalCount ? Axis::Vertical : Axis::Horizontal);
 
     // 5 or more in one axis
     } else if ((verticalCount>=4 && horizontalCount<2) || (horizontalCount>=4 && verticalCount<2)) {
@@ -367,9 +448,9 @@ void Grid::processCombinationFrom(const Point& point)
     } else if (verticalCount>=2 && horizontalCount>=2) {
         StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(at(point).getContent())->getColor()};
         at(point).clearWithoutAnimation();
-        put(point, ContentT::WrappedCandy, color);
         for (auto &a: combi)
             clearCell(a);
+        put(point, ContentT::WrappedCandy, color);
     }
 
     /* for (auto &dir: combi) {     // Vertical & Horizontal */
@@ -406,8 +487,9 @@ void Grid::clearCell(std::vector<Point> &vect)
 // Clear the content of a Cell
 void Grid::clearCell(const Point &point)
 {
-    if (!at(point).isClearing()) {
-        at(point).clear();
+    /* std::cout << "one clear" << std::endl; */
+    if (at(point).clear()) { 
+        /* std::cout << "one push" << std::endl; */
         clearQueue.push_back(point);
     }
 }
@@ -425,6 +507,9 @@ void Grid::put(const Point &point, ContentT content, StandardCandy::Color color,
             break;
         case ContentT::WrappedCandy:
             toPut = std::make_shared<WrappedCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, color);
+            break;
+        case ContentT::Wall:
+            toPut = std::make_shared<Wall>(*this, &at(point), at(point).getCenter(), cellContentSide);
             break;
     }
 
@@ -484,8 +569,8 @@ void Grid::moveDone()
         } else {            // A candy has fallen
             bool moreFall = fillGrid();
             if (!moreFall) {
-                for (auto &i: *this)  // TODO Understand why it doesn't work with moveQueue
-                    processCombinationFrom(i.getIndex());
+                for (auto &i: moveQueue)
+                    processCombinationFrom(i);
 
                 // Cleaning
                 moveQueue.clear();
@@ -493,6 +578,43 @@ void Grid::moveDone()
             }
         }
     }
+
+}
+
+/**
+ * Return whether a cell can be filled by vertical fall
+ *
+ * Conditions:
+ *  - a cell above is not movable;
+ *  - cells between the current and the one note movable are empty
+ *      and not buffers
+ */
+bool Grid::isFillableByFall(const Point &point)
+{
+    bool fillable{true};
+    bool empty{true};
+    Point current{point};
+
+    while (empty && isIndexValid(current, Direction::North)) {
+        current = at(current, Direction::North).getIndex();
+        empty = at(current).isEmpty();
+        if (!empty) {
+            fillable = at(current).isContentMovable();
+        }
+    }
+
+    return fillable;
+}
+
+bool Grid::isIndexValid(const Point &p, Direction d)
+{
+    return isIndexValid(p+directionModifier[static_cast<int>(d)]);
+}
+
+bool Grid::isIndexValid(const Point &p)
+{
+    return p.x>=0 && p.x<colCount()
+        && p.y>=0 && p.y<rowCount();
 
 }
 
