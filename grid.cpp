@@ -280,49 +280,46 @@ std::vector<Point> Grid::neighboursOf(const Point& p)
     return ret;
 }
 
+bool Grid::canFall(const Point &p, Direction target)
+{
+    bool canFall{false};
+
+    if (target == Direction::South) {
+        canFall = isIndexValid(p, Direction::South) && at(p, Direction::South).isEmpty();
+
+    } else if (target==Direction::SouthWest || target==Direction::SouthEast) {
+        Direction helper{ target==Direction::SouthWest ? Direction::West : Direction::East};
+        canFall =
+            isIndexValid(p, target)
+            && at(p, target).isEmpty()
+            && (
+                    isIndexValid(p, helper)
+                    && !at(p, helper).isEmpty()
+                    && !at(p, helper).isContentMovable()
+                    || (
+                        !isFillableByFall(at(p, target).getIndex())
+                        && !isFillableByFall(p)
+                       )
+               );
+    }
+
+    return canFall;
+}
+
 bool Grid::makeFall(const Point &p)
 {
     bool hasFallen = false;
-    // TODO, clean this mess
 
     if (!at(p).isEmpty() && at(p).isContentMovable()) {
-        try {
-            if (isIndexValid(p, Direction::South) && at(p, Direction::South).isEmpty()) {
-                /* std::cout << "move " << p << " to " << at(p, Direction::South).getIndex() <<std::endl; */
-                if (at(p).moveContentTo(at(p, Direction::South))) {
-                    moveQueue.push_back(at(p, Direction::South).getIndex());
+        for (auto &d: {Direction::South, Direction::SouthWest, Direction::SouthEast}) {
+            if (canFall(p, d)) {
+                if (at(p).moveContentTo(at(p, d))) {
+                    moveQueue.push_back(at(p, d).getIndex());
                     hasFallen = true;
                 }
-            } else if (
-                    isIndexValid(p, Direction::SouthWest) && at(p, Direction::SouthWest).isEmpty()
-                    && (
-                        isIndexValid(p, Direction::West) && !at(p, Direction::West).isContentMovable() && !at(p, Direction::West).isEmpty()
-                        || (
-                            !isFillableByFall(at(p, Direction::SouthWest).getIndex())
-                            && !isFillableByFall(p)
-                            )
-                        )
-                    ) {
-                if (at(p).moveContentTo(at(p, Direction::SouthWest))) {
-                    moveQueue.push_back(at(p, Direction::SouthWest).getIndex());
-                    hasFallen = true;
-                }
-            }  else if (
-                    isIndexValid(p, Direction::SouthEast) && at(p, Direction::SouthEast).isEmpty()
-                    && (
-                        isIndexValid(p, Direction::East) && !at(p, Direction::East).isContentMovable() && !at(p, Direction::East).isEmpty()
-                        || (
-                            !isFillableByFall(at(p, Direction::SouthEast).getIndex())
-                            && !isFillableByFall(p)
-                            )
-                        )
-                    ) {
-                if(at(p).moveContentTo(at(p, Direction::SouthEast))) {
-                    moveQueue.push_back(at(p, Direction::SouthEast).getIndex());
-                    hasFallen = true;
-                }
+                break;
             }
-        } catch (const std::out_of_range& err) {std::cout << "Fuck makefall"; }
+        }
     }
     if (at(p).isEmpty() && p.y == matrix.size()-1) {
         Cell buffer{at(p).getCenter() - Point{0, rowSize}, 0, 0, {-1, -1}, *this};
@@ -592,23 +589,21 @@ void Grid::moveDone()
  *  - cells between the current and the one note movable are empty
  *      and not buffers
  */
-//TODO rewrite this mess
 bool Grid::isFillableByFall(const Point &point)
 {
-    bool ret{false};
-    Point current{at(point).getIndex()};
+    bool fillable{true};
+    bool empty{true};
+    Point current{point};
 
-    while (current.y<rowCount()) {
-        if (!isIndexValid(current, Direction::North))
-            break;
+    while (empty && isIndexValid(current, Direction::North)) {
         current = at(current, Direction::North).getIndex();
-        /* std::cout << current; */
-        if (!at(current).isEmpty()) {
-            return at(current).isContentMovable();
+        empty = at(current).isEmpty();
+        if (!empty) {
+            fillable = at(current).isContentMovable();
         }
     }
 
-    return true;
+    return fillable;
 }
 
 bool Grid::isIndexValid(const Point &p, Direction d)

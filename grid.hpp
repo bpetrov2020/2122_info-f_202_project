@@ -250,6 +250,7 @@ class Grid : public DrawableContainer, public Interactive
         }
 
         bool makeFall(const Point &p);
+        bool canFall(const Point &p, Direction target);
 
         bool fillGrid();
 
