@@ -39,7 +39,8 @@ void ClearableCellContent::draw()
 {
     if (clearFinished) {
         clearFinished = false;
-        grid.clearDone();
+        grid.cellContentAnimationFinished(containerCell->getIndex());
+        /* containerCell->update(Event::cellContentAnimationFinished); */
     }
 }
 
@@ -83,7 +84,8 @@ void MovableCellContent::draw()
 {
     if (moveFinished) {
         moveFinished = false;
-        grid.moveDone();
+        /* grid.moveDone(); */
+        grid.cellContentAnimationFinished(containerCell->getIndex());
     }
 }
 
