@@ -39,7 +39,8 @@ void ClearableCellContent::draw()
 {
     if (clearFinished) {
         clearFinished = false;
-        grid.clearDone();
+        grid.cellContentAnimationFinished(containerCell->getIndex());
+        /* containerCell->update(Event::cellContentAnimationFinished); */
     }
 }
 
@@ -83,7 +84,8 @@ void MovableCellContent::draw()
 {
     if (moveFinished) {
         moveFinished = false;
-        grid.moveDone();
+        /* grid.moveDone(); */
+        grid.cellContentAnimationFinished(containerCell->getIndex());
     }
 }
 
@@ -97,6 +99,11 @@ void MovableCellContent::moveToWithoutAnimation(const Point &point)
 {
     m_isMoving = true;
     containerCell = &grid.at(point);
+}
+
+void MovableCellContent::wasSwappedWith(const Point &p)
+{
+    std::cout << "I was swapped with " << p << std::endl;
 }
 
 void MovableCellContent::animationFinished(AnimationT a)

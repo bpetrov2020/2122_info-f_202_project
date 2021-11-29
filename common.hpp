@@ -72,4 +72,15 @@ class DrawableContainer
         virtual void animationFinished(AnimationT a) { }
 };
 
+enum class Direction {
+    South,
+    North,
+    West,
+    East,
+    SouthWest,
+    SouthEast,
+    NorthWest,
+    NorthEast
+};
+
 #endif

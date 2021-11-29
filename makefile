@@ -21,6 +21,7 @@ POBJ=\
 	cell_content.o\
 	point.o\
 	game.o\
+	board_state.o\
 	shape.o
 
 OBJ=$(addprefix $(OBJDIR)/, $(POBJ))

@@ -40,6 +40,7 @@ class CellContent : public DrawableContainer
         CellContent(const CellContent& c) = delete;
         CellContent operator=(const CellContent& c) = delete;
 
+
         /* bool isClearable() const { return std::dynamic_pointer_cast<ClearableCellContent>(this)} */
         /* bool isMovable() const { return movable; } */
         /* bool isMatchable() const { return matchable; } */
@@ -89,6 +90,8 @@ class MovableCellContent : public virtual CellContent
 
         virtual void moveTo(const Point &point);
         virtual void moveToWithoutAnimation(const Point &point);
+
+        virtual void wasSwappedWith(const Point &p);
 
         // State of animation
         bool isMoving() { return m_isMoving; }
@@ -157,7 +160,6 @@ class StandardCandy : public ClearableCellContent, public MovableCellContent, pu
         void draw() override;
 
         void animationFinished(AnimationT a) override;
-        /* virtual bool operator==(CellContent &other) const override;  // TODO replace with hasmatchwith */
 
         // Getters
         Color getColor() const { return color; }
