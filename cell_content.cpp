@@ -101,6 +101,11 @@ void MovableCellContent::moveToWithoutAnimation(const Point &point)
     containerCell = &grid.at(point);
 }
 
+void MovableCellContent::wasSwappedWith(const Point &p)
+{
+    std::cout << "I was swapped with " << p << std::endl;
+}
+
 void MovableCellContent::animationFinished(AnimationT a)
 {
     if (a == AnimationT::MoveAnimation) {

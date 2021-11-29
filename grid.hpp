@@ -57,6 +57,7 @@ class Cell : public DrawableContainer, public Interactive
 
         bool moveContentTo(Cell &other);
         bool swapContentWith(const Point &p);
+        bool contentWasSwappedWith(const Point &p);
 
         auto &getContent() { return content; }
         void setContent(std::shared_ptr<CellContent> c) { content = std::move(c); }

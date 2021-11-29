@@ -301,12 +301,14 @@ void SwapState::animationFinished(const Point &p)
     if (!isWaiting()) {
         assert(!grid.animationPlaying());
 
-        /* grid.at(waitingList.at(0)).swapedWith(waitingList.at(1)); */
-        /* grid.at(waitingList.at(1)).swapedWith(waitingList.at(0)); */
-
-        for (auto &i: waitingList) {
-            processCombinationsFrom(i);
-            /* grid.at(i).swapedWith(other); */
+        if (!swapBack) {
+            grid.at(waitingList.at(0)).contentWasSwappedWith(waitingList.at(1));
+            grid.at(waitingList.at(1)).contentWasSwappedWith(waitingList.at(0));
+            if (!isWaiting()) {
+                for (auto &i: waitingList) {
+                    processCombinationsFrom(i);
+                }
+            }
         }
 
         if (isWaiting()) {

@@ -110,6 +110,14 @@ bool Cell::swapContentWith(const Point &p)
     return false;
 }
 
+
+bool Cell::contentWasSwappedWith(const Point &p)
+{
+    assert(content);
+    std::shared_ptr<MovableCellContent> movContent {std::dynamic_pointer_cast<MovableCellContent>(content)};
+    movContent->wasSwappedWith(p);
+}
+
 // GRID
 
 bool Cell::toggleSelected()
