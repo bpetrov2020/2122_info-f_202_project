@@ -49,6 +49,51 @@ class State : public Interactive
         /* void update(Event e); */
 };
 
+class EditState : public State
+{
+    private:
+        void selectionChanged();
+    public:
+        EditState(Grid &grid) noexcept
+            : State{grid}
+        { }
+
+        void mouseMove(Point mouseLoc) override;
+        void mouseClick(Point mouseLoc) override;
+        void mouseDrag(Point mouseLoc) override;
+
+        void update(Event e) override
+        {
+            switch (e) {
+                case Event::gridSelectionChanged:
+                    selectionChanged();
+                    break;
+            }
+        }
+
+        void animationFinished(const Point &p) override { }
+};
+
+/**
+ * State that uses combinations
+ *
+ * Player should not be able to interact with the program
+ * during this state.
+ *
+ * @param grid the grid the state is tied to
+ */
+class MatchState : public State
+{
+    public:
+        MatchState(Grid &grid) noexcept
+            : State{grid}
+        { }
+
+        bool isInCombination(const Point &point);
+        std::vector<std::vector<Point>> combinationsFrom(const Point &p);
+        bool processCombinationsFrom(const Point &p);
+};
+
 /**
  * Ready state
  *
@@ -61,7 +106,7 @@ class State : public Interactive
  *
  * @param grid the grid the state is tied to
  */
-class ReadyState : public State
+class ReadyState : public MatchState
 {
     private:
         /**
@@ -70,15 +115,21 @@ class ReadyState : public State
          */
         void selectionChanged();
     public:
-        ReadyState(Grid &grid) noexcept
-            : State{grid}
+        ReadyState(Grid &grid, bool initG = false) noexcept
+            : MatchState{grid}
         {
             std::cout << "Entering Ready state" << std::endl;
+            if (initG) {
+                initGrid();
+            }
         }
 
         void mouseMove(Point mouseLoc) override;
         void mouseClick(Point mouseLoc) override;
         void mouseDrag(Point mouseLoc) override;
+
+        void initGrid();
+        void replaceGrid();
 
         void animationFinished(const Point &p) override;
 
@@ -93,29 +144,6 @@ class ReadyState : public State
 };
 
 /**
- * State in which at least one cellContent is moving
- *
- * Player should not be able to interact with the program
- * during this state.
- *
- * Preconditions:
- *  - at least one move animation is playing
- *
- * @param grid the grid the state is tied to
- */
-class MoveState : public State
-{
-    public:
-        MoveState(Grid &grid) noexcept
-            : State{grid}
-        { }
-
-        bool isInCombination(const Point &point);
-        std::vector<std::vector<Point>> combinationsFrom(const Point &p);
-        bool processCombinationsFrom(const Point &p);
-};
-
-/**
  * Fallstate, when cell contents fall
  *
  * This state must be used when there are empty cells
@@ -127,11 +155,11 @@ class MoveState : public State
  *
  * @param grid the grid the state is tied to
  */
-class FallState : public MoveState
+class FallState : public MatchState
 {
     public:
         FallState(Grid &grid) noexcept
-            : MoveState{grid}
+            : MatchState{grid}
         {
             fillGrid();
             std::cout << "Entering Fall" << std::endl; 
@@ -157,13 +185,13 @@ class FallState : public MoveState
  *
  * @param grid the grid the state is tied to
  */
-class SwapState : public MoveState
+class SwapState : public MatchState
 {
     private:
         bool swapBack{false};
     public:
         SwapState(Grid &grid) noexcept
-            : MoveState{grid}
+            : MatchState{grid}
         {
             std::cout << "Entering Swap" << std::endl;
         }

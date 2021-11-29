@@ -147,16 +147,15 @@ class Grid : public DrawableContainer, public Interactive
             for (auto &c: *this) c.drawContent();
         }
 
-        void setState(std::shared_ptr<State> newState) { state = newState; }
+        void setState(std::shared_ptr<State> newState)
+        {
+            state = std::move(newState);
+        }
 
         // Mouse interactions
         void mouseMove(Point mouseLoc) override;
         void mouseClick(Point mouseLoc) override;
         void mouseDrag(Point mouseLoc) override;
-
-        // To remove from here
-        std::vector< std::vector<Point> > combinationsFrom(const Point &p);
-        bool isInCombination(const Point &point);
 
         void clearCell(std::vector<Point> &v);
         bool clearCell(const Point &point);

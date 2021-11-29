@@ -10,8 +10,79 @@ bool State::isWaiting() const
 }
 
 /*----------------------------------------------------------
+ * EditState
+ *--------------------------------------------------------*/
+
+void EditState::selectionChanged()
+{
+    assert(grid.getSelectedCount() == 1);
+
+    auto selection = grid.getSelected();
+    grid.clearSelection();
+
+    grid.put(selection.at(0), ContentT::StandardCandy, StandardCandy::Color::Red);
+}
+
+void EditState::mouseMove(Point mouseLoc)
+{
+    for (auto &c: grid)
+        c.mouseMove(mouseLoc);
+}
+
+void EditState::mouseClick(Point mouseLoc)
+{
+    for (auto &c: grid)
+        c.mouseClick(mouseLoc);
+}
+
+void EditState::mouseDrag(Point mouseLoc)
+{
+    for (auto &c: grid)
+        c.mouseDrag(mouseLoc);
+}
+
+/*----------------------------------------------------------
  * ReadyState
  *--------------------------------------------------------*/
+
+void ReadyState::initGrid()
+{
+    replaceGrid();
+    Point point{3, 3};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    point={2, 1};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    point={2, 2};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    point = {2, 4};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    point = {1, 3};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    point = {3, 1};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    point = {4, 1};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    point = {5, 1};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    point = {2, 5};
+    grid.put(point, ContentT::Wall);
+    point = {3, 5};
+    grid.put(point, ContentT::Wall);
+    point = {4, 5};
+    grid.put(point, ContentT::Wall);
+}
+
+// TODO
+void ReadyState::replaceGrid()
+{
+    for (auto &c: grid) {
+        c.setContent(std::make_shared<StandardCandy>(grid, &c, c.getCenter(), grid.getCellContentSide()));
+        while (isInCombination(c.getIndex())) {
+            c.removeContent();
+            c.setContent(std::make_shared<StandardCandy>(grid, &c, c.getCenter(), grid.getCellContentSide()));
+        }
+    }
+}
 
 void ReadyState::animationFinished(const Point &p)
 {
@@ -55,10 +126,10 @@ void ReadyState::selectionChanged()
 }
 
 /*----------------------------------------------------------
- * MoveState
+ * MatchState
  *--------------------------------------------------------*/
 
-bool MoveState::processCombinationsFrom(const Point &point)
+bool MatchState::processCombinationsFrom(const Point &point)
 {
     if (grid.at(point).isContentClearing())
         return false;
@@ -128,7 +199,7 @@ bool MoveState::processCombinationsFrom(const Point &point)
  * @return Two vectors of pointers to Cell, the first one for
  * cells in vertical combinations, the second one for horizontal ones
  */
-std::vector<std::vector<Point>> MoveState::combinationsFrom(const Point &origin)
+std::vector<std::vector<Point>> MatchState::combinationsFrom(const Point &origin)
 {
     std::vector<std::vector<Point>> ret {{}, {}};
 
@@ -158,7 +229,7 @@ std::vector<std::vector<Point>> MoveState::combinationsFrom(const Point &origin)
  * Returns whether a given cell is apart of a combination
  * of 3 or more cells, vertically or horizontally
  */
-bool MoveState::isInCombination(const Point &point)
+bool MatchState::isInCombination(const Point &point)
 {
     auto combi = combinationsFrom(point);
     return combi.at(0).size() >= 2
