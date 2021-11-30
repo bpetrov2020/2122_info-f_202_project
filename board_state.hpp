@@ -43,7 +43,9 @@ class State : public Interactive
         bool isWaiting() const;
         virtual void animationFinished(const Point &p) = 0;
 
-        virtual void update(Event e) { };
+        virtual void update(Event e) { }
+
+        virtual void notifyCells(Event e);
 
         // TODO Place all events in one function
         /* void update(Event e); */

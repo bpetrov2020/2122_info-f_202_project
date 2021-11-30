@@ -9,6 +9,15 @@ bool State::isWaiting() const
     return grid.animationPlaying();
 }
 
+void State::notifyCells(Event e)
+{
+    for (auto &c: grid) {
+        if (!c.isEmpty()) {
+            c.getContent()->update(e);
+        }
+    }
+}
+
 /*----------------------------------------------------------
  * EditState
  *--------------------------------------------------------*/
@@ -20,7 +29,8 @@ void EditState::selectionChanged()
     auto selection = grid.getSelected();
     grid.clearSelection();
 
-    grid.put(selection.at(0), ContentT::StandardCandy, StandardCandy::Color::Red);
+    /* grid.put(selection.at(0), ContentT::StandardCandy, StandardCandy::Color::Red); */
+    grid.put(selection.at(0), ContentT::Wall);
 }
 
 void EditState::mouseMove(Point mouseLoc)
@@ -58,8 +68,8 @@ void ReadyState::initGrid()
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {1, 3};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point = {3, 1};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    /* point = {3, 1}; */
+    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
     point = {4, 1};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {5, 1};
@@ -199,7 +209,7 @@ bool MatchState::processCombinationsFrom(const Point &point)
  * @return Two vectors of pointers to Cell, the first one for
  * cells in vertical combinations, the second one for horizontal ones
  */
-std::vector<std::vector<Point>> MatchState::combinationsFrom(const Point &origin)
+std::vector<std::vector<Point>> MatchState::combinationsFrom(const Point &origin) //, bool rec = true)
 {
     std::vector<std::vector<Point>> ret {{}, {}};
 
@@ -221,10 +231,23 @@ std::vector<std::vector<Point>> MatchState::combinationsFrom(const Point &origin
         }
     }
 
+    /* if (rec) { */
+    /*     int retSize = ret.at(0).size() + ret.at(1).size(); */
+
+    /*     for (auto &combi : ret) { */
+    /*         for (auto &point : combi) { */ 
+    /*             auto temp { combinationsFrom(point, false) }; */
+    /*             unsigned tempSize = temp.at(0).size() + temp.at(1).size(); */
+    /*             if (tempSize>retSize) { */
+
+    /*             } */
+    /*         } */
+    /*     } */
+    /* } */
+
     return ret;
 }
 
-// TODO check constness
 /**
  * Returns whether a given cell is apart of a combination
  * of 3 or more cells, vertically or horizontally
@@ -345,15 +368,14 @@ void FallState::animationFinished(const Point &p)
 
         bool moreFall = fillGrid();
         if (!moreFall) {
-            bool oneCombination{false};
 
             for (auto &i: grid) {
-                oneCombination = oneCombination || processCombinationsFrom(i.getIndex());
+                processCombinationsFrom(i.getIndex());
             }
 
-            /* notifyCells(); */
+            notifyCells(Event::FallStateEnd);
 
-            if (oneCombination)
+            if (isWaiting())
                 grid.setState(std::make_shared<ClearState>(grid));
             else
                 grid.setState(std::make_shared<ReadyState>(grid));

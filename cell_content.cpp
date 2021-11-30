@@ -298,6 +298,27 @@ WrappedCandy::WrappedCandy(
         }
 { }
 
+void WrappedCandy::clear()
+{
+    if (secondPhase) {
+        StandardCandy::clear();
+    } else {
+        clearWithoutAnimation();
+        std::cout <<"oneclear";
+        secondPhase = true;
+    }
+}
+
+void WrappedCandy::update(Event e)
+{
+    switch (e) {
+        case Event::FallStateEnd:
+            if (secondPhase)
+                StandardCandy::clear();
+            break;
+    }
+}
+
 void WrappedCandy::clearWithoutAnimation()
 {
     StandardCandy::clearWithoutAnimation();

@@ -6,6 +6,7 @@
 #include "common.hpp"
 #include "point.hpp"
 #include "shape.hpp"
+#include "event.hpp"
 
 // Classes from grid.hpp
 class Grid;
@@ -40,6 +41,7 @@ class CellContent : public DrawableContainer
         CellContent(const CellContent& c) = delete;
         CellContent operator=(const CellContent& c) = delete;
 
+        virtual void update(Event e) { }
 
         /* bool isClearable() const { return std::dynamic_pointer_cast<ClearableCellContent>(this)} */
         /* bool isMovable() const { return movable; } */
@@ -63,6 +65,8 @@ class ClearableCellContent : public virtual CellContent
         // Animations states
         bool clearFinished = false;
         bool m_isClearing = false;
+
+        bool clearAtFallEnd{false};
     public:
         ClearableCellContent(Grid &grid, Cell *cell, std::shared_ptr<Shape> drawable, bool clearableByOther);
 
@@ -75,6 +79,22 @@ class ClearableCellContent : public virtual CellContent
         bool isClearing() { return m_isClearing; }
 
         void animationFinished(AnimationT a) override;
+
+        /* virtual void update(Event e) override */
+        /* { */
+        /*     switch (e) { */
+        /*         case Event::FallStateEnd: */
+        /*             if (clearAtFallEnd) { */
+        /*                 clear(); */
+        /*             } */
+        /*             break; */
+        /*     } */
+        /* } */
+};
+
+class ClearableAtFallEnd : public ClearableCellContent
+{
+
 };
 
 class MovableCellContent : public virtual CellContent
@@ -177,10 +197,15 @@ class StripedCandy : public StandardCandy
 
 class WrappedCandy : public StandardCandy
 {
+    private:
+        bool secondPhase {false};
     public:
         WrappedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
+        void clear() override;
         void clearWithoutAnimation() override;
+
+        void update(Event e) override;
 };
 
 #endif
