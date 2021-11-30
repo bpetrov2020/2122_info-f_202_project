@@ -151,6 +151,60 @@ Wall::Wall(
 { }
 
 /*----------------------------------------------------------
+ * Icing
+CellContent
+ *--------------------------------------------------------*/
+
+Icing::Icing(
+        Grid &grid,
+        Cell *cell,
+        const Point &center,
+        int side,
+        int layers
+        )
+    :
+        CellContent{
+            grid,
+            cell,
+            std::make_shared<Rectangle>(center, side, side, FL_CYAN)
+        },
+        ClearableCellContent{
+            grid,
+            cell,
+            std::make_shared<Rectangle>(center, side, side, FL_CYAN),
+            true
+        },
+        layers{layers},
+        num{center, std::to_string(layers)}
+{ }
+
+void Icing::draw()
+{
+    DrawableContainer::draw();
+    ClearableCellContent::draw();
+    if (layers != 0)
+        num.draw();
+}
+
+void Icing::clear()
+{
+    --layers;
+    num.setString(std::to_string(layers));
+    if (layers == 0)
+        ClearableCellContent::clear();
+}
+
+void Icing::update(Event e)
+{
+    switch (e) {
+        case Event::NeighbourCleared:
+            if (layers>0 && !animation)
+                clear();
+            break;
+    }
+}
+
+/*----------------------------------------------------------
  * StandardCandy
  *--------------------------------------------------------*/
 
@@ -214,6 +268,16 @@ void StandardCandy::animationFinished(AnimationT a)
 {
     MovableCellContent::animationFinished(a);
     ClearableCellContent::animationFinished(a);
+}
+
+void StandardCandy::clearWithoutAnimation()
+{
+    ClearableCellContent::clearWithoutAnimation();
+    for (auto &n: grid.neighboursOf(containerCell->getIndex())) {
+        auto content {grid.at(n).getContent()};
+        if (content)
+            content->update(Event::NeighbourCleared);
+    }
 }
 
 /* bool StandardCandy::operator==(CellContent &other) const */
@@ -304,7 +368,6 @@ void WrappedCandy::clear()
         StandardCandy::clear();
     } else {
         clearWithoutAnimation();
-        std::cout <<"oneclear";
         secondPhase = true;
     }
 }

@@ -318,6 +318,9 @@ void Grid::put(const Point &point, ContentT content, StandardCandy::Color color,
         case ContentT::Wall:
             toPut = std::make_shared<Wall>(*this, &at(point), at(point).getCenter(), cellContentSide);
             break;
+        case ContentT::Icing:
+            toPut = std::make_shared<Icing>(*this, &at(point), at(point).getCenter(), cellContentSide);
+            break;
     }
 
     assert(toPut);

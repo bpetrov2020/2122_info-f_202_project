@@ -17,7 +17,8 @@ enum class ContentT {
     StripedCandy,
     WrappedCandy,
     ColourfulBomb,
-    Wall
+    Wall,
+    Icing
 };
 
 /**
@@ -80,21 +81,30 @@ class ClearableCellContent : public virtual CellContent
 
         void animationFinished(AnimationT a) override;
 
-        /* virtual void update(Event e) override */
-        /* { */
-        /*     switch (e) { */
-        /*         case Event::FallStateEnd: */
-        /*             if (clearAtFallEnd) { */
-        /*                 clear(); */
-        /*             } */
-        /*             break; */
-        /*     } */
-        /* } */
+        virtual void update(Event e) override
+        {
+            /* switch (e) { */
+            /*     case Event::FallStateEnd: */
+            /*         if (clearAtFallEnd) { */
+            /*             clear(); */
+            /*         } */
+            /*         break; */
+            /* } */
+        }
 };
 
-class ClearableAtFallEnd : public ClearableCellContent
+class Icing : public ClearableCellContent
 {
+    private:
+        int layers;
+        Text num;
+    public:
+        Icing(Grid &grid, Cell *cell, const Point &center, int side, int layers = 2);
 
+        void clear() override;
+        void update(Event e) override;
+
+        void draw() override;
 };
 
 class MovableCellContent : public virtual CellContent
@@ -183,6 +193,8 @@ class StandardCandy : public ClearableCellContent, public MovableCellContent, pu
 
         // Getters
         Color getColor() const { return color; }
+
+        void clearWithoutAnimation() override;
 };
 
 class StripedCandy : public StandardCandy

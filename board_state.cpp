@@ -80,6 +80,8 @@ void ReadyState::initGrid()
     grid.put(point, ContentT::Wall);
     point = {4, 5};
     grid.put(point, ContentT::Wall);
+    point = {2, 2};
+    grid.put(point, ContentT::Icing);
 }
 
 // TODO
