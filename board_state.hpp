@@ -92,7 +92,7 @@ class MatchState : public State
         { }
 
         bool isInCombination(const Point &point);
-        std::vector<std::vector<Point>> combinationsFrom(const Point &p);
+        std::vector<std::vector<Point>> combinationsFrom(const Point &p, bool rec = true);
         bool processCombinationsFrom(const Point &p);
 };
 

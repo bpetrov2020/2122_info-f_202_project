@@ -139,12 +139,13 @@ void ReadyState::selectionChanged()
  * MatchState
  *--------------------------------------------------------*/
 
-bool MatchState::processCombinationsFrom(const Point &point)
+bool MatchState::processCombinationsFrom(const Point &origin)
 {
-    if (grid.at(point).isContentClearing())
+    if (grid.at(origin).isContentClearing())
         return false;
 
-    auto combi = combinationsFrom(point);
+    auto combi = combinationsFrom(origin);
+    Point point = combi.at(2).at(0);
     bool oneCombination{false};
 
     const int V = 0;
@@ -209,9 +210,9 @@ bool MatchState::processCombinationsFrom(const Point &point)
  * @return Two vectors of pointers to Cell, the first one for
  * cells in vertical combinations, the second one for horizontal ones
  */
-std::vector<std::vector<Point>> MatchState::combinationsFrom(const Point &origin) //, bool rec = true)
+std::vector<std::vector<Point>> MatchState::combinationsFrom(const Point &origin, bool rec)
 {
-    std::vector<std::vector<Point>> ret {{}, {}};
+    std::vector<std::vector<Point>> ret {{}, {}, {origin}};
 
     for (size_t axis = 0; axis<2; ++axis) {      // Axis : Vertical | Horizontal
         for (size_t card = 0; card<2; ++card) {  // Cardinality : North/South | West/East
@@ -231,19 +232,20 @@ std::vector<std::vector<Point>> MatchState::combinationsFrom(const Point &origin
         }
     }
 
-    /* if (rec) { */
-    /*     int retSize = ret.at(0).size() + ret.at(1).size(); */
+    if (rec) {
+        int retSize = ret.at(0).size() + ret.at(1).size();
 
-    /*     for (auto &combi : ret) { */
-    /*         for (auto &point : combi) { */ 
-    /*             auto temp { combinationsFrom(point, false) }; */
-    /*             unsigned tempSize = temp.at(0).size() + temp.at(1).size(); */
-    /*             if (tempSize>retSize) { */
-
-    /*             } */
-    /*         } */
-    /*     } */
-    /* } */
+        for (size_t axis = 0; axis<2; ++axis) {
+            for (auto &point : ret[axis]) { 
+                auto temp { combinationsFrom(point, false) };
+                unsigned tempSize = temp.at(0).size() + temp.at(1).size();
+                if (tempSize>retSize) {
+                    ret = temp;
+                    retSize = tempSize;
+                }
+            }
+        }
+    }
 
     return ret;
 }
