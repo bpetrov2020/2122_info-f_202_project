@@ -101,6 +101,9 @@ class Icing : public ClearableCellContent
     public:
         Icing(Grid &grid, Cell *cell, const Point &center, int side, int layers = 2);
 
+        int getLayers() const { return layers; }
+        void removeLayer();
+
         void clear() override;
         void update(Event e) override;
 

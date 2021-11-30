@@ -178,19 +178,25 @@ Icing::Icing(
         num{center, std::to_string(layers)}
 { }
 
+void Icing::removeLayer()
+{
+    assert(layers>0);
+    --layers;
+    num.setString(std::to_string(layers));
+}
+
 void Icing::draw()
 {
     DrawableContainer::draw();
     ClearableCellContent::draw();
-    if (layers != 0)
+    if (getLayers() != 0)
         num.draw();
 }
 
 void Icing::clear()
 {
-    --layers;
-    num.setString(std::to_string(layers));
-    if (layers == 0)
+    removeLayer();
+    if (getLayers() == 0)
         ClearableCellContent::clear();
 }
 
