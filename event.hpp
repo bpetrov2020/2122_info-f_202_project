@@ -2,6 +2,8 @@
 #define EVENT_HPP
 
 enum class Event {
+    NeighbourCleared,
+    FallStateEnd,
     cellContentAnimationFinished,
     gridSelectionChanged
 };

@@ -167,7 +167,7 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
     : DrawableContainer(std::make_shared<Rectangle>(center, width, height, FL_BLACK)),
     colSize{width/columns},
     rowSize{height/rows},
-    state{std::make_shared<ReadyState>(*this)}
+    state{nullptr}
 {
     // Down left corner
     Point z = center - Point{width/2, -height/2};
@@ -193,37 +193,8 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
 
     cellContentSide = w>h ? h-20 : w-20; // TODO move to initialization list
 
-    // Put candies, maybe should be in another function ?
-    for (auto &c: *this) {
-        c.setContent(std::make_shared<StandardCandy>(*this, &c, c.getCenter(), cellContentSide));
-        while (isInCombination(c.getIndex())) {
-            c.removeContent();
-            c.setContent(std::make_shared<StandardCandy>(*this, &c, c.getCenter(), cellContentSide));
-        }
-    }
-
-    Point point{3, 3};
-    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point={2, 1};
-    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point={2, 2};
-    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point = {2, 4};
-    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point = {1, 3};
-    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point = {3, 1};
-    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point = {4, 1};
-    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point = {5, 1};
-    put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point = {2, 5};
-    put(point, ContentT::Wall);
-    point = {3, 5};
-    put(point, ContentT::Wall);
-    point = {4, 5};
-    put(point, ContentT::Wall);
+    setState(std::make_shared<ReadyState>(*this, true));
+    /* setState(std::make_shared<EditState>(*this)); */
 }
 
 void Grid::mouseMove(Point mouseLoc)
@@ -316,55 +287,6 @@ void Grid::cellContentAnimationFinished(const Point &p)
     state->animationFinished(p);
 }
 
-std::vector<std::vector<Point>> Grid::combinationsFrom(const Point& origin)
-{
-    std::vector<std::vector<Point>> ret {{}, {}};
-
-    for (size_t axis = 0; axis<2; ++axis) {      // Axis : Vertical | Horizontal
-        for (size_t card = 0; card<2; ++card) {  // Cardinality : North/South | West/East
-
-            Direction direction{ static_cast<Direction>(2*axis + card) };
-
-            Point curr{origin};
-
-            try {
-            while (
-                    isIndexValid(curr, direction)
-                    && !at(curr, direction).isEmpty()
-                    && at(curr).hasMatchWith(at(curr, direction).getIndex())
-                    )
-            {
-                curr = at(curr, direction).getIndex();
-                ret[axis].push_back(curr);
-            }
-
-            /*     Cell* curr{ &at(origin) }; */
-            /*     Cell* next{ &at(curr->getIndex(), direction) }; */
-
-            /*     while (!next->isEmpty() && curr->hasMatchWith(next->getIndex())) { */
-            /*         ret[axis].push_back(next->getIndex()); */
-            /*         curr = next; */
-            /*         next = &at(curr->getIndex(), direction); */
-            /*     } */
-            } catch (const std::out_of_range& err) {std::cout << "Fuck combinationsFrom";  }  // don't do anything, just ignore it
-        }
-    }
-
-    return ret;
-}
-
-
-/**
- * Returns whether a given cell is apart of a combination
- * of 3 or more cells, vertically or horizontally
- */
-bool Grid::isInCombination(const Point &point)
-{
-    auto combi = combinationsFrom(point);
-    return combi.at(0).size() >= 2
-        || combi.at(1).size() >= 2;
-}
-
 // Clear the content of a vector of ptr to Cell
 void Grid::clearCell(std::vector<Point> &vect)
 {
@@ -395,6 +317,9 @@ void Grid::put(const Point &point, ContentT content, StandardCandy::Color color,
             break;
         case ContentT::Wall:
             toPut = std::make_shared<Wall>(*this, &at(point), at(point).getCenter(), cellContentSide);
+            break;
+        case ContentT::Icing:
+            toPut = std::make_shared<Icing>(*this, &at(point), at(point).getCenter(), cellContentSide);
             break;
     }
 
