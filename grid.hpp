@@ -58,6 +58,7 @@ class Cell : public DrawableContainer, public Interactive
         bool moveContentTo(Cell &other);
         bool swapContentWith(const Point &p);
         void contentWasSwappedWith(const Point &p);
+        bool swapContentWithWithoutAnimation(const Point &p);
 
         auto &getContent() { return content; }
         void setContent(std::shared_ptr<CellContent> c) { content = std::move(c); }
@@ -141,11 +142,7 @@ class Grid : public DrawableContainer, public Interactive
         bool areNeighbours(const Point& c1, const Point& c2);
         std::vector<Point> neighboursOf(const Point& c);
 
-        virtual void draw() override {
-            DrawableContainer::draw();
-            for (auto &c: *this) c.draw();
-            for (auto &c: *this) c.drawContent();
-        }
+        void draw() override;
 
         void setState(std::shared_ptr<State> newState)
         {
@@ -177,6 +174,7 @@ class Grid : public DrawableContainer, public Interactive
         bool isIndexValid(const Point &p) const;
 
         bool swapCellContent(std::vector<Point> toSwap);
+        bool swapCellContentWithoutAnimation(std::vector<Point> toSwap);
 
         void update(Event e);
         void cellContentAnimationFinished(const Point &p);

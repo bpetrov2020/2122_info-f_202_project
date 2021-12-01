@@ -35,13 +35,15 @@ class State : public Interactive
             : grid{grid}
         { }
 
+        virtual void draw() { }
+
         // No interactions by default
         void mouseMove(Point) override { }
         void mouseClick(Point) override { }
         void mouseDrag(Point) override { }
 
         bool isWaiting() const;
-        virtual void animationFinished(const Point &p) = 0;
+        virtual void gridAnimationFinished(const Point &p) = 0;
 
         virtual void update(Event) { }
 
@@ -49,6 +51,20 @@ class State : public Interactive
 
         // TODO Place all events in one function
         /* void update(Event e); */
+};
+
+class MessageShower : public State, DrawableContainer
+{
+    private:
+        Text message;
+        bool messageFinished{false};
+    public:
+        MessageShower(Grid &grid, std::string msg) noexcept;
+
+        void draw() override;
+        void animationFinished(AnimationT animationType);
+
+        void gridAnimationFinished(const Point &p) { }
 };
 
 class EditState : public State
@@ -75,7 +91,7 @@ class EditState : public State
             }
         }
 
-        void animationFinished(const Point&) override { }
+        void gridAnimationFinished(const Point &p) override { }
 };
 
 /**
@@ -118,16 +134,11 @@ class ReadyState : public MatchState
          * is changed.
          */
         void selectionChanged();
-
+        bool hasPossibleAction{true};
     public:
-        ReadyState(Grid &grid, bool initG = false) noexcept
-            : MatchState{grid}
-        {
-            std::cout << "Entering Ready state" << std::endl;
-            if (initG) {
-                initGrid();
-            }
-        }
+        ReadyState(Grid &grid, bool initG = false) noexcept;
+
+        void draw() override;
 
         void mouseMove(Point mouseLoc) override;
         void mouseClick(Point mouseLoc) override;
@@ -144,8 +155,9 @@ class ReadyState : public MatchState
         }*/
 
         void replaceGrid();
+        bool isActionPossible();
 
-        void animationFinished(const Point &p) override;
+        void gridAnimationFinished(const Point &p) override;
 
         void update(Event e) override
         {
@@ -186,7 +198,7 @@ class FallState : public MatchState
         bool canFallTo(const Point &p, Direction target);
         bool isFillableByFall(const Point &point);
 
-        void animationFinished(const Point &p) override;
+        void gridAnimationFinished(const Point &p) override;
 };
 
 /**
@@ -212,7 +224,7 @@ class SwapState : public MatchState
             std::cout << "Entering Swap" << std::endl;
         }
 
-        void animationFinished(const Point &p) override;
+        void gridAnimationFinished(const Point &p) override;
 };
 
 /**
@@ -235,7 +247,7 @@ class ClearState : public State
             std::cout << "Entering Clear" << std::endl;
         }
 
-        void animationFinished(const Point &p) override;
+        void gridAnimationFinished(const Point &p) override;
 };
 
 #endif

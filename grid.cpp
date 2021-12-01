@@ -104,7 +104,23 @@ bool Cell::swapContentWith(const Point &p)
         o->moveTo(getIndex());
 
         // Swap pointers
-        std::swap(content, other.content);
+        swapContentWithWithoutAnimation(p);
+        return true;
+    }
+    return false;
+}
+
+bool Cell::swapContentWithWithoutAnimation(const Point &p)
+{
+    Cell &otherCell {grid.at(p)};
+
+    std::shared_ptr<MovableCellContent> curr{std::dynamic_pointer_cast<MovableCellContent>(content)};
+    std::shared_ptr<MovableCellContent> other{std::dynamic_pointer_cast<MovableCellContent>(otherCell.getContent())};
+
+    if (curr && other) {
+        content->setCenter(otherCell.getCenter());
+        other->setCenter(getCenter());
+        std::swap(content, otherCell.content);
         return true;
     }
     return false;
@@ -211,8 +227,16 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
 
     cellContentSide = w>h ? h-20 : w-20; // TODO move to initialization list
 
-    setState(std::make_shared<ReadyState>(*this, true));
+    /* setState(std::make_shared<ReadyState>(*this, true)); */
+    setState(std::make_shared<MessageShower>(*this, "Start"));
     /* setState(std::make_shared<EditState>(*this)); */
+}
+
+void Grid::draw() {
+    DrawableContainer::draw();
+    for (auto &c: *this) c.draw();
+    for (auto &c: *this) c.drawContent();
+    state->draw();
 }
 
 void Grid::mouseMove(Point mouseLoc)
@@ -302,7 +326,7 @@ void Grid::update(Event)
 // TODO replace with update
 void Grid::cellContentAnimationFinished(const Point &p)
 {
-    state->animationFinished(p);
+    state->gridAnimationFinished(p);
 }
 
 // Clear the content of a vector of ptr to Cell
@@ -363,6 +387,12 @@ bool Grid::swapCellContent(std::vector<Point> toSwap)
 {
     assert(toSwap.size() == 2);
     return at(toSwap.at(0)).swapContentWith(toSwap.at(1));
+}
+
+bool Grid::swapCellContentWithoutAnimation(std::vector<Point> toSwap)
+{
+    assert(toSwap.size() == 2);
+    return at(toSwap.at(0)).swapContentWithWithoutAnimation(toSwap.at(1));
 }
 
 // NOTE: passing by Point is probably better even if 

@@ -19,6 +19,39 @@ void State::notifyCells(Event e)
 }
 
 /*----------------------------------------------------------
+ * MessageShower
+ *--------------------------------------------------------*/
+
+MessageShower::MessageShower(Grid &grid, std::string msg) noexcept
+    :
+        State{grid},
+        DrawableContainer{std::make_shared<Rectangle>(grid.getCenter(), 400, 50, FL_WHITE)},
+        message{grid.getCenter(), msg}
+{
+    addAnimation(std::make_shared<StillAnimation>(120));
+}
+
+void MessageShower::draw()
+{
+    DrawableContainer::draw();
+    message.draw();
+    if (messageFinished)
+        grid.setState(std::make_shared<ReadyState>(grid, true));
+}
+
+void MessageShower::animationFinished(AnimationT animationType)
+{
+    switch (animationType) {
+        case AnimationT::StillAnimation:
+            messageFinished = true;
+            break;
+        case AnimationT::ScaleAnimation:
+        case AnimationT::MoveAnimation:
+            break;
+    }
+}
+
+/*----------------------------------------------------------
  * EditState
  *--------------------------------------------------------*/
 
@@ -54,6 +87,17 @@ void EditState::mouseDrag(Point mouseLoc)
 /*----------------------------------------------------------
  * ReadyState
  *--------------------------------------------------------*/
+
+ReadyState::ReadyState(Grid &grid, bool initG) noexcept
+    : MatchState{grid}
+{
+    std::cout << "Entering Ready state" << std::endl;
+    if (initG) {
+        initGrid();
+    }
+    hasPossibleAction = isActionPossible();
+    std::cout << (hasPossibleAction ? "More action" : "No more action") << std::endl;
+}
 
 void ReadyState::initGrid()
 {
@@ -109,7 +153,12 @@ void ReadyState::initGrid()
     // add an icing
     /*point = {5, 4};
     grid.put(point, ContentT::Icing, StandardCandy::Color::Blue);*/
+}
 
+void ReadyState::draw()
+{
+    if (!hasPossibleAction)
+        grid.setState(std::make_shared<MessageShower>(grid, "No more combinations"));
 }
 
 // TODO
@@ -124,7 +173,28 @@ void ReadyState::replaceGrid()
     }
 }
 
-void ReadyState::animationFinished(const Point &)
+bool ReadyState::isActionPossible()
+{
+    bool actionPossible{false};
+
+    for (auto &c: grid) {
+        for (auto &d: {Direction::North, Direction::East}) {
+            if (grid.isIndexValid(c.getIndex(), d)) {
+                std::vector<Point> toSwap {c.getIndex(), grid.at(c.getIndex(), d).getIndex()};
+                grid.swapCellContentWithoutAnimation(toSwap);
+                for (auto &p: toSwap)
+                    actionPossible = actionPossible || isInCombination(p);
+                grid.swapCellContentWithoutAnimation(toSwap);
+            }
+        }
+        if (actionPossible)
+            break;
+    }
+
+    return actionPossible;
+}
+
+void ReadyState::gridAnimationFinished(const Point &p)
 {
     throw std::runtime_error("There should be no animations in ReadyState");
 }
@@ -394,7 +464,7 @@ bool FallState::isFillableByFall(const Point &point)
     return fillable;
 }
 
-void FallState::animationFinished(const Point &p)
+void FallState::gridAnimationFinished(const Point &p)
 {
     waitingList.push_back(p);
 
@@ -422,7 +492,7 @@ void FallState::animationFinished(const Point &p)
  * SwapState
  *--------------------------------------------------------*/
 
-void SwapState::animationFinished(const Point &p)
+void SwapState::gridAnimationFinished(const Point &p)
 {
     waitingList.push_back(p);
 
@@ -454,7 +524,7 @@ void SwapState::animationFinished(const Point &p)
  * ClearState
  *--------------------------------------------------------*/
 
-void ClearState::animationFinished(const Point &p)
+void ClearState::gridAnimationFinished(const Point &p)
 {
     waitingList.push_back(p);
 
