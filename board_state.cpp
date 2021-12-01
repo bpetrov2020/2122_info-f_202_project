@@ -177,8 +177,11 @@ bool MatchState::processCombinationsFrom(const Point &origin)
     // 5 or more in one axis
     } else if ((vc>=4 && hc<2) || (hc>=4 && vc<2)) {
         auto toClear{ combi.at(hc>vc ? H : V) };
-        grid.clearCell(point);
+        /* grid.clearCellWithoutAnimation(point);  //TODO function in grid */
+        grid.at(point).clearWithoutAnimation();
         grid.clearCell(toClear);
+        grid.put(point, ContentT::ColourBomb);
+        /* nextStateCount += toClear.size(); */
         oneCombination = true;
 
     // More than 3 on both axis
