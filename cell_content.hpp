@@ -53,12 +53,10 @@ class CellContent : public DrawableContainer
 
 class Wall : public CellContent
 {
-    protected:
-        ContentT type = ContentT::Wall;
     public:
         Wall(Grid &grid, Cell *cell, const Point &center, int side);
 
-        ContentT getType() override { return type; }
+        ContentT getType() override { return ContentT::Wall; }
 
 };
 
@@ -116,7 +114,7 @@ class Icing : public ClearableCellContent
 
         void draw() override;
 
-        ContentT getType() { return ContentT::Icing; }
+        ContentT getType() override { return ContentT::Icing; }
 };
 
 class MovableCellContent : public virtual CellContent
@@ -190,7 +188,6 @@ class StandardCandy : public ClearableCellContent, public MovableCellContent, pu
         };
     protected:
         Color color;  // identifier of a candy
-        ContentT type = ContentT::StandardCandy;
 
         // This constructor is for derived classes to change appearance of candy
         StandardCandy(Grid &grid, Cell *cell, Color color, std::shared_ptr<AnimatableShape> shape);
@@ -209,27 +206,25 @@ class StandardCandy : public ClearableCellContent, public MovableCellContent, pu
 
         void clearWithoutAnimation() override;
 
-        ContentT getType() override { return type; }
+        ContentT getType() override { return ContentT::StandardCandy; }
 };
 
 class StripedCandy : public StandardCandy
 {
     protected:
         Axis axis;  // wether horizontal or vertical
-        ContentT type = ContentT::StripedCandy;
     public:
         StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color, Axis axis);
 
         void clearWithoutAnimation() override;
 
-        ContentT getType() override { return type; }
+        ContentT getType() override { return ContentT::StripedCandy; }
 };
 
 class WrappedCandy : public StandardCandy
 {
     private:
         bool secondPhase {false};
-        ContentT type = ContentT::WrappedCandy;
     public:
         WrappedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
@@ -237,22 +232,27 @@ class WrappedCandy : public StandardCandy
         void clearWithoutAnimation() override;
 
         void update(Event e) override;
-        ContentT getType() override { return type; }
+        ContentT getType() override { return  ContentT::WrappedCandy; }
 };
 
 class ColourBomb : public ClearableCellContent, public MovableCellContent
 {
-protected:
-    ContentT type = ContentT::ColourBomb;
-public:
-    ColourBomb(Grid &grid, Cell *cell, Point center, int side);
+    private:
+        StandardCandy::Color colorToReplace;
+        ContentT typeToReplaceWith {ContentT::StandardCandy};
+        bool wasSwapped {false};
+    public:
+        ColourBomb(Grid &grid, Cell *cell, Point center, int side);
 
-    void draw() override;
-    void animationFinished(AnimationT a) override;
+        void draw() override;
+        void animationFinished(AnimationT a) override;
 
-    void wasSwappedWith(const Point &p) override;
+        StandardCandy::Color getColorToClear() { return static_cast<StandardCandy::Color>(std::rand()%6); }
+       void clearWithoutAnimation() override;
 
-    ContentT getType() override { return type; }
+        void wasSwappedWith(const Point &p) override;
+
+        ContentT getType() override { return ContentT::ColourBomb; }
 };
 
 /*class ColourBomb : public StandardCandy

@@ -59,17 +59,23 @@ void ReadyState::initGrid()
 {
     replaceGrid();
     Point point{3, 3};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point={2, 1};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point={2, 2};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point = {2, 4};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point = {1, 3};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
+    /* point={2, 1}; */
+    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
+    /* point={2, 2}; */
+    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
+    /* point = {2, 4}; */
+    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
+    /* point = {1, 3}; */
+    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
     /* point = {3, 1}; */
     /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
+    point = {1, 2};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    point = {2, 1};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    point = {3, 1};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {4, 1};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
     point = {5, 1};

@@ -463,30 +463,42 @@ void ColourBomb::animationFinished(AnimationT a)
     ClearableCellContent::animationFinished(a);
 }
 
-void ColourBomb::wasSwappedWith(const Point &p)
+void ColourBomb::clearWithoutAnimation()
 {
-    ContentT cellType = grid.at(p).getContent()->getType();
-    switch (cellType) {
+    if (!wasSwapped)
+        colorToReplace = getColorToClear();
 
-        case ContentT::StandardCandy: {
-            StandardCandy::Color initialColor{
-                    std::dynamic_pointer_cast<StandardCandy>(grid.at(p).getContent())->getColor()};
-            for (auto &c: grid) {
-                if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
-                    StandardCandy::Color cellColor{
+    switch (typeToReplaceWith) {
+
+        case ContentT::StandardCandy:
+            {
+                for (auto &c: grid) {
+                    if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
+                        StandardCandy::Color cellColor{
                             std::dynamic_pointer_cast<StandardCandy>(c.getContent())->getColor()};
-                    if (cellColor == initialColor) {
-                        grid.clearCell(c.getIndex());
+                        if (cellColor == colorToReplace) {
+                            grid.clearCell(c.getIndex());
+                        }
                     }
                 }
+                break;
             }
-            grid.clearCell(containerCell->getIndex());
-            break;
-        }
+        case ContentT::StripedCandy:
+            {
+                std::cout << "TOTO" << std::endl;   // TODO
+                break;
+            }
+    }
 
-        case ContentT::StripedCandy: {
-            std::cout << "TOTO" << std::endl;   // TODO
-            break;
-        }
+}
+
+void ColourBomb::wasSwappedWith(const Point &p)
+{
+    std::shared_ptr<StandardCandy> other {std::dynamic_pointer_cast<StandardCandy>(grid.at(p).getContent())};
+    if (other) {
+        colorToReplace = other->getColor();
+        typeToReplaceWith = other->getType();
+        wasSwapped = true;
+        clear();
     }
 }
