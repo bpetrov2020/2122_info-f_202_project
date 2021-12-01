@@ -11,6 +11,8 @@
 #include "point.hpp"
 #include "animation.hpp"
 
+#define PI 3.14159265358979323846
+
 class Animation;
 
 /**
@@ -150,6 +152,23 @@ class Circle : public AnimatableShape
 
         int getRadius() const { return radius; }
         void setRadius(int r) { radius = r; }
+};
+
+/**
+ * MulticolourStar Shape for colour bomb
+ */
+class MulticolourStar : public Circle
+{
+protected:
+    int size;
+public:
+    MulticolourStar(
+            Point center,
+            int size
+    );
+
+    void draw() override;
+    void drawRectRotate(float angle = 0, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
 };
 
 /**
