@@ -19,27 +19,25 @@ void State::notifyCells(Event e)
 }
 
 /*----------------------------------------------------------
- * MessageShower
+ * MessageState
  *--------------------------------------------------------*/
 
-MessageShower::MessageShower(Grid &grid, std::string msg) noexcept
+MessageState::MessageState(Grid &grid, std::string msg, int duration) noexcept
     :
         State{grid},
-        DrawableContainer{std::make_shared<Rectangle>(grid.getCenter(), 400, 50, FL_WHITE)},
-        message{grid.getCenter(), msg}
+        DrawableContainer{std::make_shared<Rectangle>(grid.getCenter(), 600, 50, FL_WHITE)},
+        message{grid.getCenter(), msg, 14}
 {
-    addAnimation(std::make_shared<StillAnimation>(120));
+    addAnimation(std::make_shared<StillAnimation>(duration));
 }
 
-void MessageShower::draw()
+void MessageState::draw()
 {
     DrawableContainer::draw();
     message.draw();
-    if (messageFinished)
-        grid.setState(std::make_shared<ReadyState>(grid, true));
 }
 
-void MessageShower::animationFinished(AnimationT animationType)
+void MessageState::animationFinished(AnimationT animationType)
 {
     switch (animationType) {
         case AnimationT::StillAnimation:
@@ -49,6 +47,22 @@ void MessageShower::animationFinished(AnimationT animationType)
         case AnimationT::MoveAnimation:
             break;
     }
+}
+
+/*----------------------------------------------------------
+ * NoActionState
+ *--------------------------------------------------------*/
+
+NoActionState::NoActionState(Grid &grid) noexcept
+    :
+        MessageState{grid, "No more combinations. Changing grid.", 60}
+{ }
+
+void NoActionState::draw()
+{
+    MessageState::draw();
+    if (messageFinished)
+        grid.setState(std::make_shared<ReadyState>(grid, true));
 }
 
 /*----------------------------------------------------------
@@ -93,7 +107,8 @@ ReadyState::ReadyState(Grid &grid, bool initG) noexcept
 {
     std::cout << "Entering Ready state" << std::endl;
     if (initG) {
-        initGrid();
+        while (!isActionPossible())
+            initGrid();
     }
     hasPossibleAction = isActionPossible();
     std::cout << (hasPossibleAction ? "More action" : "No more action") << std::endl;
@@ -158,7 +173,7 @@ void ReadyState::initGrid()
 void ReadyState::draw()
 {
     if (!hasPossibleAction)
-        grid.setState(std::make_shared<MessageShower>(grid, "No more combinations"));
+        grid.setState(std::make_shared<NoActionState>(grid));
 }
 
 // TODO

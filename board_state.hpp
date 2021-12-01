@@ -53,18 +53,25 @@ class State : public Interactive
         /* void update(Event e); */
 };
 
-class MessageShower : public State, DrawableContainer
+class MessageState : public State, DrawableContainer
 {
-    private:
+    protected:
         Text message;
         bool messageFinished{false};
     public:
-        MessageShower(Grid &grid, std::string msg) noexcept;
+        MessageState(Grid &grid, std::string msg, int duration = 60) noexcept;
 
         void draw() override;
-        void animationFinished(AnimationT animationType);
-
         void gridAnimationFinished(const Point &p) { }
+        void animationFinished(AnimationT animationType);
+};
+
+class NoActionState : public MessageState
+{
+    public:
+        NoActionState(Grid &grid) noexcept;
+
+        void draw() override;
 };
 
 class EditState : public State

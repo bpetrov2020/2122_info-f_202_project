@@ -227,8 +227,8 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
 
     cellContentSide = w>h ? h-20 : w-20; // TODO move to initialization list
 
-    /* setState(std::make_shared<ReadyState>(*this, true)); */
-    setState(std::make_shared<MessageShower>(*this, "Start"));
+    setState(std::make_shared<ReadyState>(*this, true));
+    /* setState(std::make_shared<MessageShower>(*this, "Start")); */
     /* setState(std::make_shared<EditState>(*this)); */
 }
 

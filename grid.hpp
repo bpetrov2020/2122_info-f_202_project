@@ -79,6 +79,8 @@ class Cell : public DrawableContainer, public Interactive
         bool operator==(const Cell &other) { return index == other.index; }
 
         bool hasMatchWith(const Point &point);
+
+        /* bool wasProcessedThisFall() const { return processedThisFall; } */
 };
 
 class Grid : public DrawableContainer, public Interactive
