@@ -15,7 +15,7 @@ enum class ContentT {
     StandardCandy,
     StripedCandy,
     WrappedCandy,
-    ColourfulBomb,
+    ColourBomb,
     Wall
 };
 
@@ -40,6 +40,8 @@ class CellContent : public DrawableContainer
         CellContent(const CellContent& c) = delete;
         CellContent operator=(const CellContent& c) = delete;
 
+        virtual ContentT getType() = 0;
+
 
         /* bool isClearable() const { return std::dynamic_pointer_cast<ClearableCellContent>(this)} */
         /* bool isMovable() const { return movable; } */
@@ -48,8 +50,13 @@ class CellContent : public DrawableContainer
 
 class Wall : public CellContent
 {
+    protected:
+        ContentT type = ContentT::Wall;
     public:
         Wall(Grid &grid, Cell *cell, const Point &center, int side);
+
+        ContentT getType() override { return type; }
+
 };
 
 // A CellContent object that is matchable should be
@@ -148,6 +155,7 @@ class StandardCandy : public ClearableCellContent, public MovableCellContent, pu
         };
     protected:
         Color color;  // identifier of a candy
+        ContentT type = ContentT::StandardCandy;
 
         // This constructor is for derived classes to change appearance of candy
         StandardCandy(Grid &grid, Cell *cell, Color color, std::shared_ptr<AnimatableShape> shape);
@@ -163,24 +171,59 @@ class StandardCandy : public ClearableCellContent, public MovableCellContent, pu
 
         // Getters
         Color getColor() const { return color; }
+        ContentT getType() override { return type; }
 };
 
 class StripedCandy : public StandardCandy
 {
     protected:
         Axis axis;  // wether horizontal or vertical
+        ContentT type = ContentT::StripedCandy;
     public:
         StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color, Axis axis);
 
         void clearWithoutAnimation() override;
+
+        ContentT getType() override { return type; }
 };
 
 class WrappedCandy : public StandardCandy
 {
+    protected:
+        ContentT type = ContentT::WrappedCandy;
     public:
         WrappedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
         void clearWithoutAnimation() override;
+
+        ContentT getType() override { return type; }
 };
+
+class ColourBomb : public ClearableCellContent, public MovableCellContent
+{
+protected:
+    ContentT type = ContentT::ColourBomb;
+public:
+    ColourBomb(Grid &grid, Cell *cell, Point center, int side);
+
+    void draw() override;
+    void animationFinished(AnimationT a) override;
+
+    void wasSwappedWith(const Point &p) override;
+
+    ContentT getType() override { return type; }
+};
+
+/*class ColourBomb : public StandardCandy
+{
+protected:
+    ContentT type = ContentT::ColourBomb;
+public:
+    ColourBomb(Grid &grid, Cell *cell, Point center, int side);
+
+    void wasSwappedWith(const Point &p) override;
+
+    ContentT getType() override { return type; }
+};*/
 
 #endif

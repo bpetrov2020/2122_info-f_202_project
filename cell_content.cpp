@@ -103,7 +103,25 @@ void MovableCellContent::moveToWithoutAnimation(const Point &point)
 
 void MovableCellContent::wasSwappedWith(const Point &p)
 {
-    std::cout << "I was swapped with " << p << std::endl;
+    /*ContentT cellType = grid.at(p).getContent()->getType();
+
+    switch (cellType) {
+
+        case ContentT::StandardCandy:
+            StandardCandy::Color initialColor {std::dynamic_pointer_cast<StandardCandy>(grid.at(p).getContent())->getColor()};
+
+            for (auto &c: grid) {
+                if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
+                    StandardCandy::Color cellColor{std::dynamic_pointer_cast<StandardCandy>(c.getContent())->getColor()};
+                    if (cellColor == initialColor) {
+                        grid.clearCell(c.getIndex());
+                    }
+                }
+            }
+            grid.clearCell(containerCell->getIndex());
+            break;
+    }*/
+
 }
 
 void MovableCellContent::animationFinished(AnimationT a)
@@ -289,6 +307,7 @@ WrappedCandy::WrappedCandy(
             grid,
             cell,
             std::make_shared<Star>(center, side, side, flRelative[static_cast<int>(color)])
+            //std::make_shared<MulticolourStar>(center, side)
         },
         StandardCandy{
                 grid,
@@ -319,4 +338,65 @@ void WrappedCandy::clearWithoutAnimation()
         } catch (const std::out_of_range& err) {}
     }
 
+}
+
+/*----------------------------------------------------------
+ * ColourBomb
+ *--------------------------------------------------------*/
+
+ColourBomb::ColourBomb(
+        Grid &grid,
+        Cell *cell,
+        Point center,
+        int side
+)
+        :
+        CellContent{
+                grid,
+                cell,
+                std::make_shared<MulticolourStar>(center, side)
+        },
+        ClearableCellContent{grid, cell, std::make_shared<MulticolourStar>(center, side), true},
+        MovableCellContent{grid, cell, std::make_shared<MulticolourStar>(center, side)}
+{ }
+
+void ColourBomb::draw()
+{
+    DrawableContainer::draw();
+    MovableCellContent::draw();
+    ClearableCellContent::draw();
+}
+
+void ColourBomb::animationFinished(AnimationT a)
+{
+    MovableCellContent::animationFinished(a);
+    ClearableCellContent::animationFinished(a);
+}
+
+void ColourBomb::wasSwappedWith(const Point &p)
+{
+    ContentT cellType = grid.at(p).getContent()->getType();
+    switch (cellType) {
+
+        case ContentT::StandardCandy: {
+            StandardCandy::Color initialColor{
+                    std::dynamic_pointer_cast<StandardCandy>(grid.at(p).getContent())->getColor()};
+            for (auto &c: grid) {
+                if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
+                    StandardCandy::Color cellColor{
+                            std::dynamic_pointer_cast<StandardCandy>(c.getContent())->getColor()};
+                    if (cellColor == initialColor) {
+                        grid.clearCell(c.getIndex());
+                    }
+                }
+            }
+            grid.clearCell(containerCell->getIndex());
+            break;
+        }
+
+        case ContentT::StripedCandy: {
+            std::cout << "TOTO" << std::endl;   // TODO
+            break;
+        }
+    }
 }

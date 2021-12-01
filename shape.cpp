@@ -231,6 +231,67 @@ bool Circle::contains(const Point& p) const
 }
 
 /*----------------------------------------------------------
+ * MulticolourStar
+ *--------------------------------------------------------*/
+
+MulticolourStar::MulticolourStar(
+        Point center,
+        int size
+)
+        :
+        Circle{center, size*7/12},
+        size{size/2}
+{}
+
+void MulticolourStar::draw()
+{
+    Circle::draw();
+
+    static constexpr Fl_Color flRelative[6] = {
+            0x22a0fd00,  // Blue
+            0x4ad81200,  // Green
+            0xfe810200,  // Orange
+            0xd31ded00,  // Purple
+            0xe3010200,  // Red
+            /* 0xfad40000   // Yellow */
+            0xFFFF8A00   // Yellow
+    };
+
+    for (int i=0; i<13; i++) {
+        drawRectRotate(i*PI/6, flRelative[i%6]);
+    }
+
+}
+
+void MulticolourStar::drawRectRotate(float angle, Fl_Color fillColor, Fl_Color frameColor)
+{
+
+    std::array<Point, 5> points {
+            Point{center.x - (size/4)*sin(angle), center.y + (size/4)*cos(angle)},
+            Point{center.x + (size*cos(angle)-(size/4)*sin(angle)), center.y + (size*sin(angle) + (size/4)*cos(angle))},
+            Point{center.x + (size*cos(angle)+(size/4)*sin(angle)), center.y + (size*sin(angle) - (size/4)*cos(angle))},
+            Point{center.x + (size/4)*sin(angle), center.y - (size/4)*cos(angle)},
+            Point{center.x - (size/4)*sin(angle), center.y + (size/4)*cos(angle)}
+    };
+
+    // Fill
+    fl_color(fillColor);
+    fl_begin_polygon();
+    for (auto &point : points) {
+        fl_vertex(point.x, point.y);
+    }
+    fl_end_polygon();
+
+    // Frame
+    fl_color(frameColor);
+    fl_begin_line();
+    for (auto &point : points) {
+        fl_vertex(point.x, point.y);
+    }
+    fl_end_line();
+}
+
+/*----------------------------------------------------------
  * Text
  *--------------------------------------------------------*/
 

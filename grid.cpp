@@ -111,9 +111,27 @@ bool Cell::swapContentWith(const Point &p)
 }
 
 
+/*bool Cell::contentWasSwappedWith(const Point &p)
+{
+    assert(content);
+    //std::shared_ptr<MovableCellContent> movContent {std::dynamic_pointer_cast<MovableCellContent>(content)};
+    //movContent->wasSwappedWith(p);
+
+    ContentT cellType = content->getType();
+
+    switch (cellType) {
+        case ContentT::ColourBomb:
+            std::shared_ptr<ColourBomb> movContent {std::dynamic_pointer_cast<ColourBomb>(content)};
+            movContent->wasSwappedWith(p);
+            break;
+    }
+
+}*/
+
 bool Cell::contentWasSwappedWith(const Point &p)
 {
     assert(content);
+
     std::shared_ptr<MovableCellContent> movContent {std::dynamic_pointer_cast<MovableCellContent>(content)};
     movContent->wasSwappedWith(p);
 }
@@ -395,6 +413,9 @@ void Grid::put(const Point &point, ContentT content, StandardCandy::Color color,
             break;
         case ContentT::Wall:
             toPut = std::make_shared<Wall>(*this, &at(point), at(point).getCenter(), cellContentSide);
+            break;
+        case ContentT::ColourBomb:
+            toPut = std::make_shared<ColourBomb>(*this, &at(point), at(point).getCenter(), cellContentSide);
             break;
     }
 
