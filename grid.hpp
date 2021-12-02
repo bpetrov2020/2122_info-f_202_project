@@ -160,7 +160,7 @@ class Grid : public DrawableContainer, public Interactive
         void clearCell(std::vector<Point> &v);
         bool clearCell(const Point &point);
 
-        void put(const Point &point, ContentT content, StandardCandy::Color color = StandardCandy::Color::Red, Axis axis = Axis::Vertical);
+        void put(const Point &point, ContentT content, StandardCandy::Color color = StandardCandy::Color::Red, Axis axis = std::rand()%2 ? Axis::Horizontal : Axis::Vertical);
 
         bool animationPlaying()
         {

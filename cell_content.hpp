@@ -215,6 +215,7 @@ class StripedCandy : public StandardCandy
         Axis axis;  // wether horizontal or vertical
     public:
         StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color, Axis axis);
+        StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
         void clearWithoutAnimation() override;
 
@@ -241,6 +242,8 @@ class ColourBomb : public ClearableCellContent, public MovableCellContent
         StandardCandy::Color colorToReplace;
         ContentT typeToReplaceWith {ContentT::StandardCandy};
         bool wasSwapped {false};
+
+        void replaceAndExplode();
     public:
         ColourBomb(Grid &grid, Cell *cell, Point center, int side);
 
@@ -248,23 +251,11 @@ class ColourBomb : public ClearableCellContent, public MovableCellContent
         void animationFinished(AnimationT a) override;
 
         StandardCandy::Color getColorToClear() { return static_cast<StandardCandy::Color>(std::rand()%6); }
-       void clearWithoutAnimation() override;
+        void clearWithoutAnimation() override;
 
         void wasSwappedWith(const Point &p) override;
 
         ContentT getType() override { return ContentT::ColourBomb; }
 };
-
-/*class ColourBomb : public StandardCandy
-{
-protected:
-    ContentT type = ContentT::ColourBomb;
-public:
-    ColourBomb(Grid &grid, Cell *cell, Point center, int side);
-
-    void wasSwappedWith(const Point &p) override;
-
-    ContentT getType() override { return type; }
-};*/
 
 #endif

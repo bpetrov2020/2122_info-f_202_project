@@ -347,6 +347,23 @@ StripedCandy::StripedCandy(
         axis{axis}
 { }
 
+StripedCandy::StripedCandy(
+        Grid &grid,
+        Cell *cell,
+        Point center,
+        int side,
+        StandardCandy::Color color)
+    :
+        StripedCandy(
+            grid,
+            cell,
+            center,
+            side,
+            color,
+            static_cast<Axis>(std::rand()%2)  // if no axis provided, pick random
+        )
+{ }
+
 void StripedCandy::clearWithoutAnimation()
 {
     StandardCandy::clearWithoutAnimation();
@@ -450,6 +467,43 @@ ColourBomb::ColourBomb(
         MovableCellContent{grid, cell, std::make_shared<MulticolourStar>(center, side)}
 { }
 
+void ColourBomb::replaceAndExplode()
+{
+    if (typeToReplaceWith == ContentT::ColourBomb) {
+        for (auto &c: grid) {
+            if (!c.isEmpty()
+                && std::dynamic_pointer_cast<ClearableCellContent>(c.getContent()) != nullptr
+                && std::dynamic_pointer_cast<MovableCellContent>(c.getContent()) != nullptr) {  // <-- prevent icing to be affected
+                    c.clear();
+            }
+        }
+        return;
+    }
+
+    for (auto &c: grid) {
+        if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
+            StandardCandy::Color cellColor{
+                    std::dynamic_pointer_cast<StandardCandy>(c.getContent())->getColor()};
+            if (cellColor == colorToReplace) {
+                // place the specific candy
+                c.clearWithoutAnimation();
+                grid.put(c.getIndex(), typeToReplaceWith, cellColor);
+            }
+        }
+    }
+
+    for (auto &c: grid) {
+        if (!c.isEmpty() && c.getContent()->getType() == typeToReplaceWith) {
+            StandardCandy::Color cellColor{
+                    std::dynamic_pointer_cast<StandardCandy>(c.getContent())->getColor()};
+            if (cellColor == colorToReplace) {
+                // explode all specific candies
+                c.clear();
+            }
+        }
+    }
+}
+
 void ColourBomb::draw()
 {
     DrawableContainer::draw();
@@ -465,40 +519,31 @@ void ColourBomb::animationFinished(AnimationT a)
 
 void ColourBomb::clearWithoutAnimation()
 {
+    ClearableCellContent::clearWithoutAnimation();
     if (!wasSwapped)
         colorToReplace = getColorToClear();
 
-    switch (typeToReplaceWith) {
-
-        case ContentT::StandardCandy:
-            {
-                for (auto &c: grid) {
-                    if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
-                        StandardCandy::Color cellColor{
-                            std::dynamic_pointer_cast<StandardCandy>(c.getContent())->getColor()};
-                        if (cellColor == colorToReplace) {
-                            grid.clearCell(c.getIndex());
-                        }
-                    }
-                }
-                break;
-            }
-        case ContentT::StripedCandy:
-            {
-                std::cout << "TOTO" << std::endl;   // TODO
-                break;
-            }
-    }
-
+    replaceAndExplode();
 }
 
 void ColourBomb::wasSwappedWith(const Point &p)
 {
-    std::shared_ptr<StandardCandy> other {std::dynamic_pointer_cast<StandardCandy>(grid.at(p).getContent())};
-    if (other) {
-        colorToReplace = other->getColor();
-        typeToReplaceWith = other->getType();
+    std::shared_ptr<StandardCandy> other1 {std::dynamic_pointer_cast<StandardCandy>(grid.at(p).getContent())};
+    std::shared_ptr<ColourBomb> other2 {std::dynamic_pointer_cast<ColourBomb>(grid.at(p).getContent())};
+
+    // case StandardCandy, StripedCandy, WrappedCandy
+    if (other1) {
+        colorToReplace = other1->getColor();
+        typeToReplaceWith = other1->getType();
+        wasSwapped = true;
+        clear();
+
+    // case ColourBomb
+    } else if (other2 && !hasAnimation()) {    // checking animation to prevent both bombs to explode
+        typeToReplaceWith = other2->getType();
         wasSwapped = true;
         clear();
     }
+
+
 }

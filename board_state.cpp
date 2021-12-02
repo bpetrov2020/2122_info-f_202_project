@@ -58,36 +58,53 @@ void EditState::mouseDrag(Point mouseLoc)
 void ReadyState::initGrid()
 {
     replaceGrid();
-    Point point{3, 3};
-    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
-    /* point={2, 1}; */
-    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
-    /* point={2, 2}; */
-    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
-    /* point = {2, 4}; */
-    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
-    /* point = {1, 3}; */
-    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
-    /* point = {3, 1}; */
-    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red); */
+
+    // ColourBomb with Standard
+    /*Point point{1, 1};
+    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
     point = {1, 2};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point = {2, 1};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
+
+    // ColourBomb with Wrapped
+    Point point{1, 1};
+    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
+    point = {1, 2};
+    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
+
+    // ColourBomb with Striped
+    /*Point point{1, 1};
+    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
+    point = {1, 2};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue);*/
+
+    // Striped making ColourBomb explode
+    /*Point point{1, 1};
+    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
     point = {3, 1};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
-    point = {4, 1};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Horizontal);
+    point = {4, 2};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
     point = {5, 1};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Red);
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
+
+    // Two ColourBombs
+    /*Point point{1, 1};
+    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
+    point = {1, 2};
+    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Blue);*/
+
+    // add 3 walls
     point = {2, 5};
-    grid.put(point, ContentT::Wall);
+    grid.put(point, ContentT::Wall, StandardCandy::Color::Blue);
     point = {3, 5};
-    grid.put(point, ContentT::Wall);
+    grid.put(point, ContentT::Wall, StandardCandy::Color::Blue);
     point = {4, 5};
-    grid.put(point, ContentT::Wall);
-    point = {2, 2};
-    grid.put(point, ContentT::Icing);
+    grid.put(point, ContentT::Wall, StandardCandy::Color::Blue);
+
+    // add an icing
+    /*point = {5, 4};
+    grid.put(point, ContentT::Icing, StandardCandy::Color::Blue);*/
+
 }
 
 // TODO
