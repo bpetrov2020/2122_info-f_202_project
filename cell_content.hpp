@@ -217,6 +217,7 @@ class WrappedCandy : public StandardCandy
 {
     private:
         bool secondPhase {false};
+        int side;
     public:
         WrappedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 

@@ -129,6 +129,23 @@ public:
 };
 
 /**
+ * Second phase star shape for WrappedCandie
+ */
+class SecondPhaseStar : public Rectangle
+{
+public:
+    SecondPhaseStar(
+            Point center,
+            int width,
+            int height,
+            Fl_Color fillColor = FL_WHITE,
+            Fl_Color frameColor = FL_BLACK
+    );
+
+    void draw() override;
+};
+
+/**
  * Circle shape
  *
  * Used to display a filled-in circle on the screen

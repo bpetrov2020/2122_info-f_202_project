@@ -400,7 +400,8 @@ WrappedCandy::WrappedCandy(
                 cell,
                 color,
                 std::make_shared<Star>(center, side, side, flRelative[static_cast<int>(color)])
-        }
+        },
+        side{side}
 { }
 
 void WrappedCandy::clear()
@@ -408,6 +409,7 @@ void WrappedCandy::clear()
     if (secondPhase) {
         StandardCandy::clear();
     } else {
+        drawable = std::make_shared<SecondPhaseStar>(getCenter(), side, side, flRelative[static_cast<int>(color)]);
         clearWithoutAnimation();
         secondPhase = true;
     }
