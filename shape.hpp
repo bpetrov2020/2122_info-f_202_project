@@ -160,7 +160,6 @@ class MulticolourCircle : public Circle
 {
 protected:
     int size;
-    void draw() override;
     void drawRectRotate(float angle = 0, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
 public:
     MulticolourCircle(
@@ -168,6 +167,7 @@ public:
             int size
     );
 
+    void draw() override;
 };
 
 /**
