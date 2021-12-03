@@ -71,7 +71,7 @@ class DrawableContainer
         }
 
         // Function called at end of an animation with the type of it
-        virtual void animationFinished(AnimationT a) { }
+        virtual void animationFinished(AnimationT) { }
 };
 
 enum class Direction {

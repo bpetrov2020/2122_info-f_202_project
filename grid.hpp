@@ -57,7 +57,7 @@ class Cell : public DrawableContainer, public Interactive
 
         bool moveContentTo(Cell &other);
         bool swapContentWith(const Point &p);
-        bool contentWasSwappedWith(const Point &p);
+        void contentWasSwappedWith(const Point &p);
 
         auto &getContent() { return content; }
         void setContent(std::shared_ptr<CellContent> c) { content = std::move(c); }
@@ -94,7 +94,7 @@ class Grid : public DrawableContainer, public Interactive
             Point{ 1,  1}   // NorthEast
         };
     protected:
-        std::vector<std::vector<std::shared_ptr<Cell>>> matrix;
+        std::vector<std::vector<std::shared_ptr<Cell>>> matrix {};
         int selectedCount = 0;
 
         // Dimentions

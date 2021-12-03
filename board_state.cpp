@@ -124,7 +124,7 @@ void ReadyState::replaceGrid()
     }
 }
 
-void ReadyState::animationFinished(const Point &p)
+void ReadyState::animationFinished(const Point &)
 {
     throw std::runtime_error("There should be no animations in ReadyState");
 }
