@@ -5,8 +5,10 @@
 #include <memory>
 #include <cassert>
 
-#include "shape.hpp"
 #include "animation.hpp"
+
+class Shape;    // inclusion not needed, this is faster
+
 
 // Constants
 const int ANIM_TIME = 10;

@@ -116,6 +116,7 @@ class ReadyState : public MatchState
          * is changed.
          */
         void selectionChanged();
+
     public:
         ReadyState(Grid &grid, bool initG = false) noexcept
             : MatchState{grid}
@@ -131,6 +132,15 @@ class ReadyState : public MatchState
         void mouseDrag(Point mouseLoc) override;
 
         void initGrid();
+
+        // testing functions
+        /*void twoColourBombs() {
+            Point point{1, 1};
+            grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
+            point = {1, 2};
+            grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Blue);
+        }*/
+
         void replaceGrid();
 
         void animationFinished(const Point &p) override;

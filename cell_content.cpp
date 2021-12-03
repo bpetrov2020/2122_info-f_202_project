@@ -103,7 +103,25 @@ void MovableCellContent::moveToWithoutAnimation(const Point &point)
 
 void MovableCellContent::wasSwappedWith(const Point &p)
 {
-    std::cout << "I was swapped with " << p << std::endl;
+    /*ContentT cellType = grid.at(p).getContent()->getType();
+
+    switch (cellType) {
+
+        case ContentT::StandardCandy:
+            StandardCandy::Color initialColor {std::dynamic_pointer_cast<StandardCandy>(grid.at(p).getContent())->getColor()};
+
+            for (auto &c: grid) {
+                if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
+                    StandardCandy::Color cellColor{std::dynamic_pointer_cast<StandardCandy>(c.getContent())->getColor()};
+                    if (cellColor == initialColor) {
+                        grid.clearCell(c.getIndex());
+                    }
+                }
+            }
+            grid.clearCell(containerCell->getIndex());
+            break;
+    }*/
+
 }
 
 void MovableCellContent::animationFinished(AnimationT a)
@@ -329,6 +347,23 @@ StripedCandy::StripedCandy(
         axis{axis}
 { }
 
+StripedCandy::StripedCandy(
+        Grid &grid,
+        Cell *cell,
+        Point center,
+        int side,
+        StandardCandy::Color color)
+    :
+        StripedCandy(
+            grid,
+            cell,
+            center,
+            side,
+            color,
+            static_cast<Axis>(std::rand()%2)  // if no axis provided, pick random
+        )
+{ }
+
 void StripedCandy::clearWithoutAnimation()
 {
     StandardCandy::clearWithoutAnimation();
@@ -408,5 +443,105 @@ void WrappedCandy::clearWithoutAnimation()
             grid.clearCell(p+containerCell->getIndex());
         } catch (const std::out_of_range& err) {}
     }
+
+}
+
+/*----------------------------------------------------------
+ * ColourBomb
+ *--------------------------------------------------------*/
+
+ColourBomb::ColourBomb(
+        Grid &grid,
+        Cell *cell,
+        Point center,
+        int side
+)
+        :
+        CellContent{
+                grid,
+                cell,
+                std::make_shared<MulticolourCircle>(center, side)
+        },
+        ClearableCellContent{grid, cell, std::make_shared<MulticolourCircle>(center, side), true},
+        MovableCellContent{grid, cell, std::make_shared<MulticolourCircle>(center, side)}
+{ }
+
+void ColourBomb::draw()
+{
+    DrawableContainer::draw();
+    MovableCellContent::draw();
+    ClearableCellContent::draw();
+}
+
+void ColourBomb::animationFinished(AnimationT a)
+{
+    MovableCellContent::animationFinished(a);
+    ClearableCellContent::animationFinished(a);
+}
+
+void ColourBomb::replaceAndExplode()
+{
+    // case other is a ColourBomb
+    if (typeToReplaceWith == ContentT::ColourBomb) {
+        for (auto &c: grid) {
+            grid.clearCell(c.getIndex());
+        }
+        return;
+    }
+
+    // case other is standard, striped or wrapped
+    for (auto &c: grid) {
+        if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
+            StandardCandy::Color cellColor{
+                    std::dynamic_pointer_cast<StandardCandy>(c.getContent())->getColor()};
+            if (cellColor == colorToReplace) {
+                // place the specific candy
+                c.clearWithoutAnimation();
+                grid.put(c.getIndex(), typeToReplaceWith, cellColor);
+            }
+        }
+    }
+
+    for (auto &c: grid) {
+        // the next cast test is to avoid calling getColor() on contents that don't have a color
+        if (!c.isEmpty() && std::dynamic_pointer_cast<StandardCandy>(c.getContent())) {
+            StandardCandy::Color cellColor{
+                    std::dynamic_pointer_cast<StandardCandy>(c.getContent())->getColor()};
+            if (cellColor == colorToReplace) {
+                // explode all specific candies
+                c.clear();
+            }
+        }
+    }
+}
+
+void ColourBomb::clearWithoutAnimation()
+{
+    ClearableCellContent::clearWithoutAnimation();
+    if (!wasSwapped)
+        colorToReplace = getColorToClear();
+
+    replaceAndExplode();
+}
+
+void ColourBomb::wasSwappedWith(const Point &p)
+{
+    std::shared_ptr<StandardCandy> otherCandy {std::dynamic_pointer_cast<StandardCandy>(grid.at(p).getContent())};
+    std::shared_ptr<ColourBomb> otherBomb {std::dynamic_pointer_cast<ColourBomb>(grid.at(p).getContent())};
+
+    // case StandardCandy, StripedCandy, WrappedCandy
+    if (otherCandy) {
+        colorToReplace = otherCandy->getColor();
+        typeToReplaceWith = otherCandy->getType();
+        wasSwapped = true;
+        clear();
+
+    // case ColourBomb
+    } else if (otherBomb && !hasAnimation()) {    // checking animation to prevent both bombs to explode
+        typeToReplaceWith = otherBomb->getType();
+        wasSwapped = true;
+        clear();
+    }
+
 
 }

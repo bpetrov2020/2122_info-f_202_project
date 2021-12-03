@@ -16,7 +16,7 @@ enum class ContentT {
     StandardCandy,
     StripedCandy,
     WrappedCandy,
-    ColourfulBomb,
+    ColourBomb,
     Wall,
     Icing
 };
@@ -44,6 +44,8 @@ class CellContent : public DrawableContainer
 
         virtual void update(Event e) { }
 
+        virtual ContentT getType() = 0;
+
         /* bool isClearable() const { return std::dynamic_pointer_cast<ClearableCellContent>(this)} */
         /* bool isMovable() const { return movable; } */
         /* bool isMatchable() const { return matchable; } */
@@ -53,6 +55,9 @@ class Wall : public CellContent
 {
     public:
         Wall(Grid &grid, Cell *cell, const Point &center, int side);
+
+        ContentT getType() override { return ContentT::Wall; }
+
 };
 
 // A CellContent object that is matchable should be
@@ -108,6 +113,8 @@ class Icing : public ClearableCellContent
         void update(Event e) override;
 
         void draw() override;
+
+        ContentT getType() override { return ContentT::Icing; }
 };
 
 class MovableCellContent : public virtual CellContent
@@ -170,15 +177,6 @@ class StandardCandy : public ClearableCellContent, public MovableCellContent, pu
             Red,
             Yellow
         };
-        static constexpr Fl_Color flRelative[6] = {
-            0x22a0fd00,  // Blue
-            0x4ad81200,  // Green
-            0xfe810200,  // Orange
-            0xd31ded00,  // Purple
-            0xe3010200,  // Red
-            /* 0xfad40000   // Yellow */
-            0xFFFF8A00   // Yellow
-        };
     protected:
         Color color;  // identifier of a candy
 
@@ -198,6 +196,8 @@ class StandardCandy : public ClearableCellContent, public MovableCellContent, pu
         Color getColor() const { return color; }
 
         void clearWithoutAnimation() override;
+
+        ContentT getType() override { return ContentT::StandardCandy; }
 };
 
 class StripedCandy : public StandardCandy
@@ -206,8 +206,11 @@ class StripedCandy : public StandardCandy
         Axis axis;  // wether horizontal or vertical
     public:
         StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color, Axis axis);
+        StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
         void clearWithoutAnimation() override;
+
+        ContentT getType() override { return ContentT::StripedCandy; }
 };
 
 class WrappedCandy : public StandardCandy
@@ -221,6 +224,30 @@ class WrappedCandy : public StandardCandy
         void clearWithoutAnimation() override;
 
         void update(Event e) override;
+        ContentT getType() override { return  ContentT::WrappedCandy; }
+};
+
+class ColourBomb : public ClearableCellContent, public MovableCellContent
+{
+    private:
+        StandardCandy::Color colorToReplace;
+        ContentT typeToReplaceWith {ContentT::StandardCandy};
+        bool wasSwapped {false};
+
+        void draw() override;
+        void animationFinished(AnimationT a) override;
+
+        StandardCandy::Color getColorToClear() { return static_cast<StandardCandy::Color>(std::rand()%6); }
+
+        void replaceAndExplode();
+    public:
+        ColourBomb(Grid &grid, Cell *cell, Point center, int side);
+
+        void clearWithoutAnimation() override;
+
+        void wasSwappedWith(const Point &p) override;
+
+        ContentT getType() override { return ContentT::ColourBomb; }
 };
 
 #endif

@@ -10,6 +10,7 @@
 
 #include "point.hpp"
 #include "animation.hpp"
+#include "colors.hpp"
 
 class Animation;
 
@@ -150,6 +151,23 @@ class Circle : public AnimatableShape
 
         int getRadius() const { return radius; }
         void setRadius(int r) { radius = r; }
+};
+
+/**
+ * MulticolourCircle Shape for colour bomb
+ */
+class MulticolourCircle : public Circle
+{
+protected:
+    int size;
+    void drawRectRotate(float angle = 0, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
+public:
+    MulticolourCircle(
+            Point center,
+            int size
+    );
+
+    void draw() override;
 };
 
 /**

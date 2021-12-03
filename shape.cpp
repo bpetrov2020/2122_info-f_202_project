@@ -231,6 +231,57 @@ bool Circle::contains(const Point& p) const
 }
 
 /*----------------------------------------------------------
+ * MulticolourCircle
+ *--------------------------------------------------------*/
+
+MulticolourCircle::MulticolourCircle(
+        Point center,
+        int size
+)
+        :
+        Circle{center, size*7/12},
+        size{size/2}
+{}
+
+void MulticolourCircle::draw()
+{
+    Circle::draw();
+
+    for (int i=0; i<13; i++) {
+        drawRectRotate(i*std::numbers::pi/6, flRelative[i%6]);
+    }
+
+}
+
+void MulticolourCircle::drawRectRotate(float angle, Fl_Color fillColor, Fl_Color frameColor)
+{
+
+    std::array<Point, 5> points {
+            Point{center.x - (size/4)*sin(angle), center.y + (size/4)*cos(angle)},
+            Point{center.x + (size*cos(angle)-(size/4)*sin(angle)), center.y + (size*sin(angle) + (size/4)*cos(angle))},
+            Point{center.x + (size*cos(angle)+(size/4)*sin(angle)), center.y + (size*sin(angle) - (size/4)*cos(angle))},
+            Point{center.x + (size/4)*sin(angle), center.y - (size/4)*cos(angle)},
+            Point{center.x - (size/4)*sin(angle), center.y + (size/4)*cos(angle)}
+    };
+
+    // Fill
+    fl_color(fillColor);
+    fl_begin_polygon();
+    for (auto &point : points) {
+        fl_vertex(point.x, point.y);
+    }
+    fl_end_polygon();
+
+    // Frame
+    fl_color(frameColor);
+    fl_begin_line();
+    for (auto &point : points) {
+        fl_vertex(point.x, point.y);
+    }
+    fl_end_line();
+}
+
+/*----------------------------------------------------------
  * Text
  *--------------------------------------------------------*/
 
