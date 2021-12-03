@@ -177,15 +177,6 @@ class StandardCandy : public ClearableCellContent, public MovableCellContent, pu
             Red,
             Yellow
         };
-        static constexpr Fl_Color flRelative[6] = {
-            0x22a0fd00,  // Blue
-            0x4ad81200,  // Green
-            0xfe810200,  // Orange
-            0xd31ded00,  // Purple
-            0xe3010200,  // Red
-            /* 0xfad40000   // Yellow */
-            0xFFFF8A00   // Yellow
-        };
     protected:
         Color color;  // identifier of a candy
 
@@ -243,14 +234,15 @@ class ColourBomb : public ClearableCellContent, public MovableCellContent
         ContentT typeToReplaceWith {ContentT::StandardCandy};
         bool wasSwapped {false};
 
-        void replaceAndExplode();
-    public:
-        ColourBomb(Grid &grid, Cell *cell, Point center, int side);
-
         void draw() override;
         void animationFinished(AnimationT a) override;
 
         StandardCandy::Color getColorToClear() { return static_cast<StandardCandy::Color>(std::rand()%6); }
+
+        void replaceAndExplode();
+    public:
+        ColourBomb(Grid &grid, Cell *cell, Point center, int side);
+
         void clearWithoutAnimation() override;
 
         void wasSwappedWith(const Point &p) override;

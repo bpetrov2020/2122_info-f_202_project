@@ -394,7 +394,6 @@ WrappedCandy::WrappedCandy(
             grid,
             cell,
             std::make_shared<Star>(center, side, side, flRelative[static_cast<int>(color)])
-            //std::make_shared<MulticolourStar>(center, side)
         },
         StandardCandy{
                 grid,
@@ -467,19 +466,30 @@ ColourBomb::ColourBomb(
         MovableCellContent{grid, cell, std::make_shared<MulticolourStar>(center, side)}
 { }
 
+void ColourBomb::draw()
+{
+    DrawableContainer::draw();
+    MovableCellContent::draw();
+    ClearableCellContent::draw();
+}
+
+void ColourBomb::animationFinished(AnimationT a)
+{
+    MovableCellContent::animationFinished(a);
+    ClearableCellContent::animationFinished(a);
+}
+
 void ColourBomb::replaceAndExplode()
 {
+    // case other is a ColourBomb
     if (typeToReplaceWith == ContentT::ColourBomb) {
         for (auto &c: grid) {
-            if (!c.isEmpty()
-                && std::dynamic_pointer_cast<ClearableCellContent>(c.getContent()) != nullptr
-                && std::dynamic_pointer_cast<MovableCellContent>(c.getContent()) != nullptr) {  // <-- prevent icing to be affected
-                    c.clear();
-            }
+            grid.clearCell(c.getIndex());
         }
         return;
     }
 
+    // case other is not a ColourBomb
     for (auto &c: grid) {
         if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
             StandardCandy::Color cellColor{
@@ -504,19 +514,6 @@ void ColourBomb::replaceAndExplode()
     }
 }
 
-void ColourBomb::draw()
-{
-    DrawableContainer::draw();
-    MovableCellContent::draw();
-    ClearableCellContent::draw();
-}
-
-void ColourBomb::animationFinished(AnimationT a)
-{
-    MovableCellContent::animationFinished(a);
-    ClearableCellContent::animationFinished(a);
-}
-
 void ColourBomb::clearWithoutAnimation()
 {
     ClearableCellContent::clearWithoutAnimation();
@@ -528,19 +525,19 @@ void ColourBomb::clearWithoutAnimation()
 
 void ColourBomb::wasSwappedWith(const Point &p)
 {
-    std::shared_ptr<StandardCandy> other1 {std::dynamic_pointer_cast<StandardCandy>(grid.at(p).getContent())};
-    std::shared_ptr<ColourBomb> other2 {std::dynamic_pointer_cast<ColourBomb>(grid.at(p).getContent())};
+    std::shared_ptr<StandardCandy> otherCandy {std::dynamic_pointer_cast<StandardCandy>(grid.at(p).getContent())};
+    std::shared_ptr<ColourBomb> otherBomb {std::dynamic_pointer_cast<ColourBomb>(grid.at(p).getContent())};
 
     // case StandardCandy, StripedCandy, WrappedCandy
-    if (other1) {
-        colorToReplace = other1->getColor();
-        typeToReplaceWith = other1->getType();
+    if (otherCandy) {
+        colorToReplace = otherCandy->getColor();
+        typeToReplaceWith = otherCandy->getType();
         wasSwapped = true;
         clear();
 
     // case ColourBomb
-    } else if (other2 && !hasAnimation()) {    // checking animation to prevent both bombs to explode
-        typeToReplaceWith = other2->getType();
+    } else if (otherBomb && !hasAnimation()) {    // checking animation to prevent both bombs to explode
+        typeToReplaceWith = otherBomb->getType();
         wasSwapped = true;
         clear();
     }

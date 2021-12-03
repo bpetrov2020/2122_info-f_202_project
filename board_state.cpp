@@ -66,10 +66,10 @@ void ReadyState::initGrid()
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
 
     // ColourBomb with Wrapped
-    Point point{1, 1};
+    /*Point point{1, 1};
     grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
     point = {1, 2};
-    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
+    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);*/
 
     // ColourBomb with Striped
     /*Point point{1, 1};
@@ -88,10 +88,10 @@ void ReadyState::initGrid()
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
 
     // Two ColourBombs
-    /*Point point{1, 1};
+    Point point{1, 1};
     grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
     point = {1, 2};
-    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Blue);*/
+    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Blue);
 
     // add 3 walls
     point = {2, 5};

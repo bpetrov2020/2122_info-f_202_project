@@ -247,18 +247,8 @@ void MulticolourStar::draw()
 {
     Circle::draw();
 
-    static constexpr Fl_Color flRelative[6] = {
-            0x22a0fd00,  // Blue
-            0x4ad81200,  // Green
-            0xfe810200,  // Orange
-            0xd31ded00,  // Purple
-            0xe3010200,  // Red
-            /* 0xfad40000   // Yellow */
-            0xFFFF8A00   // Yellow
-    };
-
     for (int i=0; i<13; i++) {
-        drawRectRotate(i*PI/6, flRelative[i%6]);
+        drawRectRotate(i*std::numbers::pi/6, flRelative[i%6]);
     }
 
 }
