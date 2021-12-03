@@ -154,16 +154,16 @@ class Circle : public AnimatableShape
 };
 
 /**
- * MulticolourStar Shape for colour bomb
+ * MulticolourCircle Shape for colour bomb
  */
-class MulticolourStar : public Circle
+class MulticolourCircle : public Circle
 {
 protected:
     int size;
     void draw() override;
     void drawRectRotate(float angle = 0, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
 public:
-    MulticolourStar(
+    MulticolourCircle(
             Point center,
             int size
     );

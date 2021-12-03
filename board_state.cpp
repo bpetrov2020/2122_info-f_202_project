@@ -60,10 +60,15 @@ void ReadyState::initGrid()
     replaceGrid();
 
     // ColourBomb with Standard
-    /*Point point{1, 1};
+    Point point{1, 1};
     grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
     point = {1, 2};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
+
+    point = {4, 4};
+    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
+    point = {0, 5};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Horizontal);
 
     // ColourBomb with Wrapped
     /*Point point{1, 1};
@@ -88,10 +93,10 @@ void ReadyState::initGrid()
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
 
     // Two ColourBombs
-    Point point{1, 1};
+    /*Point point{1, 1};
     grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
     point = {1, 2};
-    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Blue);
+    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Blue);*/
 
     // add 3 walls
     point = {2, 5};

@@ -231,10 +231,10 @@ bool Circle::contains(const Point& p) const
 }
 
 /*----------------------------------------------------------
- * MulticolourStar
+ * MulticolourCircle
  *--------------------------------------------------------*/
 
-MulticolourStar::MulticolourStar(
+MulticolourCircle::MulticolourCircle(
         Point center,
         int size
 )
@@ -243,7 +243,7 @@ MulticolourStar::MulticolourStar(
         size{size/2}
 {}
 
-void MulticolourStar::draw()
+void MulticolourCircle::draw()
 {
     Circle::draw();
 
@@ -253,7 +253,7 @@ void MulticolourStar::draw()
 
 }
 
-void MulticolourStar::drawRectRotate(float angle, Fl_Color fillColor, Fl_Color frameColor)
+void MulticolourCircle::drawRectRotate(float angle, Fl_Color fillColor, Fl_Color frameColor)
 {
 
     std::array<Point, 5> points {

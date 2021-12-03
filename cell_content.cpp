@@ -460,10 +460,10 @@ ColourBomb::ColourBomb(
         CellContent{
                 grid,
                 cell,
-                std::make_shared<MulticolourStar>(center, side)
+                std::make_shared<MulticolourCircle>(center, side)
         },
-        ClearableCellContent{grid, cell, std::make_shared<MulticolourStar>(center, side), true},
-        MovableCellContent{grid, cell, std::make_shared<MulticolourStar>(center, side)}
+        ClearableCellContent{grid, cell, std::make_shared<MulticolourCircle>(center, side), true},
+        MovableCellContent{grid, cell, std::make_shared<MulticolourCircle>(center, side)}
 { }
 
 void ColourBomb::draw()
@@ -489,7 +489,7 @@ void ColourBomb::replaceAndExplode()
         return;
     }
 
-    // case other is not a ColourBomb
+    // case other is standard, striped or wrapped
     for (auto &c: grid) {
         if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
             StandardCandy::Color cellColor{
@@ -503,7 +503,8 @@ void ColourBomb::replaceAndExplode()
     }
 
     for (auto &c: grid) {
-        if (!c.isEmpty() && c.getContent()->getType() == typeToReplaceWith) {
+        // the next cast test is to avoid calling getColor() on contents that don't have a color
+        if (!c.isEmpty() && std::dynamic_pointer_cast<StandardCandy>(c.getContent())) {
             StandardCandy::Color cellColor{
                     std::dynamic_pointer_cast<StandardCandy>(c.getContent())->getColor()};
             if (cellColor == colorToReplace) {
