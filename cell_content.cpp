@@ -101,7 +101,7 @@ void MovableCellContent::moveToWithoutAnimation(const Point &point)
     containerCell = &grid.at(point);
 }
 
-void MovableCellContent::wasSwappedWith(const Point &p)
+void MovableCellContent::wasSwappedWith(const Point &)
 {
     /*ContentT cellType = grid.at(p).getContent()->getType();
 
@@ -225,6 +225,8 @@ void Icing::update(Event e)
             if (layers>0 && !animation)
                 clear();
             break;
+        default:
+            break;
     }
 }
 
@@ -245,8 +247,8 @@ StandardCandy::StandardCandy(
             shape
         },
         ClearableCellContent{grid, cell, shape, true},
-        MatchableCellContent{grid, cell, shape},
         MovableCellContent{grid, cell, shape},
+        MatchableCellContent{grid, cell, shape},
         color{color}
 { }
 
@@ -369,11 +371,11 @@ void StripedCandy::clearWithoutAnimation()
     StandardCandy::clearWithoutAnimation();
     if (axis == Axis::Horizontal) {
         for (unsigned i=0; i<grid.colCount(); ++i) {
-            grid.clearCell(Point{i, containerCell->getIndex().y});
+            grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y});
         }
     } else if (axis == Axis::Vertical) {
         for (unsigned i=0; i<grid.rowCount(); ++i) {
-            grid.clearCell(Point{containerCell->getIndex().x, i});
+            grid.clearCell(Point{containerCell->getIndex().x, static_cast<int>(i)});
         }
     }
 }
@@ -419,6 +421,8 @@ void WrappedCandy::update(Event e)
         case Event::FallStateEnd:
             if (secondPhase)
                 StandardCandy::clear();
+            break;
+        default:
             break;
     }
 }

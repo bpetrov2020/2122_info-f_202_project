@@ -21,7 +21,7 @@ void Cell::drawContent()
     if (content) content->draw();
 }
 
-void Cell::update(Event e)
+void Cell::update(Event)
 {
     /* switch (e) { */
     /*     case Event::cellContentClearFinished: */
@@ -128,7 +128,7 @@ bool Cell::swapContentWith(const Point &p)
 
 }*/
 
-bool Cell::contentWasSwappedWith(const Point &p)
+void Cell::contentWasSwappedWith(const Point &p)
 {
     assert(content);
 
@@ -201,7 +201,7 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
     for (int y = 0; y<rows; ++y) {
         matrix.push_back({});
             for (int x = 0; x<columns; ++x)
-                matrix[y].push_back(
+                matrix[static_cast<unsigned>(y)].push_back(
                         std::make_shared<Cell>(
                             Point{z.x + (colSize*x + colSize/2), z.y - (rowSize*y + rowSize/2)},
                             w, h, Point{x, y}, *this
@@ -232,12 +232,12 @@ void Grid::mouseDrag(Point mouseLoc)
 
 Cell &Grid::at(const Point &p)
 {
-    return *matrix.at(p.y).at(p.x);
+    return *matrix.at(static_cast<unsigned>(p.y)).at(static_cast<unsigned>(p.x));
 }
 
 Cell &Grid::at(const Point &p, Direction d)
 {
-    return at(p+directionModifier[static_cast<int>(d)]);
+    return at(p+directionModifier[static_cast<unsigned>(d)]);
 }
 
 void Grid::select(const Point &p)
@@ -282,7 +282,7 @@ std::vector<Point> Grid::neighboursOf(const Point& p)
 {
     std::vector<Point> ret;
     for (int i = 0; i<4; ++i) {
-        Point idx{p+directionModifier[i]};
+        Point idx{p+directionModifier[static_cast<unsigned>(i)]};
         if (isIndexValid(idx)) {
             ret.push_back(idx);
         }
@@ -290,7 +290,7 @@ std::vector<Point> Grid::neighboursOf(const Point& p)
     return ret;
 }
 
-void Grid::update(Event e)
+void Grid::update(Event)
 {
     /* switch (e) { */
     /*     case Event::cellContentAnimationFinished: */
@@ -350,13 +350,13 @@ void Grid::put(const Point &point, ContentT content, StandardCandy::Color color,
 
 bool Grid::isIndexValid(const Point &p, Direction d) const
 {
-    return isIndexValid(p+directionModifier[static_cast<int>(d)]);
+    return isIndexValid(p+directionModifier[static_cast<unsigned>(d)]);
 }
 
 bool Grid::isIndexValid(const Point &p) const
 {
-    return p.x>=0 && p.x<colCount()
-        && p.y>=0 && p.y<rowCount();
+    return p.x>=0 && static_cast<unsigned>(p.x)<colCount()
+        && p.y>=0 && static_cast<unsigned>(p.y)<rowCount();
 }
 
 bool Grid::swapCellContent(std::vector<Point> toSwap)

@@ -69,9 +69,9 @@ class SplashScreen : public View
         SplashScreen(Fl_Window& window, Game& game, std::string author, int fontSize, int duration);
 
         // Mouse interactions are disabled
-        void mouseMove(Point mouseLoc) override { }
-        void mouseClick(Point mouseLoc) override { }
-        void mouseDrag(Point mouseLoc) override { }
+        void mouseMove(Point) override { }
+        void mouseClick(Point) override { }
+        void mouseDrag(Point) override { }
 
         void draw() override;
 

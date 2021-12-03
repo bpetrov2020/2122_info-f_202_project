@@ -36,14 +36,14 @@ class State : public Interactive
         { }
 
         // No interactions by default
-        void mouseMove(Point mouseLoc) override { }
-        void mouseClick(Point mouseLoc) override { }
-        void mouseDrag(Point mouseLoc) override { }
+        void mouseMove(Point) override { }
+        void mouseClick(Point) override { }
+        void mouseDrag(Point) override { }
 
         bool isWaiting() const;
         virtual void animationFinished(const Point &p) = 0;
 
-        virtual void update(Event e) { }
+        virtual void update(Event) { }
 
         virtual void notifyCells(Event e);
 
@@ -70,10 +70,12 @@ class EditState : public State
                 case Event::gridSelectionChanged:
                     selectionChanged();
                     break;
+                default:
+                    break;
             }
         }
 
-        void animationFinished(const Point &p) override { }
+        void animationFinished(const Point&) override { }
 };
 
 /**
@@ -150,6 +152,8 @@ class ReadyState : public MatchState
             switch (e) {
                 case Event::gridSelectionChanged:
                     selectionChanged();
+                    break;
+                default:
                     break;
             }
         }

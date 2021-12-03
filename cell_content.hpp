@@ -42,7 +42,7 @@ class CellContent : public DrawableContainer
         CellContent(const CellContent& c) = delete;
         CellContent operator=(const CellContent& c) = delete;
 
-        virtual void update(Event e) { }
+        virtual void update(Event) { }
 
         virtual ContentT getType() = 0;
 
@@ -86,7 +86,7 @@ class ClearableCellContent : public virtual CellContent
 
         void animationFinished(AnimationT a) override;
 
-        virtual void update(Event e) override
+        virtual void update(Event) override
         {
             /* switch (e) { */
             /*     case Event::FallStateEnd: */
@@ -230,7 +230,7 @@ class WrappedCandy : public StandardCandy
 class ColourBomb : public ClearableCellContent, public MovableCellContent
 {
     private:
-        StandardCandy::Color colorToReplace;
+        StandardCandy::Color colorToReplace{};
         ContentT typeToReplaceWith {ContentT::StandardCandy};
         bool wasSwapped {false};
 
