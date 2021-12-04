@@ -224,8 +224,9 @@ bool MatchState::processCombinationContaining(const Point &elem)
 
         // 5 or more in one axis
     } else if (vc>=5 || hc>=5) {
-        grid.clearCell(origin);
+        grid.clearCellWithoutAnimation(origin);
         grid.clearCell(largestDirection);
+        grid.put(origin, ContentT::ColourBomb);
         oneCombination = true;
     }
 
@@ -341,7 +342,8 @@ ReadyState::ReadyState(Grid &grid, bool replaceGrid_) noexcept
 {
     std::cout << "Entering Ready state" << std::endl;
     if (replaceGrid_)
-        replaceGrid();
+        while (!isActionPossible())
+            replaceGrid();
     hasPossibleAction = isActionPossible();
     std::cout << (hasPossibleAction ? "More action" : "No more action") << std::endl;
 }
