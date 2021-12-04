@@ -6,6 +6,97 @@
 #include "grid.hpp"
 
 class Grid;
+/* enum class Color { */
+/*     Blue, */
+/*     Green, */
+/*     Cyan, */
+/*     Magenta, */
+/*     Red, */
+/*     Yellow */
+/* }; */
+
+/* class CandyColor */
+/* { */
+/*     private: */
+/*         static constexpr unsigned colorCount{ 6 }; */
+
+/*         static constexpr std::array<std::string, colorCount> names { */
+/*             "Blue", */
+/*             "Green", */
+/*             "Cyan", */
+/*             "Magenta", */
+/*             "Red", */
+/*             "Yellow" */
+/*         }; */
+
+/*         static constexpr std::array<int, colorCount> normal { */
+/*             0x22a0fd00,  // Blue */
+/*             0x4ad81200,  // Green */
+/*             0xfe810200,  // Orange */
+/*             0xd31ded00,  // Purple */
+/*             0xe3010200,  // Red */
+/*             0xffff8a00   // Yellow */
+/*         }; */
+
+/*         unsigned colorIndex{ -1 }; */
+/*     public: */
+/*         Color(std::string name) */
+/*         { */
+/*             setFromName(name); */
+/*         } */
+
+/*         void setFromName(std::string name) */
+/*         { */
+/*             for (unsigned i=0; i<colorCount-1; ++i) { */
+/*                 if (names[i] == name) { */
+/*                     colorIndex = i; */
+/*                     break; */
+/*                 } */
+/*             } */
+/*         } */
+
+/*         bool isValid() { return colorIndex >= 0 && colorIndex < colorCount; } */
+
+/*         int getValue() const { return normal.at(colorIndex); }; */
+
+/*         std::string getName(); */
+/*         int getLightValue(); */
+/*         int getDarkValue(); */
+/* }; */
+
+/* CandyColor color{ "Blue" }; */
+
+/* color.getFlNormal(); */
+/* color.getFlLight(); */
+/* color.getFlDark(); */
+
+/* color.getName(); */
+
+class Combination
+{
+    private:
+        Point origin;
+        std::vector<Point> vertical {};
+        std::vector<Point> horizontal {};
+    public:
+        Combination(const Point &point);
+
+        auto getOrigin() const;
+
+        void addVerticalElement(const Point &elem);
+        void addHorizontalElement(const Point &elem);
+        void addElement(const Point &elem, Direction direction);
+
+        // These include the origin
+        std::size_t getVerticalCount() const;
+        std::size_t getHorizontalCount() const;
+        std::size_t getTotalCount() const;
+
+        // These don't include the origin
+        auto getVerticalElements();
+        auto getHorizontalElements();
+        auto getAllElements();
+};
 
 /**
  * Base class to any state
@@ -117,9 +208,24 @@ class MatchState : public State
         { }
 
         bool isInCombination(const Point &point);
-        std::vector<std::vector<Point>> combinationsFrom(const Point &p, bool rec = true);
-        bool processCombinationsFrom(const Point &p);
+        Combination getCombinationContaining(const Point &p, bool rec = true);
+        bool processCombinationContaining(const Point &p);
 };
+
+class LevelData;
+
+class GridInitState : public MatchState
+{
+    private:
+        void putInitialContent(LevelData &data);
+        void fillEmptyCells();
+    public:
+        GridInitState(Grid &grid, LevelData &data);
+
+        void draw() override;
+        void gridAnimationFinished(const Point &) override { }
+};
+
 
 /**
  * Ready state

@@ -1,4 +1,5 @@
 #include "grid.hpp"
+#include "game.hpp"
 
 /*----------------------------------------------------------
  * Cell
@@ -193,11 +194,11 @@ bool Cell::hasMatchWith(const Point &point)
  *                      Grid
  *--------------------------------------------------------*/
 
-Grid::Grid(Point center, int width, int height, int side)
-    : Grid(center, width, height, side, side)
+Grid::Grid(Point center, int width, int height, LevelData &data)
+    : Grid(center, width, height, data.getGridSize(), data.getGridSize(), data)
 { }
 
-Grid::Grid(Point center, int width, int height, int rows, int columns)
+Grid::Grid(Point center, int width, int height, int rows, int columns, LevelData &data)
     : DrawableContainer(std::make_shared<Rectangle>(center, width, height, FL_BLACK)),
     colSize{width/columns},
     rowSize{height/rows},
@@ -227,7 +228,8 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
 
     cellContentSide = w>h ? h-20 : w-20; // TODO move to initialization list
 
-    setState(std::make_shared<ReadyState>(*this, true));
+    /* setState(std::make_shared<ReadyState>(*this, true, data)); */
+    setState(std::make_shared<GridInitState>(*this, data));
     /* setState(std::make_shared<MessageShower>(*this, "Start")); */
     /* setState(std::make_shared<EditState>(*this)); */
 }
@@ -341,6 +343,37 @@ bool Grid::clearCell(const Point &point)
 {
     /* EventManager::get().send(Event::CellCleared); */
     return at(point).clear();
+}
+
+void Grid::put(const Point &point, ContentT content)
+{
+    std::shared_ptr<CellContent> toPut;
+
+    switch (content) {
+        case ContentT::StandardCandy:
+            toPut = std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide);
+            break;
+        case ContentT::Wall:
+            toPut = std::make_shared<Wall>(*this, &at(point), at(point).getCenter(), cellContentSide);
+            break;
+    }
+
+    assert(toPut);
+    at(point).setContent(toPut);
+}
+
+void Grid::put(const Point &point, ContentT content, int layer)
+{
+    std::shared_ptr<CellContent> toPut;
+
+    switch (content) {
+        case ContentT::Icing:
+            toPut = std::make_shared<Icing>(*this, &at(point), at(point).getCenter(), cellContentSide, layer);
+            break;
+    }
+
+    assert(toPut);
+    at(point).setContent(toPut);
 }
 
 void Grid::put(const Point &point, ContentT content, StandardCandy::Color color, Axis axis)

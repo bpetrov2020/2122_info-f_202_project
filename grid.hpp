@@ -16,6 +16,7 @@
 class State;
 class ReadyState;
 class Grid;
+class LevelData;
 
 /**
  * A Cell, part of a grid
@@ -108,8 +109,8 @@ class Grid : public DrawableContainer, public Interactive
 
         std::shared_ptr<State> state;
     public:
-        Grid(Point center, int width, int height, int rows, int columns);
-        Grid(Point center, int width, int height, int side);
+        Grid(Point center, int width, int height, LevelData &data);
+        Grid(Point center, int width, int height, int rows, int columns, LevelData &data);
 
         class Iterator {
             private:
@@ -158,8 +159,15 @@ class Grid : public DrawableContainer, public Interactive
 
         void clearCell(std::vector<Point> &v);
         bool clearCell(const Point &point);
+        void clearCellWithoutAnimation(const Point &point)
+        {
+            at(point).clearWithoutAnimation();
+        }
 
-        void put(const Point &point, ContentT content, StandardCandy::Color color = StandardCandy::Color::Red, Axis axis = std::rand()%2 ? Axis::Horizontal : Axis::Vertical);
+        // For different contents
+        void put(const Point &point, ContentT content);  // All no parameter contents
+        void put(const Point &point, ContentT content, int layer);  // Icing
+        void put(const Point &point, ContentT content, StandardCandy::Color color, Axis axis = std::rand()%2 ? Axis::Horizontal : Axis::Vertical); // Candies
 
         bool animationPlaying()
         {
@@ -183,6 +191,9 @@ class Grid : public DrawableContainer, public Interactive
 
         int getRowSize() const { return rowSize; }
         int getCellContentSide() const { return cellContentSide; }
+
+        bool isCellEmpty(const Point &p) { return at(p).isEmpty(); }
+        bool hasCellMatchWith(const Point &a, const Point &b) { return at(a).hasMatchWith(b); }
 };
 
 #endif

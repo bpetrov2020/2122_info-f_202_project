@@ -1,7 +1,7 @@
 #ifndef POINT_HPP
 #define POINT_HPP
 
-#include <ostream>
+#include <iostream>
 
 /**
   Coordinate in the plan
@@ -11,6 +11,8 @@ struct Point
     int x;
     int y;
 
+    /* Point(const Point &point, Direction dir); */
+
     Point operator+(const Point& other) const;
     Point operator-(const Point& other) const;
     Point operator*(const int& multiplier) const;
@@ -18,6 +20,7 @@ struct Point
     bool operator==(const Point& other) const;
 };
 
-std::ostream &operator<<(std::ostream &o, const Point &p);
+std::ostream &operator<<(std::ostream &ost, const Point &p);
+std::istream &operator>>(std::istream &ist, Point &p);
 
 #endif

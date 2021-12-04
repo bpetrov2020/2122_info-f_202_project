@@ -1,4 +1,84 @@
 #include "board_state.hpp"
+#include "game.hpp"
+
+/*----------------------------------------------------------
+ * Combination
+ *--------------------------------------------------------*/
+
+Combination::Combination(const Point &point)
+    : origin{point}
+{ }
+
+auto Combination::getOrigin() const
+{
+    return origin;
+}
+
+void Combination::addVerticalElement(const Point &elem)
+{
+    assert(elem.x == origin.x);
+    vertical.push_back(elem);
+}
+
+void Combination::addHorizontalElement(const Point &elem)
+{
+    assert(elem.y == origin.y);
+    horizontal.push_back(elem);
+}
+
+void Combination::addElement(const Point &elem, Direction direction)
+{
+    switch (direction) {
+        case Direction::South:
+        case Direction::North:
+            addVerticalElement(elem);
+            break;
+        case Direction::West:
+        case Direction::East:
+            addHorizontalElement(elem);
+            break;
+        default:
+            std::runtime_error("Combination: given direction is unsupported");
+    }
+}
+
+std::size_t Combination::getVerticalCount() const
+{
+    return vertical.size()+1;
+}
+
+std::size_t Combination::getHorizontalCount() const
+{
+    return horizontal.size()+1;
+}
+
+std::size_t Combination::getTotalCount() const
+{
+    std::size_t ret{ 0 };
+    ret += getHorizontalCount()>2 ? getHorizontalCount() : 0;
+    ret += getVerticalCount()>2 ? getVerticalCount() : 0;
+    return ret;
+}
+
+auto Combination::getVerticalElements()
+{
+    return vertical;
+}
+
+auto Combination::getHorizontalElements()
+{
+    return horizontal;
+}
+
+auto Combination::getAllElements()
+{
+    std::vector<Point> ret;
+    ret.reserve(vertical.size() + horizontal.size());
+    ret.insert(ret.end(), vertical.begin(), vertical.end());
+    ret.insert(ret.end(), horizontal.begin(), horizontal.end());
+    return ret;
+}
+
 
 /*----------------------------------------------------------
  * State
@@ -99,17 +179,169 @@ void EditState::mouseDrag(Point mouseLoc)
 }
 
 /*----------------------------------------------------------
+ * MatchState
+ *--------------------------------------------------------*/
+
+bool MatchState::processCombinationContaining(const Point &elem)
+{
+    if (grid.at(elem).isContentClearing())
+        return false;
+
+    auto combi {getCombinationContaining(elem)};
+    bool oneCombination {false};
+
+    Point origin {combi.getOrigin()};
+    std::size_t vc = combi.getVerticalCount();
+    std::size_t hc = combi.getHorizontalCount();
+
+    auto largestDirection {hc>vc ? combi.getHorizontalElements() : combi.getVerticalElements()};
+    auto smallestDirection {hc<vc ? combi.getHorizontalElements() : combi.getVerticalElements()};
+
+    // 3 in one axis
+    if ((vc==3 && hc<3) || (hc==3 && vc<3)) {
+        grid.clearCell(origin);
+        grid.clearCell(largestDirection);
+        oneCombination = true;
+
+        // 4 in one axis
+    } else if ((vc==4 && hc<3) || (hc==4 && vc<3)) {
+        StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(grid.at(origin).getContent())->getColor()};  // TODO simplify this
+
+        grid.clearCellWithoutAnimation(origin);
+        grid.clearCell(largestDirection);
+        grid.put(origin, ContentT::StripedCandy, color, vc<hc ? Axis::Vertical : Axis::Horizontal);
+        oneCombination = true;
+
+        // More than 3 on both axis
+    } else if (vc>=3 && vc<5 && hc>=3 && hc<5) {
+        StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(grid.at(origin).getContent())->getColor()};
+        grid.at(origin).clearWithoutAnimation();
+        for (auto &a: combi.getAllElements()) {
+            grid.clearCell(a);
+        }
+        grid.put(origin, ContentT::WrappedCandy, color);
+        oneCombination = true;
+
+        // 5 or more in one axis
+    } else if (vc>=5 || hc>=5) {
+        grid.clearCell(origin);
+        grid.clearCell(largestDirection);
+        oneCombination = true;
+    }
+
+    return oneCombination;
+}
+
+/**
+ * Returns cells which are part of a combination that includes
+ * the cell passed as argument.
+ *
+ * A combination is a straight sequence of adjacent cells
+ * having content that is equal.
+ *
+ * E.g: two candies having the same color
+ *
+ * The cell passed as argument is not included in the return
+ * because she's already known by the caller and he has access
+ * to it.
+ *
+ * @param cell The cell from which should start combinations
+ * @return Two vectors of pointers to Cell, the first one for
+ * cells in vertical combinations, the second one for horizontal ones
+ */
+Combination MatchState::getCombinationContaining(const Point &origin, bool rec)
+{
+    Combination ret{origin};
+
+    // Gather combination having origin as starting point
+    for (auto &direction: {Direction::East, Direction::North, Direction::West, Direction::South}) {
+        Point curr{origin};
+        /* Point next{origin, direction}; TODO */
+        Point next{origin + Grid::directionModifier[static_cast<int>(direction)]};
+
+        while (grid.isIndexValid(next)
+                && !grid.isCellEmpty(next)
+                && grid.hasCellMatchWith(curr, next))
+        {
+            curr = next;
+            ret.addElement(curr, direction);
+            next = Point{curr + Grid::directionModifier[static_cast<int>(direction)]};
+        }
+    }
+
+    // Check wether it's the best combination containing origin
+    if (rec) {
+        for (auto &elem: ret.getAllElements()) {
+            auto tmp {getCombinationContaining(elem, false)};
+            if (tmp.getTotalCount() > ret.getTotalCount()) {
+                ret = tmp;
+            }
+        }
+    }
+
+    return ret;
+}
+
+/**
+ * Returns whether a given cell is apart of a combination
+ * of 3 or more cells, vertically or horizontally
+ */
+bool MatchState::isInCombination(const Point &point)
+{
+    auto combi = getCombinationContaining(point);
+    return combi.getVerticalCount() >= 3
+        || combi.getHorizontalCount() >= 3;
+}
+
+/*----------------------------------------------------------
+ * GridInitState
+ *--------------------------------------------------------*/
+
+GridInitState::GridInitState(Grid &grid, LevelData &data)
+    : MatchState{grid}
+{
+    putInitialContent(data);
+    fillEmptyCells();
+}
+
+void GridInitState::draw()
+{
+    grid.setState(std::make_shared<ReadyState>(grid));
+}
+
+void GridInitState::putInitialContent(LevelData &data)
+{
+    for (auto &pos: data.getWallsPos())
+        grid.put(pos, ContentT::Wall);
+    for (auto &pos: data.getSingleIncingPos())
+        grid.put(pos, ContentT::Icing, 1);
+    for (auto &pos: data.getDoubleIcingPos())
+        grid.put(pos, ContentT::Icing, 2);
+}
+
+void GridInitState::fillEmptyCells()
+{
+    for (auto &c: grid) {
+        if (c.isEmpty()) {
+            grid.put(c.getIndex(), ContentT::StandardCandy);
+            while (isInCombination(c.getIndex())) {
+                c.removeContent();
+                grid.put(c.getIndex(), ContentT::StandardCandy);
+            }
+        }
+    }
+}
+
+/*----------------------------------------------------------
  * ReadyState
  *--------------------------------------------------------*/
 
-ReadyState::ReadyState(Grid &grid, bool initG) noexcept
+ReadyState::ReadyState(Grid &grid, bool replaceGrid_) noexcept
     : MatchState{grid}
 {
     std::cout << "Entering Ready state" << std::endl;
-    if (initG) {
-        while (!isActionPossible())
-            initGrid();
-    }
+    if (replaceGrid_)
+        replaceGrid();
     hasPossibleAction = isActionPossible();
     std::cout << (hasPossibleAction ? "More action" : "No more action") << std::endl;
 }
@@ -180,11 +412,13 @@ void ReadyState::draw()
 void ReadyState::replaceGrid()
 {
     for (auto &c: grid) {
-        c.setContent(std::make_shared<StandardCandy>(grid, &c, c.getCenter(), grid.getCellContentSide()));
-        while (isInCombination(c.getIndex())) {
-            c.removeContent();
-            c.setContent(std::make_shared<StandardCandy>(grid, &c, c.getCenter(), grid.getCellContentSide()));
-        }
+        /* if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) { */
+            grid.put(c.getIndex(), ContentT::StandardCandy);
+            while (isInCombination(c.getIndex())) {
+                c.removeContent();
+                grid.put(c.getIndex(), ContentT::StandardCandy);
+            }
+        /* } */
     }
 }
 
@@ -248,135 +482,6 @@ void ReadyState::selectionChanged()
             grid.setState(std::make_shared<SwapState>(grid));
         }
     }
-}
-
-/*----------------------------------------------------------
- * MatchState
- *--------------------------------------------------------*/
-
-bool MatchState::processCombinationsFrom(const Point &origin)
-{
-    if (grid.at(origin).isContentClearing())
-        return false;
-
-    auto combi = combinationsFrom(origin);
-    Point point = combi.at(2).at(0);
-    bool oneCombination{false};
-
-    const int V = 0;
-    const int H = 1;
-
-    std::size_t vc = combi.at(0).size();  // vertical count
-    std::size_t hc = combi.at(1).size();  // horizontal count
-
-    // 3 in one axis
-    if ((vc==2 && hc<2) || (hc==2 && vc<2)) {
-        auto toClear{ combi.at(hc>vc ? H : V) };
-        grid.clearCell(point);
-        grid.clearCell(toClear);
-        oneCombination = true;
-
-    // 4 in one axis
-    } else if ((vc==3 && hc<2) || (hc==3 && vc<2)) {
-        auto toClear{ combi.at(hc>vc ? H : V) };
-        StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(grid.at(point).getContent())->getColor()};  // TODO simplify this
-        /* grid.clearCellWithoutAnimation(point);  //TODO function in grid */
-        grid.at(point).clearWithoutAnimation();
-        grid.clearCell(toClear);
-        grid.put(point, ContentT::StripedCandy, color, vc<hc ? Axis::Vertical : Axis::Horizontal);
-        /* nextStateCount += toClear.size(); */
-        oneCombination = true;
-
-    // 5 or more in one axis
-    } else if ((vc>=4 && hc<2) || (hc>=4 && vc<2)) {
-        auto toClear{ combi.at(hc>vc ? H : V) };
-        /* grid.clearCellWithoutAnimation(point);  //TODO function in grid */
-        grid.at(point).clearWithoutAnimation();
-        grid.clearCell(toClear);
-        grid.put(point, ContentT::ColourBomb);
-        /* nextStateCount += toClear.size(); */
-        oneCombination = true;
-
-    // More than 3 on both axis
-    } else if (vc>=2 && hc>=2) {
-        StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(grid.at(point).getContent())->getColor()};
-        grid.at(point).clearWithoutAnimation();
-        for (auto &a: combi) {
-            grid.clearCell(a);
-        }
-        grid.put(point, ContentT::WrappedCandy, color);
-        oneCombination = true;
-    }
-
-    return oneCombination;
-}
-
-/**
- * Returns cells which are part of a combination that includes
- * the cell passed as argument.
- *
- * A combination is a straight sequence of adjacent cells
- * having content that is equal.
- *
- * E.g: two candies having the same color
- *
- * The cell passed as argument is not included in the return
- * because she's already known by the caller and he has access
- * to it.
- *
- * @param cell The cell from which should start combinations
- * @return Two vectors of pointers to Cell, the first one for
- * cells in vertical combinations, the second one for horizontal ones
- */
-std::vector<std::vector<Point>> MatchState::combinationsFrom(const Point &origin, bool rec)
-{
-    std::vector<std::vector<Point>> ret {{}, {}, {origin}};
-
-    for (size_t axis = 0; axis<2; ++axis) {      // Axis : Vertical | Horizontal
-        for (size_t card = 0; card<2; ++card) {  // Cardinality : North/South | West/East
-
-            Direction direction{ static_cast<Direction>(2*axis + card) };
-            Point curr{origin};
-
-            while (
-                    grid.isIndexValid(curr, direction)
-                    && !grid.at(curr, direction).isEmpty()
-                    && grid.at(curr).hasMatchWith(grid.at(curr, direction).getIndex())
-                  )
-            {
-                curr = grid.at(curr, direction).getIndex();
-                ret[axis].push_back(curr);
-            }
-        }
-    }
-
-    if (rec) {
-        int retSize = ret.at(0).size() + ret.at(1).size();
-
-        for (size_t axis = 0; axis<2; ++axis) {
-            for (auto &point : ret[axis]) { 
-                auto temp { combinationsFrom(point, false) };
-                unsigned tempSize = temp.at(0).size() + temp.at(1).size();
-                if (tempSize>retSize) {
-                    ret = temp;
-                    retSize = tempSize;
-                }
-            }
-        }
-    }
-
-    return ret;
-}
-
-/**
- * Returns whether a given cell is apart of a combination
- * of 3 or more cells, vertically or horizontally
- */
-bool MatchState::isInCombination(const Point &point)
-{
-    auto combi = combinationsFrom(point);
-    return combi.at(0).size() >= 2
-        || combi.at(1).size() >= 2;
 }
 
 /*----------------------------------------------------------
@@ -490,7 +595,7 @@ void FallState::gridAnimationFinished(const Point &p)
         if (!moreFall) {
 
             for (auto &i: grid) {
-                processCombinationsFrom(i.getIndex());
+                processCombinationContaining(i.getIndex());
             }
 
             notifyCells(Event::FallStateEnd);
@@ -519,7 +624,7 @@ void SwapState::gridAnimationFinished(const Point &p)
             grid.at(waitingList.at(1)).contentWasSwappedWith(waitingList.at(0));
             if (!isWaiting()) {
                 for (auto &i: waitingList) {
-                    processCombinationsFrom(i);
+                    processCombinationContaining(i);
                 }
             }
         }
