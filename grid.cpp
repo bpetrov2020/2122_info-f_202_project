@@ -356,6 +356,8 @@ void Grid::put(const Point &point, ContentT content)
         case ContentT::Wall:
             toPut = std::make_shared<Wall>(*this, &at(point), at(point).getCenter(), cellContentSide);
             break;
+        default:
+            break;
     }
 
     assert(toPut);
@@ -369,6 +371,8 @@ void Grid::put(const Point &point, ContentT content, int layer)
     switch (content) {
         case ContentT::Icing:
             toPut = std::make_shared<Icing>(*this, &at(point), at(point).getCenter(), cellContentSide, layer);
+            break;
+        default:
             break;
     }
 

@@ -153,8 +153,8 @@ class MessageState : public State, DrawableContainer
         MessageState(Grid &grid, std::string msg, int duration = 60) noexcept;
 
         void draw() override;
-        void gridAnimationFinished(const Point &p) { }
-        void animationFinished(AnimationT animationType);
+        void gridAnimationFinished(const Point &) override { }
+        void animationFinished(AnimationT animationType) override;
 };
 
 class NoActionState : public MessageState
@@ -189,7 +189,7 @@ class EditState : public State
             }
         }
 
-        void gridAnimationFinished(const Point &p) override { }
+        void gridAnimationFinished(const Point &) override { }
 };
 
 /**

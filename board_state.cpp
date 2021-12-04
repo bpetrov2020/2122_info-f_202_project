@@ -257,7 +257,7 @@ Combination MatchState::getCombinationContaining(const Point &origin, bool rec)
     for (auto &direction: {Direction::East, Direction::North, Direction::West, Direction::South}) {
         Point curr{origin};
         /* Point next{origin, direction}; TODO */
-        Point next{origin + Grid::directionModifier[static_cast<int>(direction)]};
+        Point next{origin + Grid::directionModifier[static_cast<unsigned>(direction)]};
 
         while (grid.isIndexValid(next)
                 && !grid.isCellEmpty(next)
@@ -265,7 +265,7 @@ Combination MatchState::getCombinationContaining(const Point &origin, bool rec)
         {
             curr = next;
             ret.addElement(curr, direction);
-            next = Point{curr + Grid::directionModifier[static_cast<int>(direction)]};
+            next = Point{curr + Grid::directionModifier[static_cast<unsigned>(direction)]};
         }
     }
 
@@ -443,7 +443,7 @@ bool ReadyState::isActionPossible()
     return actionPossible;
 }
 
-void ReadyState::gridAnimationFinished(const Point &p)
+void ReadyState::gridAnimationFinished(const Point &)
 {
     throw std::runtime_error("There should be no animations in ReadyState");
 }
@@ -519,7 +519,7 @@ bool FallState::makeFall(const Point &p)
     }
 
     // TODO rework this part
-    if (grid.at(p).isEmpty() && p.y == grid.rowCount()-1) {
+    if (grid.at(p).isEmpty() && p.y == static_cast<int>(grid.rowCount()-1)) {
         Cell buffer{grid.at(p).getCenter() - Point{0, grid.getRowSize()}, 0, 0, {-1, -1}, grid};
         buffer.setContent(std::make_shared<StandardCandy>(grid, &buffer, buffer.getCenter(), grid.getCellContentSide()));
         buffer.moveContentTo(grid.at(p));
@@ -546,9 +546,9 @@ bool FallState::canFallTo(const Point &p, Direction target)
             grid.isIndexValid(p, target)
             && grid.at(p, target).isEmpty()
             && (
-                    grid.isIndexValid(p, helper)
+                    (grid.isIndexValid(p, helper)
                     && !grid.at(p, helper).isEmpty()
-                    && !grid.at(p, helper).isContentMovable()
+                    && !grid.at(p, helper).isContentMovable())
                     || (
                         !isFillableByFall(grid.at(p, target).getIndex())
                         && !isFillableByFall(p)

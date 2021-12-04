@@ -113,7 +113,7 @@ void StripedRectangle::draw()
     fl_line_style(0, width/8);
 
     Point p;
-    for (int i=0; i<3; ++i) {
+    for (unsigned i=0; i<3; ++i) {
         fl_begin_line();
         p = pointsStrip.at(2*i);
         fl_vertex(p.x, p.y);
@@ -160,11 +160,11 @@ void Star::draw()
 {
     Rectangle::draw();
     std::array<Point, 5> pointsStar {
-            Point{center.x - width/1.5, center.y},
-            Point{center.x, center.y + height/1.5},
-            Point{center.x + width/1.5, center.y},
-            Point{center.x, center.y - height/1.5},
-            Point{center.x - width/1.5, center.y}
+            Point{static_cast<int>(center.x - width/1.5), center.y},
+            Point{center.x, static_cast<int>(center.y + height/1.5)},
+            Point{static_cast<int>(center.x + width/1.5), center.y},
+            Point{center.x, static_cast<int>(center.y - height/1.5)},
+            Point{static_cast<int>(center.x - width/1.5), center.y}
     };
 
     // Fill
@@ -253,7 +253,7 @@ void MulticolourCircle::draw()
 
 }
 
-void MulticolourCircle::drawRectRotate(float angle, Fl_Color fillColor, Fl_Color frameColor)
+void MulticolourCircle::drawRectRotate(double angle, Fl_Color fillColor, Fl_Color frameColor)
 {
 
     std::array<Point, 5> points {
