@@ -221,8 +221,8 @@ void Icing::clear()
 void Icing::update(Event e)
 {
     switch (e) {
-        case Event::NeighbourCleared:
-            if (layers>0 && !animation)
+        case Event::NeighbourMatched:
+            if (layers>0 && !isClearing())
                 clear();
             break;
         default:

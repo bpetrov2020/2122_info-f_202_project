@@ -230,6 +230,16 @@ bool MatchState::processCombinationContaining(const Point &elem)
         oneCombination = true;
     }
 
+    if (oneCombination) {
+        auto vec{ combi.getAllElements() };
+        vec.push_back(origin);
+
+        for (auto &c: vec)
+            for (auto &n: grid.neighboursOf(c))
+                if (!grid.at(n).isEmpty())
+                    grid.at(n).getContent()->update(Event::NeighbourMatched);
+    }
+
     return oneCombination;
 }
 
