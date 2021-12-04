@@ -412,13 +412,13 @@ void ReadyState::draw()
 void ReadyState::replaceGrid()
 {
     for (auto &c: grid) {
-        /* if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) { */
+        if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
             grid.put(c.getIndex(), ContentT::StandardCandy);
             while (isInCombination(c.getIndex())) {
                 c.removeContent();
                 grid.put(c.getIndex(), ContentT::StandardCandy);
             }
-        /* } */
+        }
     }
 }
 
