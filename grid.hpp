@@ -109,6 +109,8 @@ class Grid : public DrawableContainer, public Interactive
         int rowSize;
 
         std::shared_ptr<State> state;
+
+        int candyColorRange;
     public:
         Grid(Point center, int width, int height, LevelData &data);
         Grid(Point center, int width, int height, int rows, int columns, LevelData &data);
@@ -195,6 +197,8 @@ class Grid : public DrawableContainer, public Interactive
 
         bool isCellEmpty(const Point &p) { return at(p).isEmpty(); }
         bool hasCellMatchWith(const Point &a, const Point &b) { return at(a).hasMatchWith(b); }
+
+        int getCandyColorRange() const { return candyColorRange; }
 };
 
 #endif

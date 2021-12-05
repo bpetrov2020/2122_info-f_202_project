@@ -98,7 +98,8 @@ class SplashScreen : public View
 class LevelData
 {
     private:
-        int gridSize{ -1 };
+        int gridSize {-1};
+        int colorRange {6};
 
         std::vector<Point> wallsPos{};
         std::vector<Point> singleIcingPos{};
@@ -112,6 +113,8 @@ class LevelData
         LevelData(std::string filename);
 
         int getGridSize() const { return gridSize; }
+
+        int getColorRange() const { return colorRange; }
 
         const auto &getWallsPos() const { return wallsPos; }
         const auto &getSingleIncingPos() const { return singleIcingPos; }

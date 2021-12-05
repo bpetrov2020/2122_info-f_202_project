@@ -546,7 +546,7 @@ bool FallState::makeFall(const Point &p)
     // TODO rework this part
     if (grid.at(p).isEmpty() && p.y == static_cast<int>(grid.rowCount()-1)) {
         Cell buffer{grid.at(p).getCenter() - Point{0, grid.getRowSize()}, 0, 0, {-1, -1}, grid};
-        buffer.setContent(std::make_shared<StandardCandy>(grid, &buffer, buffer.getCenter(), grid.getCellContentSide()));
+        buffer.setContent(std::make_shared<StandardCandy>(grid, &buffer, buffer.getCenter(), grid.getCellContentSide(), static_cast<StandardCandy::Color>(std::rand()%grid.getCandyColorRange())));
         buffer.moveContentTo(grid.at(p));
         hasFallen = true;
     }
