@@ -32,6 +32,7 @@ class Cell : public DrawableContainer, public Interactive
         Point index;  // position in the grid
         std::shared_ptr<CellContent> content;
         bool selected = false;
+        bool processedThisClearState{ false };
     public:
         Cell(Point center, int width, int height, Point index, Grid &grid);
 
@@ -81,7 +82,7 @@ class Cell : public DrawableContainer, public Interactive
 
         bool hasMatchWith(const Point &point);
 
-        /* bool wasProcessedThisFall() const { return processedThisFall; } */
+        bool wasProcessedThisClear() const { return processedThisClearState; }
 };
 
 class Grid : public DrawableContainer, public Interactive

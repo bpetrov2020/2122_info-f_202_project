@@ -42,7 +42,6 @@ std::istream &operator>>(std::istream &ist, Point &p)
     ist >> x >> y;
     if (!ist) return ist;
 
-    p.x = static_cast<int>(x-'a');
-    p.y = y-1;
+    p = Point{static_cast<int>(x-'a'), y-1};
     return ist;
 }

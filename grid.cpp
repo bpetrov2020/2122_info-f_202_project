@@ -22,14 +22,22 @@ void Cell::drawContent()
     if (content) content->draw();
 }
 
-void Cell::update(Event)
+void Cell::update(Event e)
 {
-    /* switch (e) { */
-    /*     case Event::cellContentClearFinished: */
-    /*         removeContent(); */
-    /*         grid.update(cellContentAnimationFinished); */
-    /*         break; */
-    /* } */
+    switch (e) {
+        case Event::FallStateEnd:
+            processedThisClearState = false;
+            if (!isEmpty())
+                content->update(e);
+            break;
+        default:
+            break;
+
+        /* case Event::cellContentClearFinished: */
+        /*     removeContent(); */
+        /*     grid.update(cellContentAnimationFinished); */
+        /*     break; */
+    }
 }
 
 // CONTENT
@@ -39,6 +47,7 @@ void Cell::update(Event)
  */
 bool Cell::clear()
 {
+    processedThisClearState = true;
     if (content) {
         std::shared_ptr<ClearableCellContent> c{std::dynamic_pointer_cast<ClearableCellContent>(content)};
         if (c && !c->isClearing()) {
@@ -51,6 +60,7 @@ bool Cell::clear()
 
 void Cell::clearWithoutAnimation()
 {
+    processedThisClearState = true;
     if (content) {
         std::shared_ptr<ClearableCellContent> c{std::dynamic_pointer_cast<ClearableCellContent>(content)};
         if (c && !c->isClearing()) {

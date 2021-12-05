@@ -92,9 +92,7 @@ bool State::isWaiting() const
 void State::notifyCells(Event e)
 {
     for (auto &c: grid) {
-        if (!c.isEmpty()) {
-            c.getContent()->update(e);
-        }
+        c.update(e);
     }
 }
 
@@ -184,7 +182,7 @@ void EditState::mouseDrag(Point mouseLoc)
 
 bool MatchState::processCombinationContaining(const Point &elem)
 {
-    if (grid.at(elem).isContentClearing())
+    if (grid.at(elem).isContentClearing() || grid.at(elem).wasProcessedThisClear())
         return false;
 
     auto combi {getCombinationContaining(elem)};
@@ -203,7 +201,7 @@ bool MatchState::processCombinationContaining(const Point &elem)
         grid.clearCell(largestDirection);
         oneCombination = true;
 
-        // 4 in one axis
+    // 4 in one axis
     } else if ((vc==4 && hc<3) || (hc==4 && vc<3)) {
         StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(grid.at(origin).getContent())->getColor()};  // TODO simplify this
 
@@ -212,17 +210,17 @@ bool MatchState::processCombinationContaining(const Point &elem)
         grid.put(origin, ContentT::StripedCandy, color, vc<hc ? Axis::Vertical : Axis::Horizontal);
         oneCombination = true;
 
-        // More than 3 on both axis
+    // More than 3 on both axis
     } else if (vc>=3 && vc<5 && hc>=3 && hc<5) {
         StandardCandy::Color color {std::dynamic_pointer_cast<StandardCandy>(grid.at(origin).getContent())->getColor()};
-        grid.at(origin).clearWithoutAnimation();
+        grid.clearCellWithoutAnimation(origin);
         for (auto &a: combi.getAllElements()) {
             grid.clearCell(a);
         }
         grid.put(origin, ContentT::WrappedCandy, color);
         oneCombination = true;
 
-        // 5 or more in one axis
+    // 5 or more in one axis
     } else if (vc>=5 || hc>=5) {
         grid.clearCellWithoutAnimation(origin);
         grid.clearCell(largestDirection);
@@ -262,6 +260,7 @@ bool MatchState::processCombinationContaining(const Point &elem)
  */
 Combination MatchState::getCombinationContaining(const Point &origin, bool rec)
 {
+    assert(!grid.at(origin).isContentClearing());
     Combination ret{origin};
 
     // Gather combination having origin as starting point
@@ -272,7 +271,8 @@ Combination MatchState::getCombinationContaining(const Point &origin, bool rec)
 
         while (grid.isIndexValid(next)
                 && !grid.isCellEmpty(next)
-                && grid.hasCellMatchWith(curr, next))
+                && grid.hasCellMatchWith(curr, next)
+                && !grid.at(next).isContentClearing())
         {
             curr = next;
             ret.addElement(curr, direction);
@@ -328,6 +328,19 @@ void GridInitState::putInitialContent(LevelData &data)
         grid.put(pos, ContentT::Icing, 1);
     for (auto &pos: data.getDoubleIcingPos())
         grid.put(pos, ContentT::Icing, 2);
+
+    Point point = {1,1};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
+    point = {2,0};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
+    point = {2,1};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
+    point = {2,2};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
+    point = {3,2};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
+    point = {4,2};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
 }
 
 void GridInitState::fillEmptyCells()
