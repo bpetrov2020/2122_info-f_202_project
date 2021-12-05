@@ -32,6 +32,7 @@ class Cell : public DrawableContainer, public Interactive
         Point index;  // position in the grid
         std::shared_ptr<CellContent> content;
         bool selected = false;
+        bool processedThisClearState{ false };
     public:
         Cell(Point center, int width, int height, Point index, Grid &grid);
 
@@ -81,7 +82,7 @@ class Cell : public DrawableContainer, public Interactive
 
         bool hasMatchWith(const Point &point);
 
-        /* bool wasProcessedThisFall() const { return processedThisFall; } */
+        bool wasProcessedThisClear() const { return processedThisClearState; }
 };
 
 class Grid : public DrawableContainer, public Interactive
@@ -108,6 +109,8 @@ class Grid : public DrawableContainer, public Interactive
         int rowSize;
 
         std::shared_ptr<State> state;
+
+        int candyColorRange;
     public:
         Grid(Point center, int width, int height, LevelData &data);
         Grid(Point center, int width, int height, int rows, int columns, LevelData &data);
@@ -194,6 +197,8 @@ class Grid : public DrawableContainer, public Interactive
 
         bool isCellEmpty(const Point &p) { return at(p).isEmpty(); }
         bool hasCellMatchWith(const Point &a, const Point &b) { return at(a).hasMatchWith(b); }
+
+        int getCandyColorRange() const { return candyColorRange; }
 };
 
 #endif

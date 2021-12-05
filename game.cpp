@@ -106,8 +106,13 @@ void LevelData::processLine(std::string line)
 
     if (category == "Size") {
         is >> gridSize;
-        if (gridSize<3 || gridSize>26)
+        if (!is || gridSize<3 || gridSize>26)
             throw std::runtime_error{"LevelData: Wrong size given"};
+
+    } else if (category == "ColorRange") {
+        is >> colorRange;
+        if (!is || colorRange < 2 || colorRange > 6)
+            throw std::runtime_error{"LevelData: Wrong colorRange given"};
 
     } else if (category == "Wall") {
         fillFrom(wallsPos, is);
