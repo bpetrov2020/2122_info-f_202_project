@@ -4,6 +4,8 @@
 #include <FL/Fl_Window.H>
 #include <memory>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include "common.hpp"
 #include "shape.hpp"
@@ -79,33 +81,72 @@ class SplashScreen : public View
 };
 
 /**
+ * Container for the data needed to initialize a level
+ *
+ * The data should be of the following format:
+ *
+ * <Category> <value(s)>
+ *
+ * The categories available are:
+ * -   Size           "1"     int
+ * [-] Wall           "1..*"  Point
+ * [-] SingleIcing    "1..*"  Point
+ * [-] DoubleIcing    "1..*"  Point
+ *
+ * Only the size is obligatory. And it should alway be the first one.
+ */
+class LevelData
+{
+    private:
+        int gridSize{ -1 };
+
+        std::vector<Point> wallsPos{};
+        std::vector<Point> singleIcingPos{};
+        std::vector<Point> doubleIcingPos{};
+
+        // Functions used to fill the data from a file
+        void extractDataFrom(std::string filename);
+        void processLine(std::string line);
+        void fillFrom(std::vector<Point> &vect, std::istream &is);
+    public:
+        LevelData(std::string filename);
+
+        int getGridSize() const { return gridSize; }
+
+        const auto &getWallsPos() const { return wallsPos; }
+        const auto &getSingleIncingPos() const { return singleIcingPos; }
+        const auto &getDoubleIcingPos() const { return doubleIcingPos; }
+};
+
+/**
  * A level in the game
  */
 class Level : public View
 {
     private:
         /* Grid status; */
-        Grid board;
-        /* bool isFileValid() const; */
-        /* bool initFromFile() const; */
+        std::shared_ptr<Grid> board;
+        void initFromFile(std::string filename);
     public:
-        /* Level(const std::string filename); */
-        Level(Fl_Window& window, Game& game);
+        Level(Fl_Window& window, Game& game, const std::string &filename);
 
         // From Interactive
-        void mouseMove(Point mouseLoc) override  { board.mouseMove(mouseLoc); }
-        void mouseClick(Point mouseLoc) override { board.mouseClick(mouseLoc); }
-        void mouseDrag(Point mouseLoc) override  { board.mouseDrag(mouseLoc); }
+        void mouseMove(Point mouseLoc) override  { board->mouseMove(mouseLoc); }
+        void mouseClick(Point mouseLoc) override { board->mouseClick(mouseLoc); }
+        void mouseDrag(Point mouseLoc) override  { board->mouseDrag(mouseLoc); }
 
         // From Drawable
         void draw() override;
 
-        /* std::vector< std::vector<Cell*> > combinationsFrom(const Point &p); */
-        /* bool isInCombination(const Point &point); */
-        /* void processCombinationFrom(const Point &point); */
-
-        /* bool makeFall(const Point &p); */
-        /* void fillGrid(); */
 };
+
+/* class GameStatus */
+/* { */
+/*     private: */
+/*         int score{0}; */
+/*         Objective objective; */
+/*     public: */
+/*         GameStatus() */
+/* }; */
 
 #endif

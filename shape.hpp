@@ -160,7 +160,7 @@ class MulticolourCircle : public Circle
 {
 protected:
     int size;
-    void drawRectRotate(float angle = 0, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
+    void drawRectRotate(double angle = 0, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
 public:
     MulticolourCircle(
             Point center,

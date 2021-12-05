@@ -1,4 +1,5 @@
 #include "grid.hpp"
+#include "game.hpp"
 
 /*----------------------------------------------------------
  * Cell
@@ -104,7 +105,23 @@ bool Cell::swapContentWith(const Point &p)
         o->moveTo(getIndex());
 
         // Swap pointers
-        std::swap(content, other.content);
+        swapContentWithWithoutAnimation(p);
+        return true;
+    }
+    return false;
+}
+
+bool Cell::swapContentWithWithoutAnimation(const Point &p)
+{
+    Cell &otherCell {grid.at(p)};
+
+    std::shared_ptr<MovableCellContent> curr{std::dynamic_pointer_cast<MovableCellContent>(content)};
+    std::shared_ptr<MovableCellContent> other{std::dynamic_pointer_cast<MovableCellContent>(otherCell.getContent())};
+
+    if (curr && other) {
+        content->setCenter(otherCell.getCenter());
+        other->setCenter(getCenter());
+        std::swap(content, otherCell.content);
         return true;
     }
     return false;
@@ -177,11 +194,11 @@ bool Cell::hasMatchWith(const Point &point)
  *                      Grid
  *--------------------------------------------------------*/
 
-Grid::Grid(Point center, int width, int height, int side)
-    : Grid(center, width, height, side, side)
+Grid::Grid(Point center, int width, int height, LevelData &data)
+    : Grid(center, width, height, data.getGridSize(), data.getGridSize(), data)
 { }
 
-Grid::Grid(Point center, int width, int height, int rows, int columns)
+Grid::Grid(Point center, int width, int height, int rows, int columns, LevelData &data)
     : DrawableContainer(std::make_shared<Rectangle>(center, width, height, FL_BLACK)),
     colSize{width/columns},
     rowSize{height/rows},
@@ -211,8 +228,17 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
 
     cellContentSide = w>h ? h-20 : w-20; // TODO move to initialization list
 
-    setState(std::make_shared<ReadyState>(*this, true));
+    /* setState(std::make_shared<ReadyState>(*this, true, data)); */
+    setState(std::make_shared<GridInitState>(*this, data));
+    /* setState(std::make_shared<MessageShower>(*this, "Start")); */
     /* setState(std::make_shared<EditState>(*this)); */
+}
+
+void Grid::draw() {
+    DrawableContainer::draw();
+    for (auto &c: *this) c.draw();
+    for (auto &c: *this) c.drawContent();
+    state->draw();
 }
 
 void Grid::mouseMove(Point mouseLoc)
@@ -302,7 +328,7 @@ void Grid::update(Event)
 // TODO replace with update
 void Grid::cellContentAnimationFinished(const Point &p)
 {
-    state->animationFinished(p);
+    state->gridAnimationFinished(p);
 }
 
 // Clear the content of a vector of ptr to Cell
@@ -317,6 +343,44 @@ bool Grid::clearCell(const Point &point)
 {
     /* EventManager::get().send(Event::CellCleared); */
     return at(point).clear();
+}
+
+void Grid::put(const Point &point, ContentT content)
+{
+    std::shared_ptr<CellContent> toPut;
+
+    switch (content) {
+        case ContentT::StandardCandy:
+            toPut = std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide);
+            break;
+        case ContentT::Wall:
+            toPut = std::make_shared<Wall>(*this, &at(point), at(point).getCenter(), cellContentSide);
+            break;
+        case ContentT::ColourBomb:
+            toPut = std::make_shared<ColourBomb>(*this, &at(point), at(point).getCenter(), cellContentSide);
+            break;
+        default:
+            break;
+    }
+
+    assert(toPut);
+    at(point).setContent(toPut);
+}
+
+void Grid::put(const Point &point, ContentT content, int layer)
+{
+    std::shared_ptr<CellContent> toPut;
+
+    switch (content) {
+        case ContentT::Icing:
+            toPut = std::make_shared<Icing>(*this, &at(point), at(point).getCenter(), cellContentSide, layer);
+            break;
+        default:
+            break;
+    }
+
+    assert(toPut);
+    at(point).setContent(toPut);
 }
 
 void Grid::put(const Point &point, ContentT content, StandardCandy::Color color, Axis axis)
@@ -339,8 +403,7 @@ void Grid::put(const Point &point, ContentT content, StandardCandy::Color color,
         case ContentT::Icing:
             toPut = std::make_shared<Icing>(*this, &at(point), at(point).getCenter(), cellContentSide);
             break;
-        case ContentT::ColourBomb:
-            toPut = std::make_shared<ColourBomb>(*this, &at(point), at(point).getCenter(), cellContentSide);
+        default:
             break;
     }
 
@@ -363,6 +426,12 @@ bool Grid::swapCellContent(std::vector<Point> toSwap)
 {
     assert(toSwap.size() == 2);
     return at(toSwap.at(0)).swapContentWith(toSwap.at(1));
+}
+
+bool Grid::swapCellContentWithoutAnimation(std::vector<Point> toSwap)
+{
+    assert(toSwap.size() == 2);
+    return at(toSwap.at(0)).swapContentWithWithoutAnimation(toSwap.at(1));
 }
 
 // NOTE: passing by Point is probably better even if 

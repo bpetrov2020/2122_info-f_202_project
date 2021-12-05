@@ -6,6 +6,97 @@
 #include "grid.hpp"
 
 class Grid;
+/* enum class Color { */
+/*     Blue, */
+/*     Green, */
+/*     Cyan, */
+/*     Magenta, */
+/*     Red, */
+/*     Yellow */
+/* }; */
+
+/* class CandyColor */
+/* { */
+/*     private: */
+/*         static constexpr unsigned colorCount{ 6 }; */
+
+/*         static constexpr std::array<std::string, colorCount> names { */
+/*             "Blue", */
+/*             "Green", */
+/*             "Cyan", */
+/*             "Magenta", */
+/*             "Red", */
+/*             "Yellow" */
+/*         }; */
+
+/*         static constexpr std::array<int, colorCount> normal { */
+/*             0x22a0fd00,  // Blue */
+/*             0x4ad81200,  // Green */
+/*             0xfe810200,  // Orange */
+/*             0xd31ded00,  // Purple */
+/*             0xe3010200,  // Red */
+/*             0xffff8a00   // Yellow */
+/*         }; */
+
+/*         unsigned colorIndex{ -1 }; */
+/*     public: */
+/*         Color(std::string name) */
+/*         { */
+/*             setFromName(name); */
+/*         } */
+
+/*         void setFromName(std::string name) */
+/*         { */
+/*             for (unsigned i=0; i<colorCount-1; ++i) { */
+/*                 if (names[i] == name) { */
+/*                     colorIndex = i; */
+/*                     break; */
+/*                 } */
+/*             } */
+/*         } */
+
+/*         bool isValid() { return colorIndex >= 0 && colorIndex < colorCount; } */
+
+/*         int getValue() const { return normal.at(colorIndex); }; */
+
+/*         std::string getName(); */
+/*         int getLightValue(); */
+/*         int getDarkValue(); */
+/* }; */
+
+/* CandyColor color{ "Blue" }; */
+
+/* color.getFlNormal(); */
+/* color.getFlLight(); */
+/* color.getFlDark(); */
+
+/* color.getName(); */
+
+class Combination
+{
+    private:
+        Point origin;
+        std::vector<Point> vertical {};
+        std::vector<Point> horizontal {};
+    public:
+        Combination(const Point &point);
+
+        auto getOrigin() const;
+
+        void addVerticalElement(const Point &elem);
+        void addHorizontalElement(const Point &elem);
+        void addElement(const Point &elem, Direction direction);
+
+        // These include the origin
+        std::size_t getVerticalCount() const;
+        std::size_t getHorizontalCount() const;
+        std::size_t getTotalCount() const;
+
+        // These don't include the origin
+        auto getVerticalElements();
+        auto getHorizontalElements();
+        auto getAllElements();
+};
 
 /**
  * Base class to any state
@@ -35,13 +126,15 @@ class State : public Interactive
             : grid{grid}
         { }
 
+        virtual void draw() { }
+
         // No interactions by default
         void mouseMove(Point) override { }
         void mouseClick(Point) override { }
         void mouseDrag(Point) override { }
 
         bool isWaiting() const;
-        virtual void animationFinished(const Point &p) = 0;
+        virtual void gridAnimationFinished(const Point &p) = 0;
 
         virtual void update(Event) { }
 
@@ -49,6 +142,27 @@ class State : public Interactive
 
         // TODO Place all events in one function
         /* void update(Event e); */
+};
+
+class MessageState : public State, DrawableContainer
+{
+    protected:
+        Text message;
+        bool messageFinished{false};
+    public:
+        MessageState(Grid &grid, std::string msg, int duration = 60) noexcept;
+
+        void draw() override;
+        void gridAnimationFinished(const Point &) override { }
+        void animationFinished(AnimationT animationType) override;
+};
+
+class NoActionState : public MessageState
+{
+    public:
+        NoActionState(Grid &grid) noexcept;
+
+        void draw() override;
 };
 
 class EditState : public State
@@ -75,7 +189,7 @@ class EditState : public State
             }
         }
 
-        void animationFinished(const Point&) override { }
+        void gridAnimationFinished(const Point &) override { }
 };
 
 /**
@@ -94,9 +208,24 @@ class MatchState : public State
         { }
 
         bool isInCombination(const Point &point);
-        std::vector<std::vector<Point>> combinationsFrom(const Point &p, bool rec = true);
-        bool processCombinationsFrom(const Point &p);
+        Combination getCombinationContaining(const Point &p, bool rec = true);
+        bool processCombinationContaining(const Point &p);
 };
+
+class LevelData;
+
+class GridInitState : public MatchState
+{
+    private:
+        void putInitialContent(LevelData &data);
+        void fillEmptyCells();
+    public:
+        GridInitState(Grid &grid, LevelData &data);
+
+        void draw() override;
+        void gridAnimationFinished(const Point &) override { }
+};
+
 
 /**
  * Ready state
@@ -118,16 +247,11 @@ class ReadyState : public MatchState
          * is changed.
          */
         void selectionChanged();
-
+        bool hasPossibleAction{true};
     public:
-        ReadyState(Grid &grid, bool initG = false) noexcept
-            : MatchState{grid}
-        {
-            std::cout << "Entering Ready state" << std::endl;
-            if (initG) {
-                initGrid();
-            }
-        }
+        ReadyState(Grid &grid, bool initG = false) noexcept;
+
+        void draw() override;
 
         void mouseMove(Point mouseLoc) override;
         void mouseClick(Point mouseLoc) override;
@@ -144,8 +268,9 @@ class ReadyState : public MatchState
         }*/
 
         void replaceGrid();
+        bool isActionPossible();
 
-        void animationFinished(const Point &p) override;
+        void gridAnimationFinished(const Point &p) override;
 
         void update(Event e) override
         {
@@ -186,7 +311,7 @@ class FallState : public MatchState
         bool canFallTo(const Point &p, Direction target);
         bool isFillableByFall(const Point &point);
 
-        void animationFinished(const Point &p) override;
+        void gridAnimationFinished(const Point &p) override;
 };
 
 /**
@@ -212,7 +337,7 @@ class SwapState : public MatchState
             std::cout << "Entering Swap" << std::endl;
         }
 
-        void animationFinished(const Point &p) override;
+        void gridAnimationFinished(const Point &p) override;
 };
 
 /**
@@ -235,7 +360,7 @@ class ClearState : public State
             std::cout << "Entering Clear" << std::endl;
         }
 
-        void animationFinished(const Point &p) override;
+        void gridAnimationFinished(const Point &p) override;
 };
 
 #endif
