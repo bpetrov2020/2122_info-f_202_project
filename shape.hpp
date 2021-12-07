@@ -116,6 +116,8 @@ class StripedRectangle : public Rectangle
  */
 class Star : public Rectangle
 {
+    private:
+        bool secondPhase{ false };
 public:
     Star(
             Point center,
@@ -126,6 +128,7 @@ public:
     );
 
     void draw() override;
+    void setSecondPhase() { secondPhase = true; }
 };
 
 /**
