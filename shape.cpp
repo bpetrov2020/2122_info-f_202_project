@@ -158,7 +158,8 @@ Star::Star(
 
 void Star::draw()
 {
-    Rectangle::draw();
+    if (!secondPhase)
+        Rectangle::draw();
     std::array<Point, 5> pointsStar {
             Point{static_cast<int>(center.x - width/1.5), center.y},
             Point{center.x, static_cast<int>(center.y + height/1.5)},

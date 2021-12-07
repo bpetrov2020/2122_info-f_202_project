@@ -412,6 +412,8 @@ void WrappedCandy::clear()
     } else {
         clearWithoutAnimation();
         secondPhase = true;
+        std::shared_ptr<Star> drawableStar { std::dynamic_pointer_cast<Star>(drawable)};
+        drawableStar->setSecondPhase();
     }
 }
 
@@ -447,7 +449,6 @@ void WrappedCandy::clearWithoutAnimation()
             grid.clearCell(p+containerCell->getIndex());
         } catch (const std::out_of_range& err) {}
     }
-
 }
 
 /*----------------------------------------------------------
