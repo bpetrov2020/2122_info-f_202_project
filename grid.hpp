@@ -16,6 +16,7 @@
 class State;
 class ReadyState;
 class Grid;
+class LevelData;
 
 /**
  * A Cell, part of a grid
@@ -31,7 +32,7 @@ class Cell : public DrawableContainer, public Interactive
         Point index;  // position in the grid
         std::shared_ptr<CellContent> content;
         bool selected = false;
-        bool lastSelected = false;
+        bool processedThisClearState{ false };
     public:
         Cell(Point center, int width, int height, Point index, Grid &grid);
 
@@ -59,13 +60,10 @@ class Cell : public DrawableContainer, public Interactive
         bool moveContentTo(Cell &other);
         bool swapContentWith(const Point &p);
         void contentWasSwappedWith(const Point &p);
+        bool swapContentWithWithoutAnimation(const Point &p);
 
         auto &getContent() { return content; }
         void setContent(std::shared_ptr<CellContent> c) { content = std::move(c); }
-
-        // actions on lastSelected
-        bool isLastSelected() { return lastSelected; }
-        void setLastSelected(bool state) { lastSelected = state; }
 
         // Functions acting on the relations between the cell and its grid
         bool isSelected() const { return selected; }
@@ -83,6 +81,8 @@ class Cell : public DrawableContainer, public Interactive
         bool operator==(const Cell &other) { return index == other.index; }
 
         bool hasMatchWith(const Point &point);
+
+        bool wasProcessedThisClear() const { return processedThisClearState; }
 };
 
 class Grid : public DrawableContainer, public Interactive
@@ -109,9 +109,11 @@ class Grid : public DrawableContainer, public Interactive
         int rowSize;
 
         std::shared_ptr<State> state;
+
+        int candyColorRange;
     public:
-        Grid(Point center, int width, int height, int rows, int columns);
-        Grid(Point center, int width, int height, int side);
+        Grid(Point center, int width, int height, LevelData &data);
+        Grid(Point center, int width, int height, int rows, int columns, LevelData &data);
 
         class Iterator {
             private:
@@ -146,11 +148,7 @@ class Grid : public DrawableContainer, public Interactive
         bool areNeighbours(const Point& c1, const Point& c2);
         std::vector<Point> neighboursOf(const Point& c);
 
-        virtual void draw() override {
-            DrawableContainer::draw();
-            for (auto &c: *this) c.draw();
-            for (auto &c: *this) c.drawContent();
-        }
+        void draw() override;
 
         void setState(std::shared_ptr<State> newState)
         {
@@ -164,8 +162,15 @@ class Grid : public DrawableContainer, public Interactive
 
         void clearCell(std::vector<Point> &v);
         bool clearCell(const Point &point);
+        void clearCellWithoutAnimation(const Point &point)
+        {
+            at(point).clearWithoutAnimation();
+        }
 
-        void put(const Point &point, ContentT content, StandardCandy::Color color = StandardCandy::Color::Red, Axis axis = std::rand()%2 ? Axis::Horizontal : Axis::Vertical);
+        // For different contents
+        void put(const Point &point, ContentT content);  // All no parameter contents
+        void put(const Point &point, ContentT content, int layer);  // Icing
+        void put(const Point &point, ContentT content, StandardCandy::Color color, Axis axis = std::rand()%2 ? Axis::Horizontal : Axis::Vertical); // Candies
 
         bool animationPlaying()
         {
@@ -182,12 +187,18 @@ class Grid : public DrawableContainer, public Interactive
         bool isIndexValid(const Point &p) const;
 
         bool swapCellContent(std::vector<Point> toSwap);
+        bool swapCellContentWithoutAnimation(std::vector<Point> toSwap);
 
         void update(Event e);
         void cellContentAnimationFinished(const Point &p);
 
         int getRowSize() const { return rowSize; }
         int getCellContentSide() const { return cellContentSide; }
+
+        bool isCellEmpty(const Point &p) { return at(p).isEmpty(); }
+        bool hasCellMatchWith(const Point &a, const Point &b) { return at(a).hasMatchWith(b); }
+
+        int getCandyColorRange() const { return candyColorRange; }
 };
 
 #endif

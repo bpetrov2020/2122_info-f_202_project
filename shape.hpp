@@ -116,6 +116,8 @@ class StripedRectangle : public Rectangle
  */
 class Star : public Rectangle
 {
+    private:
+        bool secondPhase{ false };
 public:
     Star(
             Point center,
@@ -126,6 +128,7 @@ public:
     );
 
     void draw() override;
+    void setSecondPhase() { secondPhase = true; }
 };
 
 /**
@@ -160,7 +163,7 @@ class MulticolourCircle : public Circle
 {
 protected:
     int size;
-    void drawRectRotate(float angle = 0, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
+    void drawRectRotate(double angle = 0, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
 public:
     MulticolourCircle(
             Point center,

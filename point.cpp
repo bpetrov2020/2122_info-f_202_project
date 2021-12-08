@@ -29,8 +29,19 @@ bool Point::operator==(const Point& other) const
     return x==other.x && y==other.y;
 }
 
-std::ostream &operator<<(std::ostream &o, const Point &p)
+std::ostream &operator<<(std::ostream &ost, const Point &p)
 {
-    o << "(" << p.x << ", " << p.y << ")";
-    return o;
+    ost << static_cast<char>(p.x+'a') << p.y+1;
+    return ost;
+}
+
+std::istream &operator>>(std::istream &ist, Point &p)
+{
+    char x;
+    int y;
+    ist >> x >> y;
+    if (!ist) return ist;
+
+    p = Point{static_cast<int>(x-'a'), y-1};
+    return ist;
 }

@@ -78,7 +78,6 @@ class ClearableCellContent : public virtual CellContent
 
         void draw() override;
 
-        virtual void clearWithoutEffect() { }
         virtual void clear();
         virtual void clearWithoutAnimation();
 
@@ -205,23 +204,11 @@ class StripedCandy : public StandardCandy
 {
     protected:
         Axis axis;  // wether horizontal or vertical
-
-        // clearWithoutAnimation uses this to know the way he must explode
-        bool doubleStriped {false};
-        bool wrappedWithStriped {false};
-
-        void doubleStripedClear();
-        void wrappedWithStripedClear();
-        void regularClear();
-
     public:
         StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color, Axis axis);
         StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
-        void clearWithoutEffect() override;
         void clearWithoutAnimation() override;
-
-        void wasSwappedWith(const Point &p) override;
 
         ContentT getType() override { return ContentT::StripedCandy; }
 };
@@ -230,22 +217,11 @@ class WrappedCandy : public StandardCandy
 {
     private:
         bool secondPhase {false};
-
-        // clearWithoutAnimation uses this to know the way he must explode
-        bool doubleWrapped {false};
-        bool wrappedWithStriped {false};
-
-        void doubleWrappedClear();
-        void wrappedWithStripedClear();
-        void regularClear();
-
     public:
         WrappedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
-        void clearWithoutEffect() override;
         void clear() override;
         void clearWithoutAnimation() override;
-        void wasSwappedWith(const Point &p) override;
 
         void update(Event e) override;
         ContentT getType() override { return  ContentT::WrappedCandy; }
