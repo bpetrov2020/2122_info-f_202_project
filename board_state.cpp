@@ -59,8 +59,19 @@ void ReadyState::initGrid()
 {
     replaceGrid();
 
-    // ColourBomb with Standard
+    // Striped with Wrapped
     Point point{1, 1};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue);
+    point = {2, 1};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Vertical);
+
+    point = {4, 3};
+    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
+    point = {5, 3};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Vertical);
+
+    // ColourBomb with Standard
+    /*Point point{1, 1};
     grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
     point = {1, 2};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
@@ -68,7 +79,7 @@ void ReadyState::initGrid()
     point = {4, 4};
     grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
     point = {0, 5};
-    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Horizontal);
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Horizontal);*/
 
     // ColourBomb with Wrapped
     /*Point point{1, 1};
@@ -431,7 +442,8 @@ void SwapState::animationFinished(const Point &p)
 
         if (!swapBack) {
             grid.at(waitingList.at(0)).contentWasSwappedWith(waitingList.at(1));
-            grid.at(waitingList.at(1)).contentWasSwappedWith(waitingList.at(0));
+            if (!isWaiting()) { grid.at(waitingList.at(1)).contentWasSwappedWith(waitingList.at(0)); }
+
             if (!isWaiting()) {
                 for (auto &i: waitingList) {
                     processCombinationsFrom(i);
@@ -447,6 +459,8 @@ void SwapState::animationFinished(const Point &p)
         } else {
             grid.setState(std::make_shared<ReadyState>(grid));
         }
+
+        for (auto &c: grid) { c.setLastSelected(false); }
     }
 }
 

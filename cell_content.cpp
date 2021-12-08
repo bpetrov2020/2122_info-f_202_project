@@ -103,24 +103,6 @@ void MovableCellContent::moveToWithoutAnimation(const Point &point)
 
 void MovableCellContent::wasSwappedWith(const Point &)
 {
-    /*ContentT cellType = grid.at(p).getContent()->getType();
-
-    switch (cellType) {
-
-        case ContentT::StandardCandy:
-            StandardCandy::Color initialColor {std::dynamic_pointer_cast<StandardCandy>(grid.at(p).getContent())->getColor()};
-
-            for (auto &c: grid) {
-                if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
-                    StandardCandy::Color cellColor{std::dynamic_pointer_cast<StandardCandy>(c.getContent())->getColor()};
-                    if (cellColor == initialColor) {
-                        grid.clearCell(c.getIndex());
-                    }
-                }
-            }
-            grid.clearCell(containerCell->getIndex());
-            break;
-    }*/
 
 }
 
@@ -366,7 +348,41 @@ StripedCandy::StripedCandy(
         )
 { }
 
+void StripedCandy::clearWithoutEffect()
+{
+    StandardCandy::clearWithoutAnimation();
+    addAnimation(std::make_shared<ScaleAnimation>(20));
+}
+
 void StripedCandy::clearWithoutAnimation()
+{
+    if (doubleStriped) {                    // case two striped are switched
+        doubleStripedClear();
+    } else if (wrappedWithStriped) {        // case wrapped is switched with striped
+        wrappedWithStripedClear();
+    } else {                                // normal clear case
+        regularClear();
+    }
+}
+
+void StripedCandy::doubleStripedClear()
+{
+    StandardCandy::clearWithoutAnimation();
+
+    for (unsigned i=0; i<grid.colCount(); ++i) {
+        grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y});
+    }
+    for (unsigned i=0; i<grid.rowCount(); ++i) {
+        grid.clearCell(Point{containerCell->getIndex().x, static_cast<int>(i)});
+    }
+}
+
+void StripedCandy::wrappedWithStripedClear()
+{
+    // TODO
+}
+
+void StripedCandy::regularClear()
 {
     StandardCandy::clearWithoutAnimation();
     if (axis == Axis::Horizontal) {
@@ -377,6 +393,24 @@ void StripedCandy::clearWithoutAnimation()
         for (unsigned i=0; i<grid.rowCount(); ++i) {
             grid.clearCell(Point{containerCell->getIndex().x, static_cast<int>(i)});
         }
+    }
+}
+
+void StripedCandy::wasSwappedWith(const Point &p)
+{
+    if (!containerCell->isLastSelected()) { return; }
+
+    std::shared_ptr<StripedCandy> striped {std::dynamic_pointer_cast<StripedCandy>(grid.at(p).getContent())};
+    std::shared_ptr<WrappedCandy> wrapped {std::dynamic_pointer_cast<WrappedCandy>(grid.at(p).getContent())};
+
+    if (striped) {      // case other is a stripped
+        doubleStriped = true;
+        striped->clearWithoutEffect();  // clears the other striped like it is a standard candy
+        clear();
+    } else if (wrapped) {   // case wrapped candy
+        wrappedWithStriped = true;
+        wrapped->clearWithoutEffect();  // clears the other wrapped like it is a standard candy
+        clear();
     }
 }
 
@@ -405,6 +439,12 @@ WrappedCandy::WrappedCandy(
         }
 { }
 
+void WrappedCandy::clearWithoutEffect()
+{
+    StandardCandy::clearWithoutAnimation();
+    addAnimation(std::make_shared<ScaleAnimation>(20));
+}
+
 void WrappedCandy::clear()
 {
     if (secondPhase) {
@@ -429,17 +469,38 @@ void WrappedCandy::update(Event e)
 
 void WrappedCandy::clearWithoutAnimation()
 {
+    if (doubleWrapped) {                    // case two wrapped are switched
+        doubleWrappedClear();
+    } else if (wrappedWithStriped) {        // case wrapped is switched with striped
+        wrappedWithStripedClear();
+    } else {                                // normal clear case
+        regularClear();
+    }
+}
+
+void WrappedCandy::doubleWrappedClear()
+{
+    // TODO
+}
+
+void WrappedCandy::wrappedWithStripedClear()
+{
+    // TODO
+}
+
+void WrappedCandy::regularClear()
+{
     StandardCandy::clearWithoutAnimation();
 
     constexpr static std::array<Point, 8> directionModifier {
-        Point{ 0, -1},  // South
-        Point{ 0,  1},  // North
-        Point{-1,  0},  // West
-        Point{ 1,  0},  // East
-        Point{-1, -1},  // SouthWest
-        Point{ 1, -1},  // SouthEast
-        Point{-1,  1},  // NorthWest
-        Point{ 1,  1}   // NorthEast
+            Point{ 0, -1},  // South
+            Point{ 0,  1},  // North
+            Point{-1,  0},  // West
+            Point{ 1,  0},  // East
+            Point{-1, -1},  // SouthWest
+            Point{ 1, -1},  // SouthEast
+            Point{-1,  1},  // NorthWest
+            Point{ 1,  1}   // NorthEast
     };
 
     for (auto &p: directionModifier) {
@@ -447,7 +508,24 @@ void WrappedCandy::clearWithoutAnimation()
             grid.clearCell(p+containerCell->getIndex());
         } catch (const std::out_of_range& err) {}
     }
+}
 
+void WrappedCandy::wasSwappedWith(const Point &p)
+{
+    if (!containerCell->isLastSelected()) { return; }
+
+    std::shared_ptr<StripedCandy> striped {std::dynamic_pointer_cast<StripedCandy>(grid.at(p).getContent())};
+    std::shared_ptr<WrappedCandy> wrapped {std::dynamic_pointer_cast<WrappedCandy>(grid.at(p).getContent())};
+
+    if (striped) {      // case other is a stripped
+        wrappedWithStriped = true;
+        striped->clearWithoutEffect();  // clears the other striped like it is a standard candy
+        clear();
+    } else if (wrapped) {   // case wrapped candy
+        doubleWrapped = true;
+        wrapped->clearWithoutEffect();  // clears the other wrapped like it is a standard candy
+        clear();
+    }
 }
 
 /*----------------------------------------------------------
@@ -546,6 +624,4 @@ void ColourBomb::wasSwappedWith(const Point &p)
         wasSwapped = true;
         clear();
     }
-
-
 }

@@ -31,6 +31,7 @@ class Cell : public DrawableContainer, public Interactive
         Point index;  // position in the grid
         std::shared_ptr<CellContent> content;
         bool selected = false;
+        bool lastSelected = false;
     public:
         Cell(Point center, int width, int height, Point index, Grid &grid);
 
@@ -61,6 +62,10 @@ class Cell : public DrawableContainer, public Interactive
 
         auto &getContent() { return content; }
         void setContent(std::shared_ptr<CellContent> c) { content = std::move(c); }
+
+        // actions on lastSelected
+        bool isLastSelected() { return lastSelected; }
+        void setLastSelected(bool state) { lastSelected = state; }
 
         // Functions acting on the relations between the cell and its grid
         bool isSelected() const { return selected; }
