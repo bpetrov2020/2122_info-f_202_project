@@ -379,7 +379,26 @@ void StripedCandy::doubleStripedClear()
 
 void StripedCandy::wrappedWithStripedClear()
 {
-    // TODO
+    StandardCandy::clearWithoutAnimation();
+
+    for (unsigned i=0; i<grid.colCount(); ++i) {
+        if(containerCell->getIndex().y > 0)     // avoid an out of range error
+            grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y - 1});
+
+        grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y});
+
+        if((containerCell->getIndex().y + 1) < grid.rowCount())
+            grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y + 1});
+    }
+    for (unsigned i=0; i<grid.rowCount(); ++i) {
+        if(containerCell->getIndex().x > 0)
+            grid.clearCell(Point{containerCell->getIndex().x - 1, static_cast<int>(i)});
+
+        grid.clearCell(Point{containerCell->getIndex().x, static_cast<int>(i)});
+
+        if((containerCell->getIndex().x + 1) < grid.colCount())
+            grid.clearCell(Point{containerCell->getIndex().x + 1, static_cast<int>(i)});
+    }
 }
 
 void StripedCandy::regularClear()
@@ -482,12 +501,40 @@ void WrappedCandy::clearWithoutAnimation()
 
 void WrappedCandy::doubleWrappedClear()
 {
-    // TODO
+    StandardCandy::clearWithoutAnimation();
+
+    for (int x = -2; x <= 2; x++) {
+        for (int y = -2; y <= 2; y++) {
+            Point p{x, y};
+            try {
+                grid.clearCell(p+containerCell->getIndex());
+            } catch (const std::out_of_range& err) {}
+        }
+    }
 }
 
 void WrappedCandy::wrappedWithStripedClear()
 {
-    // TODO
+    clearWithoutEffect();
+
+    for (unsigned i=0; i<grid.colCount(); ++i) {
+        if(containerCell->getIndex().y > 0)
+            grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y - 1});
+
+        grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y});
+
+        if((containerCell->getIndex().y + 1) < grid.rowCount())
+            grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y + 1});
+    }
+    for (unsigned i=0; i<grid.rowCount(); ++i) {
+        if(containerCell->getIndex().x > 0)
+            grid.clearCell(Point{containerCell->getIndex().x - 1, static_cast<int>(i)});
+
+        grid.clearCell(Point{containerCell->getIndex().x, static_cast<int>(i)});
+
+        if((containerCell->getIndex().x + 1) < grid.colCount())
+            grid.clearCell(Point{containerCell->getIndex().x + 1, static_cast<int>(i)});
+    }
 }
 
 void WrappedCandy::regularClear()

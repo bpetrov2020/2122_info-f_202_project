@@ -355,6 +355,12 @@ void GridInitState::putInitialContent(LevelData &data)
     point = {5, 3};
     grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Vertical);
 
+    // Double wrapped
+    /*Point point{1, 1};
+    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
+    point = {2, 1};
+    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);*/
+
     // ColourBomb with Standard
     /*Point point{1, 1};
     grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
@@ -368,13 +374,13 @@ void GridInitState::putInitialContent(LevelData &data)
 
     // ColourBomb with Wrapped
     /*Point point{1, 1};
-    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
+    grid.put(point, ContentT::ColourBomb);
     point = {1, 2};
     grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);*/
 
     // ColourBomb with Striped
     /*Point point{1, 1};
-    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
+    grid.put(point, ContentT::ColourBomb);
     point = {1, 2};
     grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue);*/
 
