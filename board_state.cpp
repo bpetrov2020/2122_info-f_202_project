@@ -329,7 +329,8 @@ void GridInitState::putInitialContent(LevelData &data)
     for (auto &pos: data.getDoubleIcingPos())
         grid.put(pos, ContentT::Icing, 2);
 
-    Point point = {1,1};
+    // bunch of blue candies
+    /*Point point = {1,1};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
     point = {2,0};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
@@ -340,43 +341,22 @@ void GridInitState::putInitialContent(LevelData &data)
     point = {3,2};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
     point = {4,2};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
-}
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
 
-void GridInitState::fillEmptyCells()
-{
-    for (auto &c: grid) {
-        if (c.isEmpty()) {
-            grid.put(c.getIndex(), ContentT::StandardCandy);
-            while (isInCombination(c.getIndex())) {
-                c.removeContent();
-                grid.put(c.getIndex(), ContentT::StandardCandy);
-            }
-        }
-    }
-}
+    // Double striped
+    Point point{1, 1};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue);
+    point = {2, 1};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Vertical);
 
-/*----------------------------------------------------------
- * ReadyState
- *--------------------------------------------------------*/
-
-ReadyState::ReadyState(Grid &grid, bool replaceGrid_) noexcept
-    : MatchState{grid}
-{
-    std::cout << "Entering Ready state" << std::endl;
-    if (replaceGrid_)
-        while (!isActionPossible())
-            replaceGrid();
-    hasPossibleAction = isActionPossible();
-    std::cout << (hasPossibleAction ? "More action" : "No more action") << std::endl;
-}
-
-void ReadyState::initGrid()
-{
-    replaceGrid();
+    // Striped with Wrapped
+    point = {4, 3};
+    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
+    point = {5, 3};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Vertical);
 
     // ColourBomb with Standard
-    Point point{1, 1};
+    /*Point point{1, 1};
     grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
     point = {1, 2};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
@@ -384,7 +364,7 @@ void ReadyState::initGrid()
     point = {4, 4};
     grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
     point = {0, 5};
-    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Horizontal);
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Horizontal);*/
 
     // ColourBomb with Wrapped
     /*Point point{1, 1};
@@ -414,17 +394,37 @@ void ReadyState::initGrid()
     point = {1, 2};
     grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Blue);*/
 
-    // add 3 walls
-    point = {2, 5};
-    grid.put(point, ContentT::Wall, StandardCandy::Color::Blue);
-    point = {3, 5};
-    grid.put(point, ContentT::Wall, StandardCandy::Color::Blue);
-    point = {4, 5};
-    grid.put(point, ContentT::Wall, StandardCandy::Color::Blue);
-
     // add an icing
     /*point = {5, 4};
     grid.put(point, ContentT::Icing, StandardCandy::Color::Blue);*/
+}
+
+void GridInitState::fillEmptyCells()
+{
+    for (auto &c: grid) {
+        if (c.isEmpty()) {
+            grid.put(c.getIndex(), ContentT::StandardCandy);
+            while (isInCombination(c.getIndex())) {
+                c.removeContent();
+                grid.put(c.getIndex(), ContentT::StandardCandy);
+            }
+        }
+    }
+}
+
+/*----------------------------------------------------------
+ * ReadyState
+ *--------------------------------------------------------*/
+
+ReadyState::ReadyState(Grid &grid, bool replaceGrid_) noexcept
+    : MatchState{grid}
+{
+    std::cout << "Entering Ready state" << std::endl;
+    if (replaceGrid_)
+        while (!isActionPossible())
+            replaceGrid();
+    hasPossibleAction = isActionPossible();
+    std::cout << (hasPossibleAction ? "More action" : "No more action") << std::endl;
 }
 
 void ReadyState::draw()
@@ -646,7 +646,8 @@ void SwapState::gridAnimationFinished(const Point &p)
 
         if (!swapBack) {
             grid.at(waitingList.at(0)).contentWasSwappedWith(waitingList.at(1));
-            grid.at(waitingList.at(1)).contentWasSwappedWith(waitingList.at(0));
+            if (!isWaiting()) { grid.at(waitingList.at(1)).contentWasSwappedWith(waitingList.at(0)); }
+
             if (!isWaiting()) {
                 for (auto &i: waitingList) {
                     processCombinationContaining(i);
@@ -662,6 +663,8 @@ void SwapState::gridAnimationFinished(const Point &p)
         } else {
             grid.setState(std::make_shared<ReadyState>(grid));
         }
+
+        for (auto &c: grid) { c.setLastSelected(false); }
     }
 }
 
