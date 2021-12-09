@@ -257,8 +257,6 @@ class ReadyState : public MatchState
         void mouseClick(Point mouseLoc) override;
         void mouseDrag(Point mouseLoc) override;
 
-        void initGrid();
-
         // testing functions
         /*void twoColourBombs() {
             Point point{1, 1};

@@ -137,28 +137,9 @@ bool Cell::swapContentWithWithoutAnimation(const Point &p)
     return false;
 }
 
-
-/*bool Cell::contentWasSwappedWith(const Point &p)
-{
-    assert(content);
-    //std::shared_ptr<MovableCellContent> movContent {std::dynamic_pointer_cast<MovableCellContent>(content)};
-    //movContent->wasSwappedWith(p);
-
-    ContentT cellType = content->getType();
-
-    switch (cellType) {
-        case ContentT::ColourBomb:
-            std::shared_ptr<ColourBomb> movContent {std::dynamic_pointer_cast<ColourBomb>(content)};
-            movContent->wasSwappedWith(p);
-            break;
-    }
-
-}*/
-
 void Cell::contentWasSwappedWith(const Point &p)
 {
     assert(content);
-
     std::shared_ptr<MovableCellContent> movContent {std::dynamic_pointer_cast<MovableCellContent>(content)};
     movContent->wasSwappedWith(p);
 }
@@ -280,6 +261,7 @@ Cell &Grid::at(const Point &p, Direction d)
 void Grid::select(const Point &p)
 {
     at(p).toggleSelected() ? ++selectedCount : --selectedCount;
+    if (selectedCount == 2) { at(p).setLastSelected(true); }
     state->update(Event::gridSelectionChanged);
 }
 

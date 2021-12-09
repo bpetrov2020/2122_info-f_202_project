@@ -1,5 +1,5 @@
-Size 5
-ColorRange 5
+Size 6
+ColorRange 6
 Wall a2
 SingleIcing c3
 DoubleIcing c4
