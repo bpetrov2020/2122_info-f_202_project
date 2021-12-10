@@ -381,23 +381,18 @@ void StripedCandy::wrappedWithStripedClear()
 {
     StandardCandy::clearWithoutAnimation();
 
-    for (unsigned i=0; i<grid.colCount(); ++i) {
-        if(containerCell->getIndex().y > 0)     // avoid an out of range error
-            grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y - 1});
-
-        grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y});
-
-        if((containerCell->getIndex().y + 1) < grid.rowCount())
-            grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y + 1});
+    for (auto &p: {Point{-1, 0}, Point{0, 0}, Point{1, 0}}) {
+        Point decal {containerCell->getIndex() + p};
+        if (grid.isIndexValid(decal))
+            for (unsigned y=0; y<grid.rowCount(); ++y)
+                grid.clearCell({decal.x, static_cast<int>(y)});
     }
-    for (unsigned i=0; i<grid.rowCount(); ++i) {
-        if(containerCell->getIndex().x > 0)
-            grid.clearCell(Point{containerCell->getIndex().x - 1, static_cast<int>(i)});
 
-        grid.clearCell(Point{containerCell->getIndex().x, static_cast<int>(i)});
-
-        if((containerCell->getIndex().x + 1) < grid.colCount())
-            grid.clearCell(Point{containerCell->getIndex().x + 1, static_cast<int>(i)});
+    for (auto &p: {Point{0, -1}, Point{0, 0}, Point{0, 1}}) {
+        Point decal {containerCell->getIndex() + p};
+        if (grid.isIndexValid(decal))
+            for (unsigned x=0; x<grid.rowCount(); ++x)
+                grid.clearCell({static_cast<int>(x), decal.y});
     }
 }
 
@@ -511,23 +506,18 @@ void WrappedCandy::wrappedWithStripedClear()
 {
     clearWithoutEffect();
 
-    for (unsigned i=0; i<grid.colCount(); ++i) {
-        if(containerCell->getIndex().y > 0)
-            grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y - 1});
-
-        grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y});
-
-        if((containerCell->getIndex().y + 1) < grid.rowCount())
-            grid.clearCell(Point{static_cast<int>(i), containerCell->getIndex().y + 1});
+    for (auto &p: {Point{-1, 0}, Point{0, 0}, Point{1, 0}}) {
+        Point decal {containerCell->getIndex() + p};
+        if (grid.isIndexValid(decal))
+            for (unsigned y=0; y<grid.rowCount(); ++y)
+                grid.clearCell({decal.x, static_cast<int>(y)});
     }
-    for (unsigned i=0; i<grid.rowCount(); ++i) {
-        if(containerCell->getIndex().x > 0)
-            grid.clearCell(Point{containerCell->getIndex().x - 1, static_cast<int>(i)});
 
-        grid.clearCell(Point{containerCell->getIndex().x, static_cast<int>(i)});
-
-        if((containerCell->getIndex().x + 1) < grid.colCount())
-            grid.clearCell(Point{containerCell->getIndex().x + 1, static_cast<int>(i)});
+    for (auto &p: {Point{0, -1}, Point{0, 0}, Point{0, 1}}) {
+        Point decal {containerCell->getIndex() + p};
+        if (grid.isIndexValid(decal))
+            for (unsigned x=0; x<grid.rowCount(); ++x)
+                grid.clearCell({static_cast<int>(x), decal.y});
     }
 }
 
