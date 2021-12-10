@@ -661,6 +661,11 @@ void SwapState::gridAnimationFinished(const Point &p)
             }
         }
 
+        // TODO maybe put in ready state,
+        // on waitingList or the whole grid ?
+        for (auto &p: waitingList)
+            grid.at(p).setLastSelected(false);
+
         if (isWaiting()) {
             grid.setState(std::make_shared<ClearState>(grid));
         } else if (!swapBack) {
@@ -669,8 +674,6 @@ void SwapState::gridAnimationFinished(const Point &p)
         } else {
             grid.setState(std::make_shared<ReadyState>(grid));
         }
-
-        for (auto &c: grid) { c.setLastSelected(false); }
     }
 }
 
