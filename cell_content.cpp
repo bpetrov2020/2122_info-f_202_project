@@ -44,6 +44,12 @@ void ClearableCellContent::draw()
     }
 }
 
+void ClearableCellContent::clearWithoutEffect()
+{
+    m_isClearing = true;
+    addAnimation(std::make_shared<ScaleAnimation>(20));
+}
+
 void ClearableCellContent::clear()
 {
     clearWithoutAnimation();
@@ -348,12 +354,6 @@ StripedCandy::StripedCandy(
         )
 { }
 
-void StripedCandy::clearWithoutEffect()
-{
-    StandardCandy::clearWithoutAnimation();
-    addAnimation(std::make_shared<ScaleAnimation>(20));
-}
-
 void StripedCandy::clearWithoutAnimation()
 {
     if (doubleStriped) {                    // case two striped are switched
@@ -457,12 +457,6 @@ WrappedCandy::WrappedCandy(
                 std::make_shared<Star>(center, side, side, flRelative[static_cast<int>(color)])
         }
 { }
-
-void WrappedCandy::clearWithoutEffect()
-{
-    StandardCandy::clearWithoutAnimation();
-    addAnimation(std::make_shared<ScaleAnimation>(20));
-}
 
 void WrappedCandy::clear()
 {

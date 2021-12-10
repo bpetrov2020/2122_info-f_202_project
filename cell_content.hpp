@@ -78,7 +78,7 @@ class ClearableCellContent : public virtual CellContent
 
         void draw() override;
 
-        virtual void clearWithoutEffect() { }
+        virtual void clearWithoutEffect();
         virtual void clear();
         virtual void clearWithoutAnimation();
 
@@ -218,7 +218,6 @@ class StripedCandy : public StandardCandy
         StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color, Axis axis);
         StripedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
-        void clearWithoutEffect() override;
         void clearWithoutAnimation() override;
 
         void wasSwappedWith(const Point &p) override;
@@ -242,7 +241,6 @@ class WrappedCandy : public StandardCandy
     public:
         WrappedCandy(Grid &grid, Cell *cell, Point center, int side, Color color);
 
-        void clearWithoutEffect() override;
         void clear() override;
         void clearWithoutAnimation() override;
         void wasSwappedWith(const Point &p) override;
