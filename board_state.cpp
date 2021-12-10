@@ -329,7 +329,8 @@ void GridInitState::putInitialContent(LevelData &data)
     for (auto &pos: data.getDoubleIcingPos())
         grid.put(pos, ContentT::Icing, 2);
 
-    Point point = {1,1};
+    // bunch of blue candies
+    /*Point point = {1,1};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
     point = {2,0};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
@@ -340,7 +341,68 @@ void GridInitState::putInitialContent(LevelData &data)
     point = {3,2};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
     point = {4,2};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
+
+    // Double striped
+    Point point{1, 1};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue);
+    point = {2, 1};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Vertical);
+
+    // Striped with Wrapped
+    point = {4, 3};
+    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
+    point = {5, 3};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Vertical);
+
+    // Double wrapped
+    /*Point point{1, 1};
+    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
+    point = {2, 1};
+    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);*/
+
+    // ColourBomb with Standard
+    /*Point point{1, 1};
+    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
+    point = {1, 2};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
+
+    point = {4, 4};
+    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
+    point = {0, 5};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Horizontal);*/
+
+    // ColourBomb with Wrapped
+    /*Point point{1, 1};
+    grid.put(point, ContentT::ColourBomb);
+    point = {1, 2};
+    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);*/
+
+    // ColourBomb with Striped
+    /*Point point{1, 1};
+    grid.put(point, ContentT::ColourBomb);
+    point = {1, 2};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue);*/
+
+    // Striped making ColourBomb explode
+    /*Point point{1, 1};
+    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
+    point = {3, 1};
+    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Horizontal);
+    point = {4, 2};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
+    point = {5, 1};
+    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
+
+    // Two ColourBombs
+    /*Point point{1, 1};
+    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
+    point = {1, 2};
+    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Blue);*/
+
+    // add an icing
+    /*point = {5, 4};
+    grid.put(point, ContentT::Icing, StandardCandy::Color::Blue);*/
 }
 
 void GridInitState::fillEmptyCells()
@@ -369,62 +431,6 @@ ReadyState::ReadyState(Grid &grid, bool replaceGrid_) noexcept
             replaceGrid();
     hasPossibleAction = isActionPossible();
     std::cout << (hasPossibleAction ? "More action" : "No more action") << std::endl;
-}
-
-void ReadyState::initGrid()
-{
-    replaceGrid();
-
-    // ColourBomb with Standard
-    Point point{1, 1};
-    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
-    point = {1, 2};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
-
-    point = {4, 4};
-    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
-    point = {0, 5};
-    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Horizontal);
-
-    // ColourBomb with Wrapped
-    /*Point point{1, 1};
-    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
-    point = {1, 2};
-    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);*/
-
-    // ColourBomb with Striped
-    /*Point point{1, 1};
-    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
-    point = {1, 2};
-    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue);*/
-
-    // Striped making ColourBomb explode
-    /*Point point{1, 1};
-    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
-    point = {3, 1};
-    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Horizontal);
-    point = {4, 2};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
-    point = {5, 1};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
-
-    // Two ColourBombs
-    /*Point point{1, 1};
-    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
-    point = {1, 2};
-    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Blue);*/
-
-    // add 3 walls
-    point = {2, 5};
-    grid.put(point, ContentT::Wall, StandardCandy::Color::Blue);
-    point = {3, 5};
-    grid.put(point, ContentT::Wall, StandardCandy::Color::Blue);
-    point = {4, 5};
-    grid.put(point, ContentT::Wall, StandardCandy::Color::Blue);
-
-    // add an icing
-    /*point = {5, 4};
-    grid.put(point, ContentT::Icing, StandardCandy::Color::Blue);*/
 }
 
 void ReadyState::draw()
@@ -646,13 +652,19 @@ void SwapState::gridAnimationFinished(const Point &p)
 
         if (!swapBack) {
             grid.at(waitingList.at(0)).contentWasSwappedWith(waitingList.at(1));
-            grid.at(waitingList.at(1)).contentWasSwappedWith(waitingList.at(0));
+            if (!isWaiting()) { grid.at(waitingList.at(1)).contentWasSwappedWith(waitingList.at(0)); }
+
             if (!isWaiting()) {
                 for (auto &i: waitingList) {
                     processCombinationContaining(i);
                 }
             }
         }
+
+        // TODO maybe put in ready state,
+        // on waitingList or the whole grid ?
+        for (auto &p: waitingList)
+            grid.at(p).setLastSelected(false);
 
         if (isWaiting()) {
             grid.setState(std::make_shared<ClearState>(grid));
