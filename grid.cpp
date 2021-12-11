@@ -311,8 +311,9 @@ std::vector<Point> Grid::neighboursOf(const Point& p)
     return ret;
 }
 
-void Grid::update(Event)
+void Grid::update(Event event)
 {
+    state->update(event);
     /* switch (e) { */
     /*     case Event::cellContentAnimationFinished: */
     /*         state->update(Event::cellContentAnimationFinished); */

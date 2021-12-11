@@ -1,5 +1,6 @@
 Size 6
 ColorRange 6
+Goal Icing
 Wall a2
 SingleIcing c3
 DoubleIcing c4

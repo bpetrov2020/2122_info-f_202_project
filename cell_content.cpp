@@ -189,6 +189,7 @@ void Icing::removeLayer()
     assert(layers>0);
     --layers;
     num.setString(std::to_string(layers));
+    grid.update(Event::IcingCleared);
 }
 
 void Icing::draw()

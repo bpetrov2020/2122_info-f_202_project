@@ -110,6 +110,8 @@ class LevelData
         int gridSize {-1};
         int colorRange {6};
 
+        std::string goalType {};
+
         std::vector<Point> wallsPos{};
         std::vector<Point> singleIcingPos{};
         std::vector<Point> doubleIcingPos{};
@@ -131,6 +133,46 @@ class LevelData
         const auto &getDoubleIcingPos() const { return doubleIcingPos; }
 };
 
+class LevelStatus;
+
+class Goal
+{
+    protected:
+        LevelStatus &m_status;
+    public:
+        Goal(LevelStatus &status) noexcept
+            : m_status{status}
+        {
+        }
+
+        virtual void update(Event) = 0;
+        virtual bool met() = 0;
+        virtual std::string toString() = 0;
+
+        virtual ~Goal() noexcept = default;
+};
+
+class EventOccurGoal : public Goal
+{
+    protected:
+        Event m_eventWaiting;
+        int m_remaining;
+    public:
+        EventOccurGoal(LevelStatus &status, Event eventWaiting, int remaining) noexcept
+            : Goal{status}
+            , m_eventWaiting{eventWaiting}
+            , m_remaining{remaining}
+        {
+        }
+
+        void update(Event event) override;
+
+        bool met() override { /*std::cout << m_remaining << std::endl; */return m_remaining == 0; }
+
+        std::string toString() override { return std::to_string(m_remaining); }
+
+};
+
 class LevelStatus : public DrawableContainer
 {
     private:
@@ -142,7 +184,9 @@ class LevelStatus : public DrawableContainer
         Text movesLeftLabelDrawable;
         Text movesLeftDrawable;
 
-        /* Objective objective; */
+        std::shared_ptr<Goal> goal {std::make_shared<EventOccurGoal>(*this, Event::IcingCleared, 3)};
+        Text goalLabelDrawable;
+        Text goalDrawable;
     public:
         LevelStatus(const Point &center, int width, int height) noexcept;
 
@@ -183,6 +227,5 @@ class Level : public View
         void update(Event event);
         void updateScore(int toAdd) { m_status.updateScore(toAdd); }
 };
-
 
 #endif

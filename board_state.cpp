@@ -98,6 +98,7 @@ void State::notifyCells(Event e)
 
 void State::update(Event event)
 {
+    level.update(event);
     switch (event) {
         case Event::CellCleared:
             level.updateScore(50);

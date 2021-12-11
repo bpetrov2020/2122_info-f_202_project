@@ -116,6 +116,11 @@ void LevelData::processLine(std::string line)
         if (!is || colorRange < 2 || colorRange > 6)
             throw std::runtime_error{"LevelData: Wrong colorRange given"};
 
+    } else if (category == "Goal") {
+        is >> goalType;
+        if (!is || (goalType != "Icing" && goalType != "Ingredient"))
+            throw std::runtime_error{"LevelData: Wrong goal argument"};
+
     } else if (category == "Wall") {
         fillFrom(wallsPos, is);
 
@@ -153,12 +158,13 @@ void LevelData::fillFrom(std::vector<Point> &vect, std::istream &is)
  *--------------------------------------------------------*/
 
 LevelStatus::LevelStatus(const Point &center, int width, int height) noexcept
-    :
-        DrawableContainer{std::make_shared<Rectangle>(center, width, height)},
-        scoreLabelDrawable{Point{width/4, center.y-height/2+height/3}, "Score", height/6, FL_BLACK},
-        scoreDrawable{Point{width/4, center.y-height/2+height/3*2}, "0", height/5, FL_BLACK},
-        movesLeftLabelDrawable{Point{width/2, center.y-height/2+height/3}, "Moves", height/6, FL_BLACK},
-        movesLeftDrawable{Point{width/2, center.y-height/2+height/3*2}, "3", height/5, FL_BLACK}
+    : DrawableContainer{std::make_shared<Rectangle>(center, width, height)}
+    , scoreLabelDrawable{Point{width/4, center.y-height/2+height/3}, "Score", height/6, FL_BLACK}
+    , scoreDrawable{Point{width/4, center.y-height/2+height/3*2}, "0", height/5, FL_BLACK}
+    , movesLeftLabelDrawable{Point{width/2, center.y-height/2+height/3}, "Moves", height/6, FL_BLACK}
+    , movesLeftDrawable{Point{width/2, center.y-height/2+height/3*2}, "3", height/5, FL_BLACK}
+    , goalLabelDrawable{Point{width/4*3, center.y-height/2+height/3}, "Icing", height/6, FL_BLACK}
+    , goalDrawable{Point{width/4*3, center.y-height/2+height/3*2}, "3", height/5, FL_BLACK}
 { }
 
 void LevelStatus::updateScore(int toAdd)
@@ -169,10 +175,14 @@ void LevelStatus::updateScore(int toAdd)
 
 void LevelStatus::update(Event event)
 {
+    goal->update(event);
     switch (event) {
         case Event::TurnEnd:
             --movesLeft;
             movesLeftDrawable.setString(std::to_string(movesLeft));
+            break;
+        case Event::GoalChanged:
+            goalDrawable.setString(goal->toString());
             break;
         default:
             break;
@@ -186,6 +196,8 @@ void LevelStatus::draw()
     scoreDrawable.draw();
     movesLeftLabelDrawable.draw();
     movesLeftDrawable.draw();
+    goalLabelDrawable.draw();
+    goalDrawable.draw();
 }
 
 bool LevelStatus::moreMoves()
@@ -193,10 +205,20 @@ bool LevelStatus::moreMoves()
     return movesLeft > 0;
 }
 
-// TODO implement this
 bool LevelStatus::objectiveMet()
 {
-    return false;
+    return goal->met();
+}
+
+// TODO: get rid of this shit
+void EventOccurGoal::update(Event event)
+{
+    if (event == m_eventWaiting) {
+        --m_remaining;
+        m_status.update(Event::GoalChanged);
+    }
+
+    assert(m_remaining >= 0);
 }
 
 /*----------------------------------------------------------
@@ -250,7 +272,7 @@ void Level::update(Event event)
         case Event::TurnEnd:
             if (m_status.objectiveMet())
                 setState(std::make_shared<LevelPassedState>(*this, m_board));
-            if (!m_status.moreMoves())
+            else if (!m_status.moreMoves())
                 setState(std::make_shared<LevelNotPassedState>(*this, m_board));
             break;
         default:
