@@ -80,6 +80,8 @@ void SplashScreen::animationFinished(AnimationT animationType)
  *--------------------------------------------------------*/
 
 LevelData::LevelData(std::string filename)
+    :
+        m_levelName{filename}
 {
     extractDataFrom(filename);
 }
@@ -147,25 +149,111 @@ void LevelData::fillFrom(std::vector<Point> &vect, std::istream &is)
 }
 
 /*----------------------------------------------------------
+ * LevelStatus
+ *--------------------------------------------------------*/
+
+LevelStatus::LevelStatus(const Point &center, int width, int height) noexcept
+    :
+        DrawableContainer{std::make_shared<Rectangle>(center, width, height)},
+        scoreLabelDrawable{Point{width/4, center.y-height/2+height/3}, "Score", height/6, FL_BLACK},
+        scoreDrawable{Point{width/4, center.y-height/2+height/3*2}, "0", height/5, FL_BLACK},
+        movesLeftLabelDrawable{Point{width/2, center.y-height/2+height/3}, "Moves", height/6, FL_BLACK},
+        movesLeftDrawable{Point{width/2, center.y-height/2+height/3*2}, "3", height/5, FL_BLACK}
+{ }
+
+void LevelStatus::updateScore(int toAdd)
+{
+    score += toAdd;
+    scoreDrawable.setString(std::to_string(score));
+}
+
+void LevelStatus::update(Event event)
+{
+    switch (event) {
+        case Event::TurnEnd:
+            --movesLeft;
+            movesLeftDrawable.setString(std::to_string(movesLeft));
+            break;
+        default:
+            break;
+    }
+}
+
+void LevelStatus::draw()
+{
+    DrawableContainer::draw();
+    scoreLabelDrawable.draw();
+    scoreDrawable.draw();
+    movesLeftLabelDrawable.draw();
+    movesLeftDrawable.draw();
+}
+
+bool LevelStatus::moreMoves()
+{
+    return movesLeft > 0;
+}
+
+// TODO implement this
+bool LevelStatus::objectiveMet()
+{
+    return false;
+}
+
+/*----------------------------------------------------------
  * Level
  *--------------------------------------------------------*/
 
+// TODO make adaptable to height
 Level::Level(Fl_Window& window, Game& game, const std::string &filename)
     : View{window, game},
-    board{nullptr}
+    m_data{filename},
+    m_status{Point{window.w()/2, window.h()/12*11}, gridSide(window), gridSide(window)/5},
+    m_board{Point{window.w()/2, window.h()/12*5}, gridSide(window), gridSide(window), m_data},
+    m_boardController{nullptr}
 {
-    initFromFile(filename);
+    setState(std::make_shared<GridInitState>(*this, m_board, m_data));
 }
 
-void Level::initFromFile(std::string filename)
+inline int Level::gridSide(Fl_Window &win)
 {
-    LevelData data{ filename };
-    board = std::make_shared<Grid>(Point{window.w()/2, window.h()/2}, window.w()-50, window.h()-50, data);
-    /* status = std::make_shared<LevelStatus>(data.getLevelData())); */
+    return win.h() >= win.w() ? win.w() : win.h()/6*5;
 }
 
 void Level::draw()
 {
     DrawableContainer::draw();  // background of the level
-    board->draw();
+    m_board.draw();
+    m_status.draw();
+    m_boardController->draw();
+}
+
+void Level::setState(std::shared_ptr<State> state)
+{
+    m_boardController = state;
+    m_board.setState(state);
+}
+
+void Level::replayLevel()
+{
+    game.loadView(std::make_shared<Level>(window, game, m_data.levelName()));
+}
+
+// TODO: implement it
+void Level::playNextLevel()
+{
+}
+
+void Level::update(Event event)
+{
+    m_status.update(event);
+    switch (event) {
+        case Event::TurnEnd:
+            if (m_status.objectiveMet())
+                setState(std::make_shared<LevelPassedState>(*this, m_board));
+            if (!m_status.moreMoves())
+                setState(std::make_shared<LevelNotPassedState>(*this, m_board));
+            break;
+        default:
+            break;
+    }
 }

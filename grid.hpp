@@ -158,7 +158,7 @@ class Grid : public DrawableContainer, public Interactive
 
         void setState(std::shared_ptr<State> newState)
         {
-            state = std::move(newState);
+            state = newState;
         }
 
         // Mouse interactions

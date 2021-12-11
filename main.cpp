@@ -16,8 +16,8 @@
 /* #include "grid.hpp" */
 #include "game.hpp"
 
-const int windowWidth = 450;
-const int windowHeight = 450;
+const int windowWidth = 500;
+const int windowHeight = 600;
 const int refreshPerSecond = 60;
 
 /*--------------------------------------------------

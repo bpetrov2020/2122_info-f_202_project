@@ -6,6 +6,7 @@
 #include "grid.hpp"
 
 class Grid;
+class Level;
 /* enum class Color { */
 /*     Blue, */
 /*     Green, */
@@ -114,6 +115,7 @@ class Combination
 class State : public Interactive
 {
     protected:
+        Level &level;
         Grid &grid;
 
         /**
@@ -122,8 +124,10 @@ class State : public Interactive
          */
         std::vector<Point> waitingList {};
     public:
-        State(Grid &grid)
-            : grid{grid}
+        State(Level &level, Grid &grid)
+            :
+                level{level},
+                grid{grid}
         { }
 
         virtual void draw() { }
@@ -136,7 +140,7 @@ class State : public Interactive
         bool isWaiting() const;
         virtual void gridAnimationFinished(const Point &p) = 0;
 
-        virtual void update(Event) { }
+        virtual void update(Event event);
 
         virtual void notifyCells(Event e);
 
@@ -144,13 +148,36 @@ class State : public Interactive
         /* void update(Event e); */
 };
 
+/* class LevelSelectorState : public Interactive */
+/* { */
+/*     private: */
+/*     public: */
+/*         LevelSelectorState::LevelSelectorState(LevelSelector &selector, Grid &grid) */
+/*         { */
+
+/*         } */
+
+/*         void mouseMove(Point) override { } */
+/*         void mouseClick(Point) override { } */
+/*         void mouseDrag(Point) override { } */
+/* }; */
+
+/**
+ * Shows a message to the screen
+ *
+ * During a MessageState, the user shouldn't be
+ * able to interact with the game.
+ */
 class MessageState : public State, DrawableContainer
 {
     protected:
         Text message;
-        bool messageFinished{false};
+        bool messageFinished {false};
+
+        // Function to be executed when the duration elapses
+        virtual void onTimeout() = 0;
     public:
-        MessageState(Grid &grid, std::string msg, int duration = 60) noexcept;
+        MessageState(Level &level, Grid &grid, std::string msg, int duration = 60) noexcept;
 
         void draw() override;
         void gridAnimationFinished(const Point &) override { }
@@ -159,10 +186,26 @@ class MessageState : public State, DrawableContainer
 
 class NoActionState : public MessageState
 {
+    protected:
+        void onTimeout() override;
     public:
-        NoActionState(Grid &grid) noexcept;
+        NoActionState(Level &level, Grid &grid) noexcept;
+};
 
-        void draw() override;
+class LevelPassedState : public MessageState
+{
+    protected:
+        void onTimeout() override;
+    public:
+        LevelPassedState(Level &level, Grid &grid) noexcept;
+};
+
+class LevelNotPassedState : public MessageState
+{
+    protected:
+        void onTimeout() override;
+    public:
+        LevelNotPassedState(Level &level, Grid &grid) noexcept;
 };
 
 class EditState : public State
@@ -170,8 +213,8 @@ class EditState : public State
     private:
         void selectionChanged();
     public:
-        EditState(Grid &grid) noexcept
-            : State{grid}
+        EditState(Level &level, Grid &grid) noexcept
+            : State{level, grid}
         { }
 
         void mouseMove(Point mouseLoc) override;
@@ -180,6 +223,7 @@ class EditState : public State
 
         void update(Event e) override
         {
+            State::update(e);
             switch (e) {
                 case Event::gridSelectionChanged:
                     selectionChanged();
@@ -203,8 +247,8 @@ class EditState : public State
 class MatchState : public State
 {
     public:
-        MatchState(Grid &grid) noexcept
-            : State{grid}
+        MatchState(Level &level, Grid &grid) noexcept
+            : State{level, grid}
         { }
 
         bool isInCombination(const Point &point);
@@ -220,7 +264,7 @@ class GridInitState : public MatchState
         void putInitialContent(LevelData &data);
         void fillEmptyCells();
     public:
-        GridInitState(Grid &grid, LevelData &data);
+        GridInitState(Level &level, Grid &grid, LevelData &data);
 
         void draw() override;
         void gridAnimationFinished(const Point &) override { }
@@ -249,7 +293,7 @@ class ReadyState : public MatchState
         void selectionChanged();
         bool hasPossibleAction{true};
     public:
-        ReadyState(Grid &grid, bool initG = false) noexcept;
+        ReadyState(Level &level, Grid &grid, bool initG = false) noexcept;
 
         void draw() override;
 
@@ -272,6 +316,7 @@ class ReadyState : public MatchState
 
         void update(Event e) override
         {
+            MatchState::update(e);
             switch (e) {
                 case Event::gridSelectionChanged:
                     selectionChanged();
@@ -297,8 +342,8 @@ class ReadyState : public MatchState
 class FallState : public MatchState
 {
     public:
-        FallState(Grid &grid) noexcept
-            : MatchState{grid}
+        FallState(Level &level, Grid &grid) noexcept
+            : MatchState{level, grid}
         {
             fillGrid();
             std::cout << "Entering Fall" << std::endl; 
@@ -329,8 +374,8 @@ class SwapState : public MatchState
     private:
         bool swapBack{false};
     public:
-        SwapState(Grid &grid) noexcept
-            : MatchState{grid}
+        SwapState(Level &level, Grid &grid) noexcept
+            : MatchState{level, grid}
         {
             std::cout << "Entering Swap" << std::endl;
         }
@@ -352,8 +397,8 @@ class SwapState : public MatchState
 class ClearState : public State
 {
     public:
-        ClearState(Grid &grid) noexcept
-            : State{grid}
+        ClearState(Level &level, Grid &grid) noexcept
+            : State{level, grid}
         {
             std::cout << "Entering Clear" << std::endl;
         }

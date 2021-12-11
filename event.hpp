@@ -2,6 +2,8 @@
 #define EVENT_HPP
 
 enum class Event {
+    CellCleared,
+    TurnEnd,
     NeighbourMatched,
     NeighbourCleared,
     FallStateEnd,
