@@ -2,15 +2,17 @@
 #define EVENT_HPP
 
 enum class Event {
-    GoalChanged,
-    IcingCleared,
-    CellCleared,
-    TurnEnd,
-    NeighbourMatched,
-    NeighbourCleared,
-    FallStateEnd,
-    cellContentAnimationFinished,
-    gridSelectionChanged
+    GoalReached
+    , NoMoreMoves
+    , GoalChanged
+    , IcingCleared
+    , CellCleared
+    , TurnEnd
+    , NeighbourMatched
+    , NeighbourCleared
+    , FallStateEnd
+    , cellContentAnimationFinished
+    , gridSelectionChanged
 };
 
 #endif

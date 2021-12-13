@@ -3,13 +3,17 @@
 
 #include <FL/Fl_Window.H>
 #include <memory>
-#include <iostream>
-#include <fstream>
-#include <sstream>
+/* #include <iostream> */
+/* #include <fstream> */
+/* #include <sstream> */
 
+#include "observer.hpp"
 #include "common.hpp"
 #include "shape.hpp"
 #include "grid.hpp"
+/* #include "level_goal.hpp" */
+#include "level_status.hpp"
+#include "level_data.hpp"
 
 class Game;
 
@@ -102,107 +106,41 @@ class SplashScreen : public View
  *
  * Only the size is obligatory. And it should alway be the first one.
  */
-class LevelData
-{
-    private:
-        std::string m_levelName;
+/* class LevelData */
+/* { */
+/*     private: */
+/*         std::string m_levelName; */
 
-        int gridSize {-1};
-        int colorRange {6};
+/*         int gridSize {-1}; */
+/*         int colorRange {6}; */
 
-        std::string goalType {};
+/*         std::string goalType {}; */
 
-        std::vector<Point> wallsPos{};
-        std::vector<Point> singleIcingPos{};
-        std::vector<Point> doubleIcingPos{};
+/*         std::vector<Point> wallsPos{}; */
+/*         std::vector<Point> singleIcingPos{}; */
+/*         std::vector<Point> doubleIcingPos{}; */
 
-        // Functions used to fill the data from a file
-        void extractDataFrom(std::string filename);
-        void processLine(std::string line);
-        void fillFrom(std::vector<Point> &vect, std::istream &is);
-    public:
-        LevelData(std::string filename);
+/*         // Functions used to fill the data from a file */
+/*         void extractDataFrom(std::string filename); */
+/*         void processLine(std::string line); */
+/*         void fillFrom(std::vector<Point> &vect, std::istream &is); */
+/*     public: */
+/*         LevelData(std::string filename); */
 
-        std::string levelName() const { return m_levelName; }
+/*         std::string levelName() const { return m_levelName; } */
 
-        int getGridSize() const { return gridSize; }
-        int getColorRange() const { return colorRange; }
+/*         int getGridSize() const { return gridSize; } */
+/*         int getColorRange() const { return colorRange; } */
 
-        const auto &getWallsPos() const { return wallsPos; }
-        const auto &getSingleIncingPos() const { return singleIcingPos; }
-        const auto &getDoubleIcingPos() const { return doubleIcingPos; }
-};
-
-class LevelStatus;
-
-class Goal
-{
-    protected:
-        LevelStatus &m_status;
-    public:
-        Goal(LevelStatus &status) noexcept
-            : m_status{status}
-        {
-        }
-
-        virtual void update(Event) = 0;
-        virtual bool met() = 0;
-        virtual std::string toString() = 0;
-
-        virtual ~Goal() noexcept = default;
-};
-
-class EventOccurGoal : public Goal
-{
-    protected:
-        Event m_eventWaiting;
-        int m_remaining;
-    public:
-        EventOccurGoal(LevelStatus &status, Event eventWaiting, int remaining) noexcept
-            : Goal{status}
-            , m_eventWaiting{eventWaiting}
-            , m_remaining{remaining}
-        {
-        }
-
-        void update(Event event) override;
-
-        bool met() override { /*std::cout << m_remaining << std::endl; */return m_remaining == 0; }
-
-        std::string toString() override { return std::to_string(m_remaining); }
-
-};
-
-class LevelStatus : public DrawableContainer
-{
-    private:
-        int score {0};
-        Text scoreLabelDrawable;
-        Text scoreDrawable;
-
-        int movesLeft {3};
-        Text movesLeftLabelDrawable;
-        Text movesLeftDrawable;
-
-        std::shared_ptr<Goal> goal {std::make_shared<EventOccurGoal>(*this, Event::IcingCleared, 3)};
-        Text goalLabelDrawable;
-        Text goalDrawable;
-    public:
-        LevelStatus(const Point &center, int width, int height) noexcept;
-
-        void draw() override;
-
-        void updateScore(int toAdd);
-        void update(Event event);
-
-        bool moreMoves();
-        bool objectiveMet();
-};
+/*         const auto &getWallsPos() const { return wallsPos; } */
+/*         const auto &getSingleIncingPos() const { return singleIcingPos; } */
+/*         const auto &getDoubleIcingPos() const { return doubleIcingPos; } */
+/* }; */
 
 /**
  * A level in the game
  */
-class Level : public View
+class Level : public View, public Subject, public Observer
 {
     private:
         LevelData m_data;
@@ -224,7 +162,7 @@ class Level : public View
         void replayLevel();
         void playNextLevel();
 
-        void update(Event event);
+        void update(Event event) override;
         void updateScore(int toAdd) { m_status.updateScore(toAdd); }
 };
 

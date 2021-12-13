@@ -15,13 +15,17 @@ endif
 OBJDIR = build
 
 POBJ=\
-	main.o\
 	animation.o\
-	grid.o\
-	cell_content.o\
-	point.o\
-	game.o\
 	board_state.o\
+	cell_content.o\
+	game.o\
+	level_goal.o\
+	level_status.o\
+	level_data.o\
+	grid.o\
+	main.o\
+	observer.o\
+	point.o\
 	shape.o
 
 OBJ=$(addprefix $(OBJDIR)/, $(POBJ))
@@ -42,3 +46,4 @@ $(OBJDIR)/%.o : %.cpp
 .PHONY : clean
 clean :
 	rm $(OBJDIR)/*.o
+	rm $(OBJDIR)/*.d

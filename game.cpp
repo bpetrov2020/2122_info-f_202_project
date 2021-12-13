@@ -79,147 +79,79 @@ void SplashScreen::animationFinished(AnimationT animationType)
  * LevelData
  *--------------------------------------------------------*/
 
-LevelData::LevelData(std::string filename)
-    :
-        m_levelName{filename}
-{
-    extractDataFrom(filename);
-}
+/* LevelData::LevelData(std::string filename) */
+/*     : */
+/*         m_levelName{filename} */
+/* { */
+/*     extractDataFrom(filename); */
+/* } */
 
-void LevelData::extractDataFrom(std::string filename)
-{
-    std::ifstream file{ filename };
-    if (!file)
-        throw std::runtime_error{"LevelData: Invalid filename given " + filename};
+/* void LevelData::extractDataFrom(std::string filename) */
+/* { */
+/*     std::ifstream file{ filename }; */
+/*     if (!file) */
+/*         throw std::runtime_error{"LevelData: Invalid filename given " + filename}; */
 
-    std::string line;
-    while (std::getline(file, line)) {
-        processLine(line);
-    }
-}
+/*     std::string line; */
+/*     while (std::getline(file, line)) { */
+/*         processLine(line); */
+/*     } */
+/* } */
 
-void LevelData::processLine(std::string line)
-{
-    std::istringstream is{ line };
-    std::string category;
-    is >> category;
-    if (!is)
-        throw std::runtime_error{"LevelData: First element should be a string"};
+/* void LevelData::processLine(std::string line) */
+/* { */
+/*     std::istringstream is{ line }; */
+/*     std::string category; */
+/*     is >> category; */
+/*     if (!is) */
+/*         throw std::runtime_error{"LevelData: First element should be a string"}; */
 
-    if (category == "Size") {
-        is >> gridSize;
-        if (!is || gridSize<3 || gridSize>26)
-            throw std::runtime_error{"LevelData: Wrong size given"};
+/*     if (category == "Size") { */
+/*         is >> gridSize; */
+/*         if (!is || gridSize<3 || gridSize>26) */
+/*             throw std::runtime_error{"LevelData: Wrong size given"}; */
 
-    } else if (category == "ColorRange") {
-        is >> colorRange;
-        if (!is || colorRange < 2 || colorRange > 6)
-            throw std::runtime_error{"LevelData: Wrong colorRange given"};
+/*     } else if (category == "ColorRange") { */
+/*         is >> colorRange; */
+/*         if (!is || colorRange < 2 || colorRange > 6) */
+/*             throw std::runtime_error{"LevelData: Wrong colorRange given"}; */
 
-    } else if (category == "Goal") {
-        is >> goalType;
-        if (!is || (goalType != "Icing" && goalType != "Ingredient"))
-            throw std::runtime_error{"LevelData: Wrong goal argument"};
+/*     } else if (category == "Goal") { */
+/*         is >> goalType; */
+/*         if (!is || (goalType != "Icing" && goalType != "Ingredient")) */
+/*             throw std::runtime_error{"LevelData: Wrong goal argument"}; */
 
-    } else if (category == "Wall") {
-        fillFrom(wallsPos, is);
+/*     } else if (category == "Wall") { */
+/*         fillFrom(wallsPos, is); */
 
-    } else if (category == "SingleIcing") {
-        fillFrom(singleIcingPos, is);
+/*     } else if (category == "SingleIcing") { */
+/*         fillFrom(singleIcingPos, is); */
 
-    } else if (category == "DoubleIcing") {
-        fillFrom(doubleIcingPos, is);
+/*     } else if (category == "DoubleIcing") { */
+/*         fillFrom(doubleIcingPos, is); */
 
-    } else {
-        throw std::runtime_error{"LevelData: Unknow category used"};
-    }
-}
+/*     } else { */
+/*         throw std::runtime_error{"LevelData: Unknow category used"}; */
+/*     } */
+/* } */
 
-void LevelData::fillFrom(std::vector<Point> &vect, std::istream &is)
-{
-    if (!vect.empty())
-        throw std::runtime_error{"LevelData: There should not be multiple sections for the same content"};
-    if (gridSize == -1)
-        throw std::runtime_error{"LevelData: Grid size should be initialized before contents"};
+/* void LevelData::fillFrom(std::vector<Point> &vect, std::istream &is) */
+/* { */
+/*     if (!vect.empty()) */
+/*         throw std::runtime_error{"LevelData: There should not be multiple sections for the same content"}; */
+/*     if (gridSize == -1) */
+/*         throw std::runtime_error{"LevelData: Grid size should be initialized before contents"}; */
 
-    for (Point p; is>>p; ) {
-        if (p.x>=0 && p.x<gridSize && p.y>=0 && p.y<gridSize)
-            vect.push_back(p);
-        else
-            throw std::runtime_error{"LevelData: Out of range point"};
-    }
+/*     for (Point p; is>>p; ) { */
+/*         if (p.x>=0 && p.x<gridSize && p.y>=0 && p.y<gridSize) */
+/*             vect.push_back(p); */
+/*         else */
+/*             throw std::runtime_error{"LevelData: Out of range point"}; */
+/*     } */
 
-    if (!is.eof())
-        throw std::runtime_error("Illegal input");
-}
-
-/*----------------------------------------------------------
- * LevelStatus
- *--------------------------------------------------------*/
-
-LevelStatus::LevelStatus(const Point &center, int width, int height) noexcept
-    : DrawableContainer{std::make_shared<Rectangle>(center, width, height)}
-    , scoreLabelDrawable{Point{width/4, center.y-height/2+height/3}, "Score", height/6, FL_BLACK}
-    , scoreDrawable{Point{width/4, center.y-height/2+height/3*2}, "0", height/5, FL_BLACK}
-    , movesLeftLabelDrawable{Point{width/2, center.y-height/2+height/3}, "Moves", height/6, FL_BLACK}
-    , movesLeftDrawable{Point{width/2, center.y-height/2+height/3*2}, "3", height/5, FL_BLACK}
-    , goalLabelDrawable{Point{width/4*3, center.y-height/2+height/3}, "Icing", height/6, FL_BLACK}
-    , goalDrawable{Point{width/4*3, center.y-height/2+height/3*2}, "3", height/5, FL_BLACK}
-{ }
-
-void LevelStatus::updateScore(int toAdd)
-{
-    score += toAdd;
-    scoreDrawable.setString(std::to_string(score));
-}
-
-void LevelStatus::update(Event event)
-{
-    goal->update(event);
-    switch (event) {
-        case Event::TurnEnd:
-            --movesLeft;
-            movesLeftDrawable.setString(std::to_string(movesLeft));
-            break;
-        case Event::GoalChanged:
-            goalDrawable.setString(goal->toString());
-            break;
-        default:
-            break;
-    }
-}
-
-void LevelStatus::draw()
-{
-    DrawableContainer::draw();
-    scoreLabelDrawable.draw();
-    scoreDrawable.draw();
-    movesLeftLabelDrawable.draw();
-    movesLeftDrawable.draw();
-    goalLabelDrawable.draw();
-    goalDrawable.draw();
-}
-
-bool LevelStatus::moreMoves()
-{
-    return movesLeft > 0;
-}
-
-bool LevelStatus::objectiveMet()
-{
-    return goal->met();
-}
-
-// TODO: get rid of this shit
-void EventOccurGoal::update(Event event)
-{
-    if (event == m_eventWaiting) {
-        --m_remaining;
-        m_status.update(Event::GoalChanged);
-    }
-
-    assert(m_remaining >= 0);
-}
+/*     if (!is.eof()) */
+/*         throw std::runtime_error("Illegal input"); */
+/* } */
 
 /*----------------------------------------------------------
  * Level
@@ -229,10 +161,13 @@ void EventOccurGoal::update(Event event)
 Level::Level(Fl_Window& window, Game& game, const std::string &filename)
     : View{window, game},
     m_data{filename},
-    m_status{Point{window.w()/2, window.h()/12*11}, gridSide(window), gridSide(window)/5},
+    m_status{Point{window.w()/2, window.h()/12*11}, gridSide(window), gridSide(window)/5, m_data},
     m_board{Point{window.w()/2, window.h()/12*5}, gridSide(window), gridSide(window), m_data},
     m_boardController{nullptr}
 {
+    m_status.registerObserver(this);
+    registerObserver(&m_status);
+
     setState(std::make_shared<GridInitState>(*this, m_board, m_data));
 }
 
@@ -267,15 +202,15 @@ void Level::playNextLevel()
 
 void Level::update(Event event)
 {
-    m_status.update(event);
     switch (event) {
-        case Event::TurnEnd:
-            if (m_status.objectiveMet())
-                setState(std::make_shared<LevelPassedState>(*this, m_board));
-            else if (!m_status.moreMoves())
-                setState(std::make_shared<LevelNotPassedState>(*this, m_board));
+        case Event::GoalReached:
+            setState(std::make_shared<LevelPassedState>(*this, m_board));
+            break;
+        case Event::NoMoreMoves:
+            setState(std::make_shared<LevelNotPassedState>(*this, m_board));
             break;
         default:
+            m_status.update(event);
             break;
     }
 }

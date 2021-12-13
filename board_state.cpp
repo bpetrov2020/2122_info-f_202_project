@@ -672,11 +672,13 @@ void FallState::gridAnimationFinished(const Point &p)
         bool moreFall = fillGrid();
         if (!moreFall) {
 
+            // TODO
+            notifyCells(Event::FallStateEnd);
+
             for (auto &i: grid) {
                 processCombinationContaining(i.getIndex());
             }
 
-            notifyCells(Event::FallStateEnd);
 
             if (isWaiting())
                 level.setState(std::make_shared<ClearState>(level, grid));
