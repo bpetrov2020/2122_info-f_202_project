@@ -452,6 +452,10 @@ void GridInitState::putInitialContent(LevelData &data)
     // add an icing
     /*point = {5, 4};
     grid.put(point, ContentT::Icing, StandardCandy::Color::Blue);*/
+
+    // add a fruit
+    point = {3, 3};
+    grid.put(point, Fruit::Type::cherry);
 }
 
 void GridInitState::fillEmptyCells()

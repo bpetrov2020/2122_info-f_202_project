@@ -8,7 +8,8 @@ enum class Event {
     NeighbourCleared,
     FallStateEnd,
     cellContentAnimationFinished,
-    gridSelectionChanged
+    gridSelectionChanged,
+    FruitCleared
 };
 
 #endif

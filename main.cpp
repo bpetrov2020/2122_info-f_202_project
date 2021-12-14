@@ -35,7 +35,7 @@ public:
         game{*this}
     {
         Fl::add_timeout(1.0/refreshPerSecond, Timer_CB, this);
-        resizable(this);
+        //resizable(this);
     }
 
     void draw() override

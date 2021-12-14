@@ -174,6 +174,7 @@ class Grid : public DrawableContainer, public Interactive
         }
 
         // For different contents
+        void put(const Point &point, Fruit::Type type);
         void put(const Point &point, ContentT content);  // All no parameter contents
         void put(const Point &point, ContentT content, int layer);  // Icing
         void put(const Point &point, ContentT content, StandardCandy::Color color, Axis axis = std::rand()%2 ? Axis::Horizontal : Axis::Vertical); // Candies
