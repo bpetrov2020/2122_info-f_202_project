@@ -221,7 +221,7 @@ Grid::Grid(Point center, int width, int height, int rows, int columns, LevelData
     cellContentSide = w>h ? h-20 : w-20; // TODO move to initialization list
 
     /* setState(std::make_shared<ReadyState>(*this, true, data)); */
-    setState(std::make_shared<GridInitState>(*this, data));
+    /* setState(std::make_shared<GridInitState>(*this, data)); */
     /* setState(std::make_shared<MessageShower>(*this, "Start")); */
     /* setState(std::make_shared<EditState>(*this)); */
 }
@@ -230,22 +230,24 @@ void Grid::draw() {
     DrawableContainer::draw();
     for (auto &c: *this) c.draw();
     for (auto &c: *this) c.drawContent();
-    state->draw();
 }
 
 void Grid::mouseMove(Point mouseLoc)
 {
-    state->mouseMove(mouseLoc);
+    for (auto &c: *this)
+        c.mouseMove(mouseLoc);
 }
 
 void Grid::mouseClick(Point mouseLoc)
 {
-    state->mouseClick(mouseLoc);
+    for (auto &c: *this)
+        c.mouseClick(mouseLoc);
 }
 
 void Grid::mouseDrag(Point mouseLoc)
 {
-    state->mouseDrag(mouseLoc);
+    for (auto &c: *this)
+        c.mouseDrag(mouseLoc);
 }
 
 Cell &Grid::at(const Point &p)
@@ -335,7 +337,10 @@ void Grid::clearCell(std::vector<Point> &vect)
 bool Grid::clearCell(const Point &point)
 {
     /* EventManager::get().send(Event::CellCleared); */
-    return at(point).clear();
+    bool clearedCell {at(point).clear()};
+    if (clearedCell)
+        state->update(Event::CellCleared);
+    return clearedCell;
 }
 
 void Grid::put(const Point &point, ContentT content)

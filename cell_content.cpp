@@ -624,7 +624,7 @@ void ColourBomb::replaceAndExplode()
                     std::dynamic_pointer_cast<StandardCandy>(c.getContent())->getColor()};
             if (cellColor == colorToReplace) {
                 // explode all specific candies
-                c.clear();
+                grid.clearCell(c.getIndex());
             }
         }
     }

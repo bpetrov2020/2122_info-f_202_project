@@ -35,6 +35,9 @@ class View : public DrawableContainer, public Interactive
         Game& game;
     public:
         View(Fl_Window& window, Game& game);
+
+        int w() const { return window.w(); }
+        int h() const { return window.h(); }
 };
 
 /**
@@ -56,6 +59,10 @@ class Game : public Interactive
 
         void loadView(std::shared_ptr<View> v);
 };
+
+/**
+ * The level selector view
+ */
 
 /**
  * First screen shown to the player
@@ -98,6 +105,8 @@ class SplashScreen : public View
 class LevelData
 {
     private:
+        std::string m_levelName;
+
         int gridSize {-1};
         int colorRange {6};
 
@@ -112,13 +121,38 @@ class LevelData
     public:
         LevelData(std::string filename);
 
-        int getGridSize() const { return gridSize; }
+        std::string levelName() const { return m_levelName; }
 
+        int getGridSize() const { return gridSize; }
         int getColorRange() const { return colorRange; }
 
         const auto &getWallsPos() const { return wallsPos; }
         const auto &getSingleIncingPos() const { return singleIcingPos; }
         const auto &getDoubleIcingPos() const { return doubleIcingPos; }
+};
+
+class LevelStatus : public DrawableContainer
+{
+    private:
+        int score {0};
+        Text scoreLabelDrawable;
+        Text scoreDrawable;
+
+        int movesLeft {3};
+        Text movesLeftLabelDrawable;
+        Text movesLeftDrawable;
+
+        /* Objective objective; */
+    public:
+        LevelStatus(const Point &center, int width, int height) noexcept;
+
+        void draw() override;
+
+        void updateScore(int toAdd);
+        void update(Event event);
+
+        bool moreMoves();
+        bool objectiveMet();
 };
 
 /**
@@ -127,29 +161,28 @@ class LevelData
 class Level : public View
 {
     private:
-        /* Grid status; */
-        std::shared_ptr<Grid> board;
-        void initFromFile(std::string filename);
+        LevelData m_data;
+        LevelStatus m_status;
+        Grid m_board;
+        std::shared_ptr<State> m_boardController {nullptr};
+
+        inline int gridSide(Fl_Window &win);
     public:
         Level(Fl_Window& window, Game& game, const std::string &filename);
 
-        // From Interactive
-        void mouseMove(Point mouseLoc) override  { board->mouseMove(mouseLoc); }
-        void mouseClick(Point mouseLoc) override { board->mouseClick(mouseLoc); }
-        void mouseDrag(Point mouseLoc) override  { board->mouseDrag(mouseLoc); }
+        void mouseMove(Point mouseLoc)  override { m_boardController->mouseMove(mouseLoc); }
+        void mouseClick(Point mouseLoc) override { m_boardController->mouseClick(mouseLoc); }
+        void mouseDrag(Point mouseLoc)  override { m_boardController->mouseDrag(mouseLoc); }
 
-        // From Drawable
         void draw() override;
 
+        void setState(std::shared_ptr<State> state);
+        void replayLevel();
+        void playNextLevel();
+
+        void update(Event event);
+        void updateScore(int toAdd) { m_status.updateScore(toAdd); }
 };
 
-/* class GameStatus */
-/* { */
-/*     private: */
-/*         int score{0}; */
-/*         Objective objective; */
-/*     public: */
-/*         GameStatus() */
-/* }; */
 
 #endif

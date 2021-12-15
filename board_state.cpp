@@ -96,14 +96,25 @@ void State::notifyCells(Event e)
     }
 }
 
+void State::update(Event event)
+{
+    switch (event) {
+        case Event::CellCleared:
+            level.updateScore(50);
+            break;
+        default:
+            break;
+    }
+}
+
 /*----------------------------------------------------------
  * MessageState
  *--------------------------------------------------------*/
 
-MessageState::MessageState(Grid &grid, std::string msg, int duration) noexcept
+MessageState::MessageState(Level &level, Grid &grid, std::string msg, int duration) noexcept
     :
-        State{grid},
-        DrawableContainer{std::make_shared<Rectangle>(grid.getCenter(), 600, 50, FL_WHITE)},
+        State{level, grid},
+        DrawableContainer{std::make_shared<Rectangle>(grid.getCenter(), level.w(), 50, FL_WHITE)},
         message{grid.getCenter(), msg, 14}
 {
     addAnimation(std::make_shared<StillAnimation>(duration));
@@ -113,6 +124,13 @@ void MessageState::draw()
 {
     DrawableContainer::draw();
     message.draw();
+
+    // This is dirty, but a way to know when the animation is
+    // done and any action can be done. Sometimes changing state
+    // in animationFinished could make the program call pure
+    // virtual functions, something that doesn't happen here.
+    if (messageFinished)
+        onTimeout();
 }
 
 void MessageState::animationFinished(AnimationT animationType)
@@ -121,8 +139,7 @@ void MessageState::animationFinished(AnimationT animationType)
         case AnimationT::StillAnimation:
             messageFinished = true;
             break;
-        case AnimationT::ScaleAnimation:
-        case AnimationT::MoveAnimation:
+        default:
             break;
     }
 }
@@ -131,16 +148,42 @@ void MessageState::animationFinished(AnimationT animationType)
  * NoActionState
  *--------------------------------------------------------*/
 
-NoActionState::NoActionState(Grid &grid) noexcept
+NoActionState::NoActionState(Level &level, Grid &grid) noexcept
     :
-        MessageState{grid, "No more combinations. Changing grid.", 60}
+        MessageState{level, grid, "No more combinations. Changing grid.", 60}
 { }
 
-void NoActionState::draw()
+void NoActionState::onTimeout()
 {
-    MessageState::draw();
-    if (messageFinished)
-        grid.setState(std::make_shared<ReadyState>(grid, true));
+    level.setState(std::make_shared<ReadyState>(level, grid, true));
+}
+
+/*----------------------------------------------------------
+ * LevelPassedState
+ *--------------------------------------------------------*/
+
+LevelPassedState::LevelPassedState(Level &level, Grid &grid) noexcept
+    :
+        MessageState{level, grid, "You won! Loading next level...", 120}
+{ }
+
+void LevelPassedState::onTimeout()
+{
+    level.replayLevel();
+}
+
+/*----------------------------------------------------------
+ * LevelNotPassedState
+ *--------------------------------------------------------*/
+
+LevelNotPassedState::LevelNotPassedState(Level &level, Grid &grid) noexcept
+    :
+        MessageState{level, grid, "Thou lost... Try again!", 120}
+{ }
+
+void LevelNotPassedState::onTimeout()
+{
+    level.replayLevel();
 }
 
 /*----------------------------------------------------------
@@ -200,6 +243,7 @@ bool MatchState::processCombinationContaining(const Point &elem)
         grid.clearCell(origin);
         grid.clearCell(largestDirection);
         oneCombination = true;
+        level.updateScore(50);
 
     // 4 in one axis
     } else if ((vc==4 && hc<3) || (hc==4 && vc<3)) {
@@ -209,6 +253,7 @@ bool MatchState::processCombinationContaining(const Point &elem)
         grid.clearCell(largestDirection);
         grid.put(origin, ContentT::StripedCandy, color, vc<hc ? Axis::Vertical : Axis::Horizontal);
         oneCombination = true;
+        level.updateScore(125);
 
     // More than 3 on both axis
     } else if (vc>=3 && vc<5 && hc>=3 && hc<5) {
@@ -219,6 +264,7 @@ bool MatchState::processCombinationContaining(const Point &elem)
         }
         grid.put(origin, ContentT::WrappedCandy, color);
         oneCombination = true;
+        level.updateScore(200);
 
     // 5 or more in one axis
     } else if (vc>=5 || hc>=5) {
@@ -226,7 +272,9 @@ bool MatchState::processCombinationContaining(const Point &elem)
         grid.clearCell(largestDirection);
         grid.put(origin, ContentT::ColourBomb);
         oneCombination = true;
+        level.updateScore(500);
     }
+
 
     if (oneCombination) {
         auto vec{ combi.getAllElements() };
@@ -308,8 +356,8 @@ bool MatchState::isInCombination(const Point &point)
  * GridInitState
  *--------------------------------------------------------*/
 
-GridInitState::GridInitState(Grid &grid, LevelData &data)
-    : MatchState{grid}
+GridInitState::GridInitState(Level &level, Grid &grid, LevelData &data)
+    : MatchState{level, grid}
 {
     putInitialContent(data);
     fillEmptyCells();
@@ -317,7 +365,7 @@ GridInitState::GridInitState(Grid &grid, LevelData &data)
 
 void GridInitState::draw()
 {
-    grid.setState(std::make_shared<ReadyState>(grid));
+    level.setState(std::make_shared<ReadyState>(level, grid));
 }
 
 void GridInitState::putInitialContent(LevelData &data)
@@ -329,7 +377,7 @@ void GridInitState::putInitialContent(LevelData &data)
     for (auto &pos: data.getDoubleIcingPos())
         grid.put(pos, ContentT::Icing, 2);
 
-    // bunch of blue candies
+    // bunch of blue candies for damn bug
     /*Point point = {1,1};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
     point = {2,0};
@@ -362,15 +410,16 @@ void GridInitState::putInitialContent(LevelData &data)
     grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);*/
 
     // ColourBomb with Standard
-    /*Point point{1, 1};
-    grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
-    point = {1, 2};
-    grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
+    /*Point point{1, 1};*/
+    point = {1, 1};
+    grid.put(point, ContentT::ColourBomb);
+    /* point = {1, 2};*/
+    /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
 
-    point = {4, 4};
-    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
-    point = {0, 5};
-    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Horizontal);*/
+    /* point = {4, 4};*/
+    /* grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);*/
+    /* point = {0, 5};*/
+    /* grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Horizontal);*/
 
     // ColourBomb with Wrapped
     /*Point point{1, 1};
@@ -422,8 +471,8 @@ void GridInitState::fillEmptyCells()
  * ReadyState
  *--------------------------------------------------------*/
 
-ReadyState::ReadyState(Grid &grid, bool replaceGrid_) noexcept
-    : MatchState{grid}
+ReadyState::ReadyState(Level &level, Grid &grid, bool replaceGrid_) noexcept
+    : MatchState{level, grid}
 {
     std::cout << "Entering Ready state" << std::endl;
     if (replaceGrid_)
@@ -436,7 +485,7 @@ ReadyState::ReadyState(Grid &grid, bool replaceGrid_) noexcept
 void ReadyState::draw()
 {
     if (!hasPossibleAction)
-        grid.setState(std::make_shared<NoActionState>(grid));
+        level.setState(std::make_shared<NoActionState>(level, grid));
 }
 
 // TODO
@@ -481,20 +530,17 @@ void ReadyState::gridAnimationFinished(const Point &)
 
 void ReadyState::mouseMove(Point mouseLoc)
 {
-    for (auto &c: grid)
-        c.mouseMove(mouseLoc);
+    grid.mouseMove(mouseLoc);
 }
 
 void ReadyState::mouseClick(Point mouseLoc)
 {
-    for (auto &c: grid)
-        c.mouseClick(mouseLoc);
+    grid.mouseClick(mouseLoc);
 }
 
 void ReadyState::mouseDrag(Point mouseLoc)
 {
-    for (auto &c: grid)
-        c.mouseDrag(mouseLoc);
+    grid.mouseDrag(mouseLoc);
 }
 
 void ReadyState::selectionChanged()
@@ -510,7 +556,7 @@ void ReadyState::selectionChanged()
                 && grid.areNeighbours(selection.at(0), selection.at(1))
                 && grid.swapCellContent(selection)
            ) {
-            grid.setState(std::make_shared<SwapState>(grid));
+            level.setState(std::make_shared<SwapState>(level, grid));
         }
     }
 }
@@ -632,9 +678,11 @@ void FallState::gridAnimationFinished(const Point &p)
             notifyCells(Event::FallStateEnd);
 
             if (isWaiting())
-                grid.setState(std::make_shared<ClearState>(grid));
-            else
-                grid.setState(std::make_shared<ReadyState>(grid));
+                level.setState(std::make_shared<ClearState>(level, grid));
+            else {
+                level.setState(std::make_shared<ReadyState>(level, grid));
+                level.update(Event::TurnEnd);
+            }
         }
     }
 }
@@ -667,12 +715,12 @@ void SwapState::gridAnimationFinished(const Point &p)
             grid.at(p).setLastSelected(false);
 
         if (isWaiting()) {
-            grid.setState(std::make_shared<ClearState>(grid));
+            level.setState(std::make_shared<ClearState>(level, grid));
         } else if (!swapBack) {
             grid.swapCellContent(waitingList);
             swapBack = true;
         } else {
-            grid.setState(std::make_shared<ReadyState>(grid));
+            level.setState(std::make_shared<ReadyState>(level, grid));
         }
     }
 }
@@ -692,6 +740,6 @@ void ClearState::gridAnimationFinished(const Point &p)
         for (auto &i: waitingList)
             grid.at(i).removeContent();
 
-        grid.setState(std::make_shared<FallState>(grid));
+        level.setState(std::make_shared<FallState>(level, grid));
     }
 }
