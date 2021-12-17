@@ -52,6 +52,8 @@ class Game : public Interactive
     private:
         Fl_Window& window;
         std::shared_ptr<View> view;
+        int bestScore;
+        void writeScore();
     public:
         Game(Fl_Window& win);
 
@@ -62,6 +64,9 @@ class Game : public Interactive
         void draw();
 
         void loadView(std::shared_ptr<View> v);
+
+        void updateScore(int);
+        void resetScore();
 };
 
 /**

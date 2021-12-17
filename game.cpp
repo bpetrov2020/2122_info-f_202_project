@@ -1,5 +1,7 @@
 #include "game.hpp"
 
+#include <fstream>
+
 /*----------------------------------------------------------
  * View
  *--------------------------------------------------------*/
@@ -23,7 +25,15 @@ Game::Game(Fl_Window& win)
     : window{win},
     /* view{std::make_shared<SplashScreen>(win, *this, "Authors", 15, 120)} { } TODO */
     view{std::make_shared<Level>(win, *this, "level1.txt")}
-{ }
+{
+    std::ifstream scoreSrc {"best_score.txt"};
+    if (scoreSrc) {
+        scoreSrc >> bestScore;
+        if (!scoreSrc) {
+            throw std::runtime_error("Game::Game: Wrong score formatting");
+        }
+    }
+}
 
 
 void Game::mouseMove(Point mouseLoc)  { if(view) view->mouseMove(mouseLoc); }
@@ -36,6 +46,25 @@ void Game::loadView(std::shared_ptr<View> v)
 {
     view.reset();
     view = std::move(v);
+}
+
+void Game::writeScore()
+{
+    std::ofstream scoreDest {"best_score.txt"};
+    scoreDest << bestScore;
+}
+
+void Game::updateScore(int newScore)
+{
+    if (newScore>bestScore)
+        bestScore = newScore;
+
+    writeScore();
+}
+
+void Game::resetScore()
+{
+    bestScore = 0;
 }
 
 /*----------------------------------------------------------
@@ -204,9 +233,11 @@ void Level::update(Event event)
 {
     switch (event) {
         case Event::GoalReached:
+            game.updateScore(m_status.score());
             setState(std::make_shared<LevelPassedState>(*this, m_board));
             break;
         case Event::NoMoreMoves:
+            game.updateScore(m_status.score());
             setState(std::make_shared<LevelNotPassedState>(*this, m_board));
             break;
         default:

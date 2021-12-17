@@ -57,3 +57,24 @@ void MoveAnimation::draw()
         drawable->draw();
     }
 }
+
+/*----------------------------------------------------------
+ * PulseAnimation
+ *--------------------------------------------------------*/
+
+double PulseAnimation::currentScale()
+{
+    if (!isComplete())
+        return 1 + std::sin(std::numbers::pi*(static_cast<double>(elapsed)/duration))/4;
+    else
+        return 0;
+}
+
+void PulseAnimation::draw()
+{
+    if (drawable) {
+        ++elapsed;
+        Scale s{drawable->getCenter(), currentScale()};
+        drawable->draw();
+    }
+}
