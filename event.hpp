@@ -13,6 +13,8 @@ enum class Event {
     , FallStateEnd
     , cellContentAnimationFinished
     , SelectionChanged
+    , HintAnimationFinished
+    , PulseAnimationFinished
 };
 
 #endif

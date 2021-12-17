@@ -71,6 +71,7 @@ class DrawableContainer
         }
 
         // Function called at end of an animation with the type of it
+        virtual void removeAnimation() { animation.reset(); }
         virtual void animationFinished(AnimationT) { }
 };
 

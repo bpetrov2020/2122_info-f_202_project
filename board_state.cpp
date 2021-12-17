@@ -14,6 +14,11 @@ auto Combination::getOrigin() const
     return origin;
 }
 
+void Combination::setOrigin(const Point &orig)
+{
+    origin = orig;
+}
+
 void Combination::addVerticalElement(const Point &elem)
 {
     assert(elem.x == origin.x);
@@ -480,11 +485,17 @@ ReadyState::ReadyState(Level &level, Grid &grid, bool replaceGrid_) noexcept
         while (!isActionPossible())
             replaceGrid();
     hasPossibleAction = isActionPossible();
-    std::cout << (hasPossibleAction ? "More action" : "No more action") << std::endl;
+    bestCombination = getBestCombination();
+    /* std::cout << (hasPossibleAction ? "More action" : "No more action") << std::endl; */
 }
 
 void ReadyState::draw()
 {
+    if (grid.getSelectedCount() == 0) {
+        --countToNextHint;
+        if (countToNextHint == 0)
+            showHint();
+    }
     if (!hasPossibleAction)
         level.setState(std::make_shared<NoActionState>(level, grid));
 }
@@ -502,30 +513,44 @@ void ReadyState::replaceGrid()
     }
 }
 
-bool ReadyState::isActionPossible()
+Combination ReadyState::getBestCombination()
 {
-    bool actionPossible{false};
+    Combination ret{Point{0, 0}};  // arbitrary point, with no importance whatsoever
 
     for (auto &c: grid) {
         for (auto &d: {Direction::North, Direction::East}) {
             if (grid.isIndexValid(c.getIndex(), d)) {
                 std::vector<Point> toSwap {c.getIndex(), grid.at(c.getIndex(), d).getIndex()};
                 grid.swapCellContentWithoutAnimation(toSwap);
-                for (auto &p: toSwap)
-                    actionPossible = actionPossible || isInCombination(p);
+
+                for (unsigned i = 0; i<2; ++i) {
+                    Combination tmp = getCombinationContaining(toSwap[i]);
+                    if (tmp.getTotalCount() > ret.getTotalCount()) {
+                        ret = std::move(tmp);
+                        ret.setOrigin(toSwap.at((i+1)%2));
+                    }
+                }
                 grid.swapCellContentWithoutAnimation(toSwap);
             }
         }
-        if (actionPossible)
-            break;
     }
 
-    return actionPossible;
+    return ret;
+}
+
+bool ReadyState::isActionPossible()
+{
+    return getBestCombination().getAllElements().size() > 1;
 }
 
 void ReadyState::gridAnimationFinished(const Point &)
 {
-    throw std::runtime_error("There should be no animations in ReadyState");
+    /* throw std::runtime_error("There should be no animations in ReadyState"); */
+    /* waitingList.push_back(p); */
+
+    if (!isWaiting()) {
+        countToNextHint = hintInterval;
+    }
 }
 
 void ReadyState::mouseMove(Point mouseLoc)
@@ -535,7 +560,14 @@ void ReadyState::mouseMove(Point mouseLoc)
 
 void ReadyState::mouseClick(Point mouseLoc)
 {
+    suspendHint();
     grid.mouseClick(mouseLoc);
+}
+
+void ReadyState::suspendHint()
+{
+    countToNextHint = hintInterval;
+    grid.removeAnimations();
 }
 
 void ReadyState::mouseDrag(Point mouseLoc)
@@ -559,6 +591,14 @@ void ReadyState::selectionChanged()
             level.setState(std::make_shared<SwapState>(level, grid));
         }
     }
+}
+
+void ReadyState::showHint()
+{
+    std::cout << "add pulse\n";
+    for (auto &p: bestCombination.getAllElements())
+        grid.hint(p);
+    grid.hint(bestCombination.getOrigin());
 }
 
 /*----------------------------------------------------------

@@ -36,15 +36,22 @@ class CellContent : public DrawableContainer
     protected:
         Grid &grid;           // reference because always the same
         Cell *containerCell;  // may change, when cellContent is moved (if movable)
+
+        bool m_isPulsing {false};
+        bool m_pulseFinished {false};
     public:
         CellContent(Grid &grid, Cell *cell, std::shared_ptr<Shape> drawable);
 
         CellContent(const CellContent& c) = delete;
         CellContent operator=(const CellContent& c) = delete;
 
+        void animationFinished(AnimationT) override;
+
         virtual void update(Event) { }
 
         virtual ContentT getType() = 0;
+
+        void draw() override;
 
         /* bool isClearable() const { return std::dynamic_pointer_cast<ClearableCellContent>(this)} */
         /* bool isMovable() const { return movable; } */
@@ -57,7 +64,6 @@ class Wall : public CellContent
         Wall(Grid &grid, Cell *cell, const Point &center, int side);
 
         ContentT getType() override { return ContentT::Wall; }
-
 };
 
 // A CellContent object that is matchable should be

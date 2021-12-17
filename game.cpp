@@ -22,9 +22,10 @@ View::View(Fl_Window& win, Game& g)
  *--------------------------------------------------------*/
 
 Game::Game(Fl_Window& win)
-    : window{win},
+    : window{win}
+    , view{std::make_shared<Level>(win, *this, "level1.txt")}
+    , bestScore {-1}
     /* view{std::make_shared<SplashScreen>(win, *this, "Authors", 15, 120)} { } TODO */
-    view{std::make_shared<Level>(win, *this, "level1.txt")}
 {
     std::ifstream scoreSrc {"best_score.txt"};
     if (scoreSrc) {

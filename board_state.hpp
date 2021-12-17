@@ -83,6 +83,7 @@ class Combination
         Combination(const Point &point);
 
         auto getOrigin() const;
+        void setOrigin(const Point &orig);
 
         void addVerticalElement(const Point &elem);
         void addHorizontalElement(const Point &elem);
@@ -292,6 +293,11 @@ class ReadyState : public MatchState
          */
         void selectionChanged();
         bool hasPossibleAction{true};
+
+        Combination bestCombination{Point{0, 0}};
+
+        static constexpr int hintInterval {120};
+        int countToNextHint{hintInterval};
     public:
         ReadyState(Level &level, Grid &grid, bool initG = false) noexcept;
 
@@ -301,13 +307,10 @@ class ReadyState : public MatchState
         void mouseClick(Point mouseLoc) override;
         void mouseDrag(Point mouseLoc) override;
 
-        // testing functions
-        /*void twoColourBombs() {
-            Point point{1, 1};
-            grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
-            point = {1, 2};
-            grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Blue);
-        }*/
+        void showHint();
+        void suspendHint();
+
+        Combination getBestCombination();
 
         void replaceGrid();
         bool isActionPossible();
@@ -321,6 +324,8 @@ class ReadyState : public MatchState
                 case Event::SelectionChanged:
                     selectionChanged();
                     break;
+                /* case Event::HintAnimationFinished: */
+                /*     countToNextHint = hintInterval; */
                 default:
                     break;
             }
