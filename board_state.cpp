@@ -489,7 +489,6 @@ void ReadyState::draw()
         level.setState(std::make_shared<NoActionState>(level, grid));
 }
 
-// TODO
 void ReadyState::replaceGrid()
 {
     for (auto &c: grid) {

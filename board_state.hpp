@@ -225,7 +225,7 @@ class EditState : public State
         {
             State::update(e);
             switch (e) {
-                case Event::gridSelectionChanged:
+                case Event::SelectionChanged:
                     selectionChanged();
                     break;
                 default:
@@ -318,7 +318,7 @@ class ReadyState : public MatchState
         {
             MatchState::update(e);
             switch (e) {
-                case Event::gridSelectionChanged:
+                case Event::SelectionChanged:
                     selectionChanged();
                     break;
                 default:

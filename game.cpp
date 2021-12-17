@@ -98,8 +98,7 @@ void SplashScreen::animationFinished(AnimationT animationType)
         case AnimationT::StillAnimation:
             toBeReplaced = true;
             break;
-        case AnimationT::ScaleAnimation:
-        case AnimationT::MoveAnimation:
+        default:
             break;
     }
 }

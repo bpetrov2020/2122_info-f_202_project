@@ -264,7 +264,7 @@ void Grid::select(const Point &p)
 {
     at(p).toggleSelected() ? ++selectedCount : --selectedCount;
     if (selectedCount == 2) { at(p).setLastSelected(true); }
-    state->update(Event::gridSelectionChanged);
+    state->update(Event::SelectionChanged);
 }
 
 std::vector<Point> Grid::getSelected()

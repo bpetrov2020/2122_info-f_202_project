@@ -12,7 +12,7 @@ enum class Event {
     , NeighbourCleared
     , FallStateEnd
     , cellContentAnimationFinished
-    , gridSelectionChanged
+    , SelectionChanged
 };
 
 #endif
