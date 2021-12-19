@@ -23,11 +23,11 @@ View::View(Fl_Window& win, Game& g)
 
 Game::Game(Fl_Window& win)
     : window{win}
-    , view{std::make_shared<Level>(win, *this, "level1.txt")}
+    , view{std::make_shared<Level>(win, *this, "data/levels/level1.txt")}
     , bestScore {-1}
     /* view{std::make_shared<SplashScreen>(win, *this, "Authors", 15, 120)} { } TODO */
 {
-    std::ifstream scoreSrc {"best_score.txt"};
+    std::ifstream scoreSrc {"data/best_score.txt"};
     if (scoreSrc) {
         scoreSrc >> bestScore;
         if (!scoreSrc) {
@@ -51,7 +51,7 @@ void Game::loadView(std::shared_ptr<View> v)
 
 void Game::writeScore()
 {
-    std::ofstream scoreDest {"best_score.txt"};
+    std::ofstream scoreDest {"data/best_score.txt"};
     scoreDest << bestScore;
 }
 
@@ -90,7 +90,7 @@ void SplashScreen::draw()
     DrawableContainer::draw();  // draw the background
     author.draw();              // draw the author's name
     if (toBeReplaced)
-        game.loadView(std::make_shared<Level>(window, game, "level1.txt"));
+        game.loadView(std::make_shared<Level>(window, game, "data/levels/level1.txt"));
 }
 
 void SplashScreen::animationFinished(AnimationT animationType)

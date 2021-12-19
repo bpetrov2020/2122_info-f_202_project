@@ -13,6 +13,7 @@ ifeq ($(UNAME), Linux)
 endif
 
 OBJDIR = build
+SRCDIR = src
 
 POBJ=\
 	animation.o\
@@ -40,7 +41,7 @@ $(OBJ): | $(OBJDIR)
 $(OBJDIR):
 	mkdir $(OBJDIR)
 
-$(OBJDIR)/%.o : %.cpp
+$(OBJDIR)/%.o : $(SRCDIR)/%.cpp
 	$(CC) -o $@ -c $< -MMD
 
 .PHONY : clean
