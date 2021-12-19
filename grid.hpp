@@ -96,6 +96,9 @@ class Cell : public DrawableContainer, public Interactive
             if (!isEmpty())
                 content->removeAnimation();
         }
+
+        bool hasSpecialCandy() const;
+        ContentT contentType() const;
 };
 
 class Grid : public DrawableContainer, public Interactive

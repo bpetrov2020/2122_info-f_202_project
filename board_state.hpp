@@ -85,6 +85,8 @@ class Combination
         auto getOrigin() const;
         void setOrigin(const Point &orig);
 
+        bool isEmpty() const;
+
         void addVerticalElement(const Point &elem);
         void addHorizontalElement(const Point &elem);
         void addElement(const Point &elem, Direction direction);
@@ -98,6 +100,9 @@ class Combination
         auto getVerticalElements();
         auto getHorizontalElements();
         auto getAllElements();
+
+        void removeVerticalElems();
+        void removeHorizontalElems();
 };
 
 /**
@@ -311,6 +316,7 @@ class ReadyState : public MatchState
         void suspendHint();
 
         Combination getBestCombination();
+        Combination getBestSpecialCombination();
 
         void replaceGrid();
         bool isActionPossible();

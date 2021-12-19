@@ -193,6 +193,18 @@ bool Cell::hint()
     return true;
 }
 
+bool Cell::hasSpecialCandy() const
+{
+    return content->getType() == ContentT::StripedCandy
+        || content->getType() == ContentT::WrappedCandy
+        || content->getType() == ContentT::ColourBomb;
+}
+
+ContentT Cell::contentType() const
+{
+    return content->getType();
+}
+
 /*----------------------------------------------------------
  *                      Grid
  *--------------------------------------------------------*/
