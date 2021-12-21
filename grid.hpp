@@ -89,6 +89,16 @@ class Cell : public DrawableContainer, public Interactive
         bool hasMatchWith(const Point &point);
 
         bool wasProcessedThisClear() const { return processedThisClearState; }
+
+        bool hint();
+        void removeContentAnimation()
+        {
+            if (!isEmpty())
+                content->removeAnimation();
+        }
+
+        bool hasSpecialCandy() const;
+        ContentT contentType() const;
 };
 
 class Grid : public DrawableContainer, public Interactive
@@ -205,6 +215,9 @@ class Grid : public DrawableContainer, public Interactive
         bool hasCellMatchWith(const Point &a, const Point &b) { return at(a).hasMatchWith(b); }
 
         int getCandyColorRange() const { return candyColorRange; }
+
+        bool hint(Point p);
+        void removeAnimations();
 };
 
 #endif

@@ -54,9 +54,10 @@ struct Rotation {
 
 enum class AnimationT
 {
-    StillAnimation,
-    ScaleAnimation,
-    MoveAnimation
+    StillAnimation
+    , ScaleAnimation
+    , MoveAnimation
+    , PulseAnimation
 };
 
 /**
@@ -157,6 +158,23 @@ class MoveAnimation : public Animation
 
         Point getStart() const { return start; }
         Point getEnd() const { return end; }
+};
+
+/**
+ * Pulse animation, for suggested moves
+ */
+class PulseAnimation : public Animation
+{
+    private:
+        double currentScale();
+    public:
+        PulseAnimation(int duration, std::shared_ptr<AnimatableShape> drawable=nullptr) noexcept
+            : Animation{duration, drawable}
+        {
+        }
+
+        void draw() override;
+        AnimationT type() const override { return AnimationT::PulseAnimation; }
 };
 
 #endif

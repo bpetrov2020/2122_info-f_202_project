@@ -14,6 +14,16 @@ auto Combination::getOrigin() const
     return origin;
 }
 
+void Combination::setOrigin(const Point &orig)
+{
+    origin = orig;
+}
+
+bool Combination::isEmpty() const
+{
+    return horizontal.empty() && vertical.empty();
+}
+
 void Combination::addVerticalElement(const Point &elem)
 {
     assert(elem.x == origin.x);
@@ -79,6 +89,15 @@ auto Combination::getAllElements()
     return ret;
 }
 
+void Combination::removeVerticalElems()
+{
+      vertical.clear();
+}
+
+void Combination::removeHorizontalElems()
+{
+    horizontal.clear();
+}
 
 /*----------------------------------------------------------
  * State
@@ -98,6 +117,7 @@ void State::notifyCells(Event e)
 
 void State::update(Event event)
 {
+    level.update(event);
     switch (event) {
         case Event::CellCleared:
             level.updateScore(50);
@@ -129,6 +149,7 @@ void MessageState::draw()
     // done and any action can be done. Sometimes changing state
     // in animationFinished could make the program call pure
     // virtual functions, something that doesn't happen here.
+    // TODO put it in postDraw()
     if (messageFinished)
         onTimeout();
 }
@@ -329,6 +350,8 @@ Combination MatchState::getCombinationContaining(const Point &origin, bool rec)
     }
 
     // Check wether it's the best combination containing origin
+    // This is mostly when candies fall since in the case of a moved
+    // candy by the player, it always is the best combination.
     if (rec) {
         for (auto &elem: ret.getAllElements()) {
             auto tmp {getCombinationContaining(elem, false)};
@@ -479,20 +502,25 @@ ReadyState::ReadyState(Level &level, Grid &grid, bool replaceGrid_) noexcept
         while (!isActionPossible())
             replaceGrid();
     hasPossibleAction = isActionPossible();
-    std::cout << (hasPossibleAction ? "More action" : "No more action") << std::endl;
+    bestCombination = getBestCombination();
+    /* std::cout << (hasPossibleAction ? "More action" : "No more action") << std::endl; */
 }
 
 void ReadyState::draw()
 {
+    if (grid.getSelectedCount() == 0) {
+        --countToNextHint;
+        if (countToNextHint == 0)
+            showHint();
+    }
     if (!hasPossibleAction)
         level.setState(std::make_shared<NoActionState>(level, grid));
 }
 
-// TODO
 void ReadyState::replaceGrid()
 {
     for (auto &c: grid) {
-        if (!c.isEmpty() && c.getContent()->getType() == ContentT::StandardCandy) {
+        if (!c.isEmpty() && c.contentType() == ContentT::StandardCandy) {
             grid.put(c.getIndex(), ContentT::StandardCandy);
             while (isInCombination(c.getIndex())) {
                 c.removeContent();
@@ -502,30 +530,96 @@ void ReadyState::replaceGrid()
     }
 }
 
-bool ReadyState::isActionPossible()
+Combination ReadyState::getBestSpecialCombination()
 {
-    bool actionPossible{false};
+    Combination ret{Point{0, 0}};  // arbitrary point, with no importance whatsoever
+
+    for (auto &c: grid) {
+        if (c.hasSpecialCandy()) {
+            Combination tmp {c.getIndex()};
+
+            // Special candy neighbours
+            for (auto &d: {Direction::North, Direction::East}) {
+                if (grid.isIndexValid(c.getIndex(), d)) {
+                    Point other {grid.at(c.getIndex(), d).getIndex()};  // possible combination
+                    if (grid.at(other).hasSpecialCandy()) {
+                        tmp.addElement(other, d);
+                        break;
+                    }
+                }
+            }
+
+            // ColourBomb
+            if (tmp.isEmpty() && c.contentType() == ContentT::ColourBomb) {
+                for (auto &d: {Direction::North, Direction::East, Direction::South, Direction::West}) {
+                    if (grid.isIndexValid(c.getIndex(), d)) {
+                        Point other {grid.at(c.getIndex(), d).getIndex()};  // possible combination
+                        if (grid.at(other).contentType() == ContentT::StandardCandy) {
+                            tmp.addElement(other, d);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Update return
+            if (!tmp.isEmpty()) {
+                ret = tmp;
+                break;
+            }
+        }
+    }
+
+    return ret;
+}
+
+Combination ReadyState::getBestCombination()
+{
+    Combination ret {getBestSpecialCombination()};  // arbitrary point, with no importance whatsoever
+
+    // The best combination if of special candies
+    if (!ret.isEmpty())
+        return ret;
 
     for (auto &c: grid) {
         for (auto &d: {Direction::North, Direction::East}) {
             if (grid.isIndexValid(c.getIndex(), d)) {
                 std::vector<Point> toSwap {c.getIndex(), grid.at(c.getIndex(), d).getIndex()};
                 grid.swapCellContentWithoutAnimation(toSwap);
-                for (auto &p: toSwap)
-                    actionPossible = actionPossible || isInCombination(p);
+
+                for (unsigned i = 0; i<2; ++i) {
+                    Combination tmp = getCombinationContaining(toSwap[i]);
+                    if (tmp.getTotalCount() > ret.getTotalCount()) {
+                        ret = std::move(tmp);
+                        ret.setOrigin(toSwap.at((i+1)%2));
+                    }
+                }
                 grid.swapCellContentWithoutAnimation(toSwap);
             }
         }
-        if (actionPossible)
-            break;
     }
 
-    return actionPossible;
+    if (ret.getVerticalCount() < 3)
+        ret.removeVerticalElems();
+    if (ret.getHorizontalCount() < 3)
+        ret.removeHorizontalElems();
+
+    return ret;
+}
+
+bool ReadyState::isActionPossible()
+{
+    return !getBestCombination().isEmpty();
 }
 
 void ReadyState::gridAnimationFinished(const Point &)
 {
-    throw std::runtime_error("There should be no animations in ReadyState");
+    /* throw std::runtime_error("There should be no animations in ReadyState"); */
+    /* waitingList.push_back(p); */
+
+    if (!isWaiting()) {
+        countToNextHint = hintInterval;
+    }
 }
 
 void ReadyState::mouseMove(Point mouseLoc)
@@ -535,7 +629,14 @@ void ReadyState::mouseMove(Point mouseLoc)
 
 void ReadyState::mouseClick(Point mouseLoc)
 {
+    suspendHint();
     grid.mouseClick(mouseLoc);
+}
+
+void ReadyState::suspendHint()
+{
+    countToNextHint = hintInterval;
+    grid.removeAnimations();
 }
 
 void ReadyState::mouseDrag(Point mouseLoc)
@@ -559,6 +660,14 @@ void ReadyState::selectionChanged()
             level.setState(std::make_shared<SwapState>(level, grid));
         }
     }
+}
+
+void ReadyState::showHint()
+{
+    std::cout << "add pulse\n";
+    for (auto &p: bestCombination.getAllElements())
+        grid.hint(p);
+    grid.hint(bestCombination.getOrigin());
 }
 
 /*----------------------------------------------------------
@@ -671,11 +780,13 @@ void FallState::gridAnimationFinished(const Point &p)
         bool moreFall = fillGrid();
         if (!moreFall) {
 
+            // TODO
+            notifyCells(Event::FallStateEnd);
+
             for (auto &i: grid) {
                 processCombinationContaining(i.getIndex());
             }
 
-            notifyCells(Event::FallStateEnd);
 
             if (isWaiting())
                 level.setState(std::make_shared<ClearState>(level, grid));

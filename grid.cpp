@@ -19,7 +19,8 @@ void Cell::draw()
 
 void Cell::drawContent()
 {
-    if (content) content->draw();
+    if (!isEmpty())
+        content->draw();
 }
 
 void Cell::update(Event e)
@@ -30,6 +31,8 @@ void Cell::update(Event e)
             if (!isEmpty())
                 content->update(e);
             break;
+        case Event::PulseAnimationFinished:
+            grid.update(Event::HintAnimationFinished);
         default:
             break;
 
@@ -48,7 +51,7 @@ void Cell::update(Event e)
 bool Cell::clear()
 {
     processedThisClearState = true;
-    if (content) {
+    if (!isEmpty()) {
         std::shared_ptr<ClearableCellContent> c{std::dynamic_pointer_cast<ClearableCellContent>(content)};
         if (c && !c->isClearing()) {
             c->clear();
@@ -61,7 +64,7 @@ bool Cell::clear()
 void Cell::clearWithoutAnimation()
 {
     processedThisClearState = true;
-    if (content) {
+    if (!isEmpty()) {
         std::shared_ptr<ClearableCellContent> c{std::dynamic_pointer_cast<ClearableCellContent>(content)};
         if (c && !c->isClearing()) {
             c->clearWithoutAnimation();
@@ -139,7 +142,7 @@ bool Cell::swapContentWithWithoutAnimation(const Point &p)
 
 void Cell::contentWasSwappedWith(const Point &p)
 {
-    assert(content);
+    assert(!isEmpty());
     std::shared_ptr<MovableCellContent> movContent {std::dynamic_pointer_cast<MovableCellContent>(content)};
     movContent->wasSwappedWith(p);
 }
@@ -179,6 +182,27 @@ bool Cell::hasMatchWith(const Point &point)
     std::shared_ptr<MatchableCellContent> c{std::dynamic_pointer_cast<MatchableCellContent>(content)};
     /* std::shared_ptr<MatchableCellContent> o{std::dynamic_pointer_cast<MatchableCellContent>(grid.at(point).getContent())}; */
     return c && c->hasMatchWith(point);
+}
+
+bool Cell::hint()
+{
+    assert(!isEmpty() && !hasContentAnimation());
+
+    content->addAnimation(std::make_shared<PulseAnimation>(20));
+
+    return true;
+}
+
+bool Cell::hasSpecialCandy() const
+{
+    return content->getType() == ContentT::StripedCandy
+        || content->getType() == ContentT::WrappedCandy
+        || content->getType() == ContentT::ColourBomb;
+}
+
+ContentT Cell::contentType() const
+{
+    return content->getType();
 }
 
 /*----------------------------------------------------------
@@ -264,7 +288,7 @@ void Grid::select(const Point &p)
 {
     at(p).toggleSelected() ? ++selectedCount : --selectedCount;
     if (selectedCount == 2) { at(p).setLastSelected(true); }
-    state->update(Event::gridSelectionChanged);
+    state->update(Event::SelectionChanged);
 }
 
 std::vector<Point> Grid::getSelected()
@@ -311,8 +335,9 @@ std::vector<Point> Grid::neighboursOf(const Point& p)
     return ret;
 }
 
-void Grid::update(Event)
+void Grid::update(Event event)
 {
+    state->update(event);
     /* switch (e) { */
     /*     case Event::cellContentAnimationFinished: */
     /*         state->update(Event::cellContentAnimationFinished); */
@@ -430,6 +455,17 @@ bool Grid::swapCellContentWithoutAnimation(std::vector<Point> toSwap)
 {
     assert(toSwap.size() == 2);
     return at(toSwap.at(0)).swapContentWithWithoutAnimation(toSwap.at(1));
+}
+
+bool Grid::hint(Point p)
+{
+    return at(p).hint();
+}
+
+void Grid::removeAnimations()
+{
+    for (auto &c: *this)
+        c.removeContentAnimation();
 }
 
 // NOTE: passing by Point is probably better even if 

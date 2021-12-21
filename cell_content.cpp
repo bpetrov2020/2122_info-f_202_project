@@ -16,6 +16,26 @@ CellContent::CellContent(
         containerCell{cell}
 { }
 
+void CellContent::animationFinished(AnimationT animationType)
+{
+    if (animationType == AnimationT::PulseAnimation) {
+        /* containerCell->update(Event::PulseAnimationFinished); */
+        m_isPulsing = false;
+        m_pulseFinished = true;
+        /* grid.cellContentAnimationFinished(containerCell->getIndex()); */
+    }
+}
+
+void CellContent::draw()
+{
+    DrawableContainer::draw();
+    if (m_pulseFinished) {
+        m_pulseFinished = false;
+        grid.cellContentAnimationFinished(containerCell->getIndex());
+    }
+
+}
+
 /*----------------------------------------------------------
  * ClearableCellContent
  *--------------------------------------------------------*/
@@ -189,11 +209,12 @@ void Icing::removeLayer()
     assert(layers>0);
     --layers;
     num.setString(std::to_string(layers));
+    grid.update(Event::IcingCleared);
 }
 
 void Icing::draw()
 {
-    DrawableContainer::draw();
+    CellContent::draw();
     ClearableCellContent::draw();
     if (getLayers() != 0)
         num.draw();
@@ -273,13 +294,14 @@ StandardCandy::StandardCandy(
 
 void StandardCandy::draw()
 {
-    DrawableContainer::draw();
+    CellContent::draw();
     MovableCellContent::draw();
     ClearableCellContent::draw();
 }
 
 void StandardCandy::animationFinished(AnimationT a)
 {
+    CellContent::animationFinished(a);
     MovableCellContent::animationFinished(a);
     ClearableCellContent::animationFinished(a);
 }
@@ -583,13 +605,14 @@ ColourBomb::ColourBomb(
 
 void ColourBomb::draw()
 {
-    DrawableContainer::draw();
+    CellContent::draw();
     MovableCellContent::draw();
     ClearableCellContent::draw();
 }
 
 void ColourBomb::animationFinished(AnimationT a)
 {
+    CellContent::animationFinished(a);
     MovableCellContent::animationFinished(a);
     ClearableCellContent::animationFinished(a);
 }

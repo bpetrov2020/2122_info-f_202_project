@@ -3,13 +3,17 @@
 
 #include <FL/Fl_Window.H>
 #include <memory>
-#include <iostream>
-#include <fstream>
-#include <sstream>
+/* #include <iostream> */
+/* #include <fstream> */
+/* #include <sstream> */
 
+#include "observer.hpp"
 #include "common.hpp"
 #include "shape.hpp"
 #include "grid.hpp"
+/* #include "level_goal.hpp" */
+#include "level_status.hpp"
+#include "level_data.hpp"
 
 class Game;
 
@@ -48,6 +52,8 @@ class Game : public Interactive
     private:
         Fl_Window& window;
         std::shared_ptr<View> view;
+        int bestScore;
+        void writeScore();
     public:
         Game(Fl_Window& win);
 
@@ -58,6 +64,9 @@ class Game : public Interactive
         void draw();
 
         void loadView(std::shared_ptr<View> v);
+
+        void updateScore(int);
+        void resetScore();
 };
 
 /**
@@ -102,63 +111,41 @@ class SplashScreen : public View
  *
  * Only the size is obligatory. And it should alway be the first one.
  */
-class LevelData
-{
-    private:
-        std::string m_levelName;
+/* class LevelData */
+/* { */
+/*     private: */
+/*         std::string m_levelName; */
 
-        int gridSize {-1};
-        int colorRange {6};
+/*         int gridSize {-1}; */
+/*         int colorRange {6}; */
 
-        std::vector<Point> wallsPos{};
-        std::vector<Point> singleIcingPos{};
-        std::vector<Point> doubleIcingPos{};
+/*         std::string goalType {}; */
 
-        // Functions used to fill the data from a file
-        void extractDataFrom(std::string filename);
-        void processLine(std::string line);
-        void fillFrom(std::vector<Point> &vect, std::istream &is);
-    public:
-        LevelData(std::string filename);
+/*         std::vector<Point> wallsPos{}; */
+/*         std::vector<Point> singleIcingPos{}; */
+/*         std::vector<Point> doubleIcingPos{}; */
 
-        std::string levelName() const { return m_levelName; }
+/*         // Functions used to fill the data from a file */
+/*         void extractDataFrom(std::string filename); */
+/*         void processLine(std::string line); */
+/*         void fillFrom(std::vector<Point> &vect, std::istream &is); */
+/*     public: */
+/*         LevelData(std::string filename); */
 
-        int getGridSize() const { return gridSize; }
-        int getColorRange() const { return colorRange; }
+/*         std::string levelName() const { return m_levelName; } */
 
-        const auto &getWallsPos() const { return wallsPos; }
-        const auto &getSingleIncingPos() const { return singleIcingPos; }
-        const auto &getDoubleIcingPos() const { return doubleIcingPos; }
-};
+/*         int getGridSize() const { return gridSize; } */
+/*         int getColorRange() const { return colorRange; } */
 
-class LevelStatus : public DrawableContainer
-{
-    private:
-        int score {0};
-        Text scoreLabelDrawable;
-        Text scoreDrawable;
-
-        int movesLeft {3};
-        Text movesLeftLabelDrawable;
-        Text movesLeftDrawable;
-
-        /* Objective objective; */
-    public:
-        LevelStatus(const Point &center, int width, int height) noexcept;
-
-        void draw() override;
-
-        void updateScore(int toAdd);
-        void update(Event event);
-
-        bool moreMoves();
-        bool objectiveMet();
-};
+/*         const auto &getWallsPos() const { return wallsPos; } */
+/*         const auto &getSingleIncingPos() const { return singleIcingPos; } */
+/*         const auto &getDoubleIcingPos() const { return doubleIcingPos; } */
+/* }; */
 
 /**
  * A level in the game
  */
-class Level : public View
+class Level : public View, public Subject, public Observer
 {
     private:
         LevelData m_data;
@@ -180,9 +167,8 @@ class Level : public View
         void replayLevel();
         void playNextLevel();
 
-        void update(Event event);
+        void update(Event event) override;
         void updateScore(int toAdd) { m_status.updateScore(toAdd); }
 };
-
 
 #endif

@@ -83,6 +83,9 @@ class Combination
         Combination(const Point &point);
 
         auto getOrigin() const;
+        void setOrigin(const Point &orig);
+
+        bool isEmpty() const;
 
         void addVerticalElement(const Point &elem);
         void addHorizontalElement(const Point &elem);
@@ -97,6 +100,9 @@ class Combination
         auto getVerticalElements();
         auto getHorizontalElements();
         auto getAllElements();
+
+        void removeVerticalElems();
+        void removeHorizontalElems();
 };
 
 /**
@@ -225,7 +231,7 @@ class EditState : public State
         {
             State::update(e);
             switch (e) {
-                case Event::gridSelectionChanged:
+                case Event::SelectionChanged:
                     selectionChanged();
                     break;
                 default:
@@ -292,6 +298,11 @@ class ReadyState : public MatchState
          */
         void selectionChanged();
         bool hasPossibleAction{true};
+
+        Combination bestCombination{Point{0, 0}};
+
+        static constexpr int hintInterval {120};
+        int countToNextHint{hintInterval};
     public:
         ReadyState(Level &level, Grid &grid, bool initG = false) noexcept;
 
@@ -301,13 +312,11 @@ class ReadyState : public MatchState
         void mouseClick(Point mouseLoc) override;
         void mouseDrag(Point mouseLoc) override;
 
-        // testing functions
-        /*void twoColourBombs() {
-            Point point{1, 1};
-            grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Red);
-            point = {1, 2};
-            grid.put(point, ContentT::ColourBomb, StandardCandy::Color::Blue);
-        }*/
+        void showHint();
+        void suspendHint();
+
+        Combination getBestCombination();
+        Combination getBestSpecialCombination();
 
         void replaceGrid();
         bool isActionPossible();
@@ -318,9 +327,11 @@ class ReadyState : public MatchState
         {
             MatchState::update(e);
             switch (e) {
-                case Event::gridSelectionChanged:
+                case Event::SelectionChanged:
                     selectionChanged();
                     break;
+                /* case Event::HintAnimationFinished: */
+                /*     countToNextHint = hintInterval; */
                 default:
                     break;
             }
