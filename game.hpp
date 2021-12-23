@@ -142,33 +142,62 @@ class SplashScreen : public View
 /*         const auto &getDoubleIcingPos() const { return doubleIcingPos; } */
 /* }; */
 
+class Mode : public View, public Subject, public Observer
+{
+protected:
+    LevelData m_data;
+    Grid m_board;
+    std::shared_ptr<State> m_boardController {nullptr};
+
+    inline int gridSide(Fl_Window &win);
+public:
+    Mode(Fl_Window& window, Game& game, const std::string &filename);
+
+    void mouseMove(Point mouseLoc)  override { m_boardController->mouseMove(mouseLoc); }
+    void mouseClick(Point mouseLoc) override { m_boardController->mouseClick(mouseLoc); }
+    void mouseDrag(Point mouseLoc)  override { m_boardController->mouseDrag(mouseLoc); }
+
+    void draw() override;
+
+    void setState(std::shared_ptr<State> state);
+
+    void update(Event event) override;
+};
+
 /**
  * A level in the game
  */
-class Level : public View, public Subject, public Observer
+class Level : public Mode
 {
     private:
-        LevelData m_data;
         LevelStatus m_status;
-        Grid m_board;
-        std::shared_ptr<State> m_boardController {nullptr};
 
         inline int gridSide(Fl_Window &win);
     public:
         Level(Fl_Window& window, Game& game, const std::string &filename);
 
-        void mouseMove(Point mouseLoc)  override { m_boardController->mouseMove(mouseLoc); }
-        void mouseClick(Point mouseLoc) override { m_boardController->mouseClick(mouseLoc); }
-        void mouseDrag(Point mouseLoc)  override { m_boardController->mouseDrag(mouseLoc); }
-
         void draw() override;
 
-        void setState(std::shared_ptr<State> state);
         void replayLevel();
         void playNextLevel();
 
         void update(Event event) override;
         void updateScore(int toAdd) { m_status.updateScore(toAdd); }
+};
+
+/**
+ * A level in the game
+ */
+class LevelEditor : public Mode
+{
+private:
+    Grid m_selectionpannel;
+
+    inline int gridSide(Fl_Window &win);
+public:
+    LevelEditor(Fl_Window& window, Game& game, const std::string &filename);
+
+    void draw() override;
 };
 
 #endif

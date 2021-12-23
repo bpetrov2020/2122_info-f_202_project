@@ -130,6 +130,7 @@ class Grid : public DrawableContainer, public Interactive
     public:
         Grid(Point center, int width, int height, LevelData &data);
         Grid(Point center, int width, int height, int rows, int columns, LevelData &data);
+        Grid(Point center, int width, int height, int rows, int columns, int colorRange);
 
         class Iterator {
             private:

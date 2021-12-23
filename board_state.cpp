@@ -1,5 +1,7 @@
 #include "board_state.hpp"
 #include "game.hpp"
+#include "grid.hpp"
+#include "level_data.hpp"
 
 /*----------------------------------------------------------
  * Combination
@@ -210,6 +212,10 @@ void LevelNotPassedState::onTimeout()
 /*----------------------------------------------------------
  * EditState
  *--------------------------------------------------------*/
+
+EditState::EditState(Level &level, Grid &grid) noexcept
+: State{level, grid}
+{ }
 
 void EditState::selectionChanged()
 {

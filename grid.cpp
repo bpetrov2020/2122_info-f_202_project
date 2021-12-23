@@ -210,15 +210,19 @@ ContentT Cell::contentType() const
  *--------------------------------------------------------*/
 
 Grid::Grid(Point center, int width, int height, LevelData &data)
-    : Grid(center, width, height, data.getGridSize(), data.getGridSize(), data)
+    : Grid(center, width, height, data.getGridSize(), data.getGridSize(), data.getColorRange())
 { }
 
-Grid::Grid(Point center, int width, int height, int rows, int columns, LevelData &data)
+/*Grid::Grid(Point center, int width, int height, int rows, int columns, LevelData &data)
+    : Grid(center, width, height, rows, columns, data.getColorRange())
+{ }*/
+
+Grid::Grid(Point center, int width, int height, int rows, int columns, int colorRange)
     : DrawableContainer(std::make_shared<Rectangle>(center, width, height, FL_BLACK)),
     colSize{width/columns},
     rowSize{height/rows},
     state{nullptr},
-    candyColorRange{data.getColorRange()}
+    candyColorRange{colorRange}
 {
     // Down left corner
     Point z = center - Point{width/2, -height/2};

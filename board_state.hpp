@@ -7,6 +7,9 @@
 
 class Grid;
 class Level;
+class Mode;
+class LevelEditor;
+class LevelData;
 /* enum class Color { */
 /*     Blue, */
 /*     Green, */
@@ -130,9 +133,9 @@ class State : public Interactive
          */
         std::vector<Point> waitingList {};
     public:
-        State(Level &level, Grid &grid)
+        State(Level &mode, Grid &grid)
             :
-                level{level},
+                level{mode},
                 grid{grid}
         { }
 
@@ -219,9 +222,7 @@ class EditState : public State
     private:
         void selectionChanged();
     public:
-        EditState(Level &level, Grid &grid) noexcept
-            : State{level, grid}
-        { }
+        EditState(Level &level, Grid &grid) noexcept;
 
         void mouseMove(Point mouseLoc) override;
         void mouseClick(Point mouseLoc) override;

@@ -24,6 +24,7 @@ View::View(Fl_Window& win, Game& g)
 Game::Game(Fl_Window& win)
     : window{win}
     , view{std::make_shared<Level>(win, *this, "level1.txt")}
+    //, view{std::make_shared<LevelEditor>(win, *this, "editordata.txt")}
     , bestScore {-1}
     /* view{std::make_shared<SplashScreen>(win, *this, "Authors", 15, 120)} { } TODO */
 {
@@ -183,16 +184,48 @@ void SplashScreen::animationFinished(AnimationT animationType)
 /* } */
 
 /*----------------------------------------------------------
+ * Mode
+ *--------------------------------------------------------*/
+
+// TODO make adaptable to height
+Mode::Mode(Fl_Window& window, Game& game, const std::string &filename)
+        : View{window, game},
+          m_data{filename},
+          m_board{Point{window.w()/2, window.h()/12*5}, gridSide(window), gridSide(window), m_data},
+          m_boardController{nullptr}
+{ }
+
+inline int Mode::gridSide(Fl_Window &win)
+{
+    return win.h() >= win.w() ? win.w() : win.h()/6*5;
+}
+
+void Mode::draw()
+{
+    DrawableContainer::draw();  // background of the level
+    m_board.draw();
+    m_boardController->draw();
+}
+
+void Mode::setState(std::shared_ptr<State> state)
+{
+    m_boardController = state;
+    m_board.setState(state);
+}
+
+void Mode::update(Event event)
+{
+
+}
+
+/*----------------------------------------------------------
  * Level
  *--------------------------------------------------------*/
 
 // TODO make adaptable to height
 Level::Level(Fl_Window& window, Game& game, const std::string &filename)
-    : View{window, game},
-    m_data{filename},
-    m_status{Point{window.w()/2, window.h()/12*11}, gridSide(window), gridSide(window)/5, m_data},
-    m_board{Point{window.w()/2, window.h()/12*5}, gridSide(window), gridSide(window), m_data},
-    m_boardController{nullptr}
+    : Mode{window, game, filename},
+    m_status{Point{window.w()/2, window.h()/12*11}, gridSide(window), gridSide(window)/5, m_data}
 {
     m_status.registerObserver(this);
     registerObserver(&m_status);
@@ -207,16 +240,8 @@ inline int Level::gridSide(Fl_Window &win)
 
 void Level::draw()
 {
-    DrawableContainer::draw();  // background of the level
-    m_board.draw();
+    Mode::draw();
     m_status.draw();
-    m_boardController->draw();
-}
-
-void Level::setState(std::shared_ptr<State> state)
-{
-    m_boardController = state;
-    m_board.setState(state);
 }
 
 void Level::replayLevel()
@@ -244,4 +269,28 @@ void Level::update(Event event)
             m_status.update(event);
             break;
     }
+}
+
+
+/*----------------------------------------------------------
+ * LevelEditor
+ *--------------------------------------------------------*/
+
+// TODO make adaptable to height
+LevelEditor::LevelEditor(Fl_Window& window, Game& game, const std::string &filename)
+        : Mode{window, game, filename},
+          m_selectionpannel{Point{window.w()/2, window.h()-30}, gridSide(window)/4*3, 50, 1, 4, 1}
+{
+    //setState(std::make_shared<EditState>(*this, m_board));
+}
+
+inline int LevelEditor::gridSide(Fl_Window &win)
+{
+    return win.h() >= win.w() ? win.w() : win.h()/6*5;
+}
+
+void LevelEditor::draw()
+{
+    Mode::draw();
+    m_selectionpannel.draw();
 }
