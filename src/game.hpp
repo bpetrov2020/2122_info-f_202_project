@@ -67,6 +67,8 @@ class Game : public Interactive
 
         void updateScore(int);
         void resetScore();
+
+        int getBestScore() const { return bestScore; }
 };
 
 /**
@@ -153,6 +155,8 @@ class Level : public View, public Subject, public Observer
         Grid m_board;
         std::shared_ptr<State> m_boardController {nullptr};
 
+        /* int m_candyRange */
+
         inline int gridSide(Fl_Window &win);
     public:
         Level(Fl_Window& window, Game& game, const std::string &filename);
@@ -169,6 +173,9 @@ class Level : public View, public Subject, public Observer
 
         void update(Event event) override;
         void updateScore(int toAdd) { m_status.updateScore(toAdd); }
+
+        int getColorRange() const { return m_data.getColorRange(); }
+        StandardCandy::Color getRandomCandyColor() const { return static_cast<StandardCandy::Color>(std::rand()%getColorRange()); }
 };
 
 #endif

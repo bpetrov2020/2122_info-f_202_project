@@ -101,9 +101,51 @@ class Cell : public DrawableContainer, public Interactive
         ContentT contentType() const;
 };
 
+/* class CellAggregate : public DrawableContainer, public Interactive */
+/* { */
+/* public: */
+/*     Grid(Point center, int width, int height, int rows, int columns); */
+
+/*     class Iterator { */
+/*     private: */
+/*         Grid* g; //TODO make shared */
+/*         Point coord; */
+/*     public: */
+/*         Iterator(Grid* g, Point coord) : g{g}, coord{coord} { } */
+
+/*         Iterator &operator++() { */
+/*             int xs = static_cast<int>(g->matrix[0].size()); */
+/*             ++coord.x; */
+/*             coord.y += coord.x/xs; */
+/*             coord.x %= xs; */
+/*             return *this; */
+/*         } */
+/*         Cell &operator*() { return g->at(coord); } */
+/*         bool operator!=(const Iterator &other) { return coord != other.coord; } */
+/*     }; */
+
+/*     Iterator begin() { return Iterator{this, {0, 0}}; } */
+/*     Iterator end() { return Iterator{this, {0, static_cast<int>(matrix.size())}}; } */
+
+/*     Cell &at(const Point &p); */
+/*     Cell &at(const Point &c, Direction d); */
+
+/* protected: */
+/*     std::vector<std::vector<std::shared_ptr<Cell>>> m_matrix {}; */
+/*     std::shared_ptr<State> m_state; */
+/*     int m_selectedCount {0}; */
+
+/*     // Dimentions */
+/*     int cellContentSide = 10; */
+/*     int cellSide = 15; */
+/*     int colSize; */
+/*     int rowSize; */
+/* }; */
+
 class Grid : public DrawableContainer, public Interactive
 {
     public:
+        // TODO get off here
         constexpr static std::array<Point, 8> directionModifier {
             Point{ 0, -1},  // South
             Point{ 0,  1},  // North
@@ -125,11 +167,9 @@ class Grid : public DrawableContainer, public Interactive
         int rowSize;
 
         std::shared_ptr<State> state;
-
-        int candyColorRange;
     public:
         Grid(Point center, int width, int height, LevelData &data);
-        Grid(Point center, int width, int height, int rows, int columns, LevelData &data);
+        Grid(Point center, int width, int height, int rows, int columns);
 
         class Iterator {
             private:
@@ -213,8 +253,6 @@ class Grid : public DrawableContainer, public Interactive
 
         bool isCellEmpty(const Point &p) { return at(p).isEmpty(); }
         bool hasCellMatchWith(const Point &a, const Point &b) { return at(a).hasMatchWith(b); }
-
-        int getCandyColorRange() const { return candyColorRange; }
 
         bool hint(Point p);
         void removeAnimations();

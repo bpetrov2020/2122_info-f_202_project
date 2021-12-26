@@ -210,15 +210,14 @@ ContentT Cell::contentType() const
  *--------------------------------------------------------*/
 
 Grid::Grid(Point center, int width, int height, LevelData &data)
-    : Grid(center, width, height, data.getGridSize(), data.getGridSize(), data)
+    : Grid(center, width, height, data.getGridSize(), data.getGridSize())
 { }
 
-Grid::Grid(Point center, int width, int height, int rows, int columns, LevelData &data)
+Grid::Grid(Point center, int width, int height, int rows, int columns)
     : DrawableContainer(std::make_shared<Rectangle>(center, width, height, FL_BLACK)),
     colSize{width/columns},
     rowSize{height/rows},
-    state{nullptr},
-    candyColorRange{data.getColorRange()}
+    state{nullptr}//,
 {
     // Down left corner
     Point z = center - Point{width/2, -height/2};
@@ -373,9 +372,6 @@ void Grid::put(const Point &point, ContentT content)
     std::shared_ptr<CellContent> toPut;
 
     switch (content) {
-        case ContentT::StandardCandy:
-            toPut = std::make_shared<StandardCandy>(*this, &at(point), at(point).getCenter(), cellContentSide, static_cast<StandardCandy::Color>(std::rand()%getCandyColorRange()));
-            break;
         case ContentT::Wall:
             toPut = std::make_shared<Wall>(*this, &at(point), at(point).getCenter(), cellContentSide);
             break;
