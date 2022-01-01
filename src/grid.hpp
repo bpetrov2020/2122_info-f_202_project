@@ -227,6 +227,7 @@ class Grid : public DrawableContainer, public Interactive
         void put(const Point &point, ContentT content);  // All no parameter contents
         void put(const Point &point, ContentT content, int layer);  // Icing
         void put(const Point &point, ContentT content, StandardCandy::Color color, Axis axis = std::rand()%2 ? Axis::Horizontal : Axis::Vertical); // Candies
+        void put(const Point &point, std::string text);
 
         bool animationPlaying()
         {

@@ -430,6 +430,13 @@ void Grid::put(const Point &point, ContentT content, StandardCandy::Color color,
     at(point).setContent(toPut);
 }
 
+void Grid::put(const Point &point, std::string text)
+{
+    std::shared_ptr<CellContent> toPut = std::make_shared<TextContent>(*this, &at(point), at(point).getCenter(), cellContentSide, text);
+    assert(toPut);
+    at(point).setContent(toPut);
+}
+
 bool Grid::isIndexValid(const Point &p, Direction d) const
 {
     return isIndexValid(p+directionModifier[static_cast<unsigned>(d)]);

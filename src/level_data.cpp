@@ -8,10 +8,10 @@
 #include <fstream>
 #include <sstream>
 
-LevelData::LevelData(std::string filename)
-    : m_levelName{filename}
+LevelData::LevelData(int levelNumber)
+    : m_levelNumber{levelNumber}
 {
-    extractDataFrom(filename);
+    extractDataFrom("data/levels/" + std::to_string(levelNumber)+".txt");
 }
 
 void LevelData::extractDataFrom(std::string filename)

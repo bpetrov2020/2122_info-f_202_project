@@ -27,7 +27,7 @@ class LevelGoal;
 class LevelData
 {
     private:
-        std::string m_levelName;
+        int m_levelNumber;
 
         int m_gridSize {-1};
         int m_colorRange {6};
@@ -45,9 +45,9 @@ class LevelData
         void processLine(std::string line);
         void fillFrom(std::vector<Point> &vect, std::istream &is);
     public:
-        LevelData(std::string filename);
+        LevelData(int levelNumber);
 
-        std::string levelName() const { return m_levelName; }
+        int levelNumber() const { return m_levelNumber; }
 
         int movesToGoal() const { return m_movesToGoal; }
         auto goal() { return m_goal; }

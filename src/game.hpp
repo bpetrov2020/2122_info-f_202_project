@@ -7,8 +7,7 @@
 /* #include <fstream> */
 /* #include <sstream> */
 
-#include "observer.hpp"
-#include "common.hpp"
+#include "observer.hpp" #include "common.hpp"
 #include "shape.hpp"
 #include "grid.hpp"
 /* #include "level_goal.hpp" */
@@ -32,7 +31,7 @@ class Game;
 
   @param game game instance the view is tied to
   */
-class View : public DrawableContainer, public Interactive
+class View : public DrawableContainer, public Interactive, public Observer
 {
     protected:
         Fl_Window& window;
@@ -54,6 +53,7 @@ class Game : public Interactive
         std::shared_ptr<View> view;
         int bestScore;
         void writeScore();
+        int numberOfLevels{9};
     public:
         Game(Fl_Window& win);
 
@@ -69,6 +69,8 @@ class Game : public Interactive
         void resetScore();
 
         int getBestScore() const { return bestScore; }
+
+        int getNumberOfLevels() const { return numberOfLevels; }
 };
 
 /**
@@ -147,7 +149,7 @@ class SplashScreen : public View
 /**
  * A level in the game
  */
-class Level : public View, public Subject, public Observer
+class Level : public View, public Subject
 {
     private:
         LevelData m_data;
@@ -159,7 +161,7 @@ class Level : public View, public Subject, public Observer
 
         inline int gridSide(Fl_Window &win);
     public:
-        Level(Fl_Window& window, Game& game, const std::string &filename);
+        Level(Fl_Window& window, Game& game, int levelNumber);
 
         void mouseMove(Point mouseLoc)  override { m_boardController->mouseMove(mouseLoc); }
         void mouseClick(Point mouseLoc) override { m_boardController->mouseClick(mouseLoc); }

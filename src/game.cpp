@@ -1,5 +1,7 @@
 #include "game.hpp"
 
+#include "ls_view.hpp"
+
 #include <fstream>
 
 /*----------------------------------------------------------
@@ -23,7 +25,7 @@ View::View(Fl_Window& win, Game& g)
 
 Game::Game(Fl_Window& win)
     : window{win}
-    , view{std::make_shared<Level>(win, *this, "data/levels/level1.txt")}
+    , view{nullptr}//, "data/levels/level1.txt")}
     , bestScore {-1}
     /* view{std::make_shared<SplashScreen>(win, *this, "Authors", 15, 120)} { } TODO */
 {
@@ -34,6 +36,7 @@ Game::Game(Fl_Window& win)
             throw std::runtime_error("Game::Game: Wrong score formatting");
         }
     }
+    view = std::make_shared<LevelSelector>(win, *this);
 }
 
 
@@ -89,8 +92,8 @@ void SplashScreen::draw()
 {
     DrawableContainer::draw();  // draw the background
     author.draw();              // draw the author's name
-    if (toBeReplaced)
-        game.loadView(std::make_shared<Level>(window, game, "data/levels/level1.txt"));
+    /* if (toBeReplaced) */
+        /* game.loadView(std::make_shared<Level>(window, game, "data/levels/1.txt")); */
 }
 
 void SplashScreen::animationFinished(AnimationT animationType)
@@ -105,91 +108,13 @@ void SplashScreen::animationFinished(AnimationT animationType)
 }
 
 /*----------------------------------------------------------
- * LevelData
- *--------------------------------------------------------*/
-
-/* LevelData::LevelData(std::string filename) */
-/*     : */
-/*         m_levelName{filename} */
-/* { */
-/*     extractDataFrom(filename); */
-/* } */
-
-/* void LevelData::extractDataFrom(std::string filename) */
-/* { */
-/*     std::ifstream file{ filename }; */
-/*     if (!file) */
-/*         throw std::runtime_error{"LevelData: Invalid filename given " + filename}; */
-
-/*     std::string line; */
-/*     while (std::getline(file, line)) { */
-/*         processLine(line); */
-/*     } */
-/* } */
-
-/* void LevelData::processLine(std::string line) */
-/* { */
-/*     std::istringstream is{ line }; */
-/*     std::string category; */
-/*     is >> category; */
-/*     if (!is) */
-/*         throw std::runtime_error{"LevelData: First element should be a string"}; */
-
-/*     if (category == "Size") { */
-/*         is >> gridSize; */
-/*         if (!is || gridSize<3 || gridSize>26) */
-/*             throw std::runtime_error{"LevelData: Wrong size given"}; */
-
-/*     } else if (category == "ColorRange") { */
-/*         is >> colorRange; */
-/*         if (!is || colorRange < 2 || colorRange > 6) */
-/*             throw std::runtime_error{"LevelData: Wrong colorRange given"}; */
-
-/*     } else if (category == "Goal") { */
-/*         is >> goalType; */
-/*         if (!is || (goalType != "Icing" && goalType != "Ingredient")) */
-/*             throw std::runtime_error{"LevelData: Wrong goal argument"}; */
-
-/*     } else if (category == "Wall") { */
-/*         fillFrom(wallsPos, is); */
-
-/*     } else if (category == "SingleIcing") { */
-/*         fillFrom(singleIcingPos, is); */
-
-/*     } else if (category == "DoubleIcing") { */
-/*         fillFrom(doubleIcingPos, is); */
-
-/*     } else { */
-/*         throw std::runtime_error{"LevelData: Unknow category used"}; */
-/*     } */
-/* } */
-
-/* void LevelData::fillFrom(std::vector<Point> &vect, std::istream &is) */
-/* { */
-/*     if (!vect.empty()) */
-/*         throw std::runtime_error{"LevelData: There should not be multiple sections for the same content"}; */
-/*     if (gridSize == -1) */
-/*         throw std::runtime_error{"LevelData: Grid size should be initialized before contents"}; */
-
-/*     for (Point p; is>>p; ) { */
-/*         if (p.x>=0 && p.x<gridSize && p.y>=0 && p.y<gridSize) */
-/*             vect.push_back(p); */
-/*         else */
-/*             throw std::runtime_error{"LevelData: Out of range point"}; */
-/*     } */
-
-/*     if (!is.eof()) */
-/*         throw std::runtime_error("Illegal input"); */
-/* } */
-
-/*----------------------------------------------------------
  * Level
  *--------------------------------------------------------*/
 
 // TODO make adaptable to height
-Level::Level(Fl_Window& window, Game& game, const std::string &filename)
+Level::Level(Fl_Window& window, Game& game, int levelNumber)
     : View{window, game},
-    m_data{filename},
+    m_data{levelNumber},
     m_status{Point{window.w()/2, window.h()/12*11}, gridSide(window), gridSide(window)/5, m_data},
     m_board{Point{window.w()/2, window.h()/12*5}, gridSide(window), gridSide(window), m_data},
     m_boardController{nullptr}
@@ -197,7 +122,7 @@ Level::Level(Fl_Window& window, Game& game, const std::string &filename)
     m_status.registerObserver(this);
     registerObserver(&m_status);
 
-    setState(std::make_shared<GridInitState>(*this, m_board, m_data));
+    setState(std::make_shared<GridInitState>(this, m_board, m_data));
 }
 
 inline int Level::gridSide(Fl_Window &win)
@@ -221,12 +146,15 @@ void Level::setState(std::shared_ptr<State> state)
 
 void Level::replayLevel()
 {
-    game.loadView(std::make_shared<Level>(window, game, m_data.levelName()));
+    game.loadView(std::make_shared<Level>(window, game, m_data.levelNumber()));
 }
 
-// TODO: implement it
 void Level::playNextLevel()
 {
+    if (m_data.levelNumber() < game.getNumberOfLevels())
+        game.loadView(std::make_shared<Level>(window, game, m_data.levelNumber()+1));
+    else
+        game.loadView(std::make_shared<LevelSelector>(window, game));
 }
 
 void Level::update(Event event)
@@ -234,11 +162,17 @@ void Level::update(Event event)
     switch (event) {
         case Event::GoalReached:
             game.updateScore(m_status.score());
-            setState(std::make_shared<LevelPassedState>(*this, m_board));
+            setState(std::make_shared<LevelPassedState>(this, m_board));
             break;
         case Event::NoMoreMoves:
             game.updateScore(m_status.score());
-            setState(std::make_shared<LevelNotPassedState>(*this, m_board));
+            setState(std::make_shared<LevelNotPassedState>(this, m_board));
+            break;
+        case Event::LevelPassed:
+            playNextLevel();
+            break;
+        case Event::LevelNotPassed:
+            replayLevel();
             break;
         default:
             m_status.update(event);

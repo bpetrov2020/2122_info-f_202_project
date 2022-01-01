@@ -117,10 +117,10 @@ void State::notifyCells(Event e)
 
 void State::update(Event event)
 {
-    level.update(event);
+    level->update(event);
     switch (event) {
         case Event::CellCleared:
-            level.updateScore(50);
+            dynamic_cast<Level*>(level)->updateScore(50);
             break;
         default:
             break;
@@ -131,10 +131,10 @@ void State::update(Event event)
  * MessageState
  *--------------------------------------------------------*/
 
-MessageState::MessageState(Level &level, Grid &grid, std::string msg, int duration) noexcept
+MessageState::MessageState(View *level, Grid &grid, std::string msg, int duration) noexcept
     :
         State{level, grid},
-        DrawableContainer{std::make_shared<Rectangle>(grid.getCenter(), level.w(), 50, FL_WHITE)},
+        DrawableContainer{std::make_shared<Rectangle>(grid.getCenter(), level->w(), 50, FL_WHITE)},
         message{grid.getCenter(), msg, 14}
 {
     addAnimation(std::make_shared<StillAnimation>(duration));
@@ -169,42 +169,42 @@ void MessageState::animationFinished(AnimationT animationType)
  * NoActionState
  *--------------------------------------------------------*/
 
-NoActionState::NoActionState(Level &level, Grid &grid) noexcept
+NoActionState::NoActionState(View *level, Grid &grid) noexcept
     :
         MessageState{level, grid, "No more combinations. Changing grid.", 60}
 { }
 
 void NoActionState::onTimeout()
 {
-    level.setState(std::make_shared<ReadyState>(level, grid, true));
+    level->update(Event::LevelNotPassed);
 }
 
 /*----------------------------------------------------------
  * LevelPassedState
  *--------------------------------------------------------*/
 
-LevelPassedState::LevelPassedState(Level &level, Grid &grid) noexcept
+LevelPassedState::LevelPassedState(View *level, Grid &grid) noexcept
     :
-        MessageState{level, grid, "You won! Loading next level...", 120}
+        MessageState{level, grid, "You won!", 120}
 { }
 
 void LevelPassedState::onTimeout()
 {
-    level.replayLevel();
+    level->update(Event::LevelPassed);
 }
 
 /*----------------------------------------------------------
  * LevelNotPassedState
  *--------------------------------------------------------*/
 
-LevelNotPassedState::LevelNotPassedState(Level &level, Grid &grid) noexcept
+LevelNotPassedState::LevelNotPassedState(View *level, Grid &grid) noexcept
     :
-        MessageState{level, grid, "Thou lost... Try again!", 120}
+        MessageState{level, grid, "You lost... Try again!", 120}
 { }
 
 void LevelNotPassedState::onTimeout()
 {
-    level.replayLevel();
+    dynamic_cast<Level*>(level)->replayLevel();
 }
 
 /*----------------------------------------------------------
@@ -264,7 +264,7 @@ bool MatchState::processCombinationContaining(const Point &elem)
         grid.clearCell(origin);
         grid.clearCell(largestDirection);
         oneCombination = true;
-        level.updateScore(50);
+        dynamic_cast<Level*>(level)->updateScore(50);
 
     // 4 in one axis
     } else if ((vc==4 && hc<3) || (hc==4 && vc<3)) {
@@ -274,7 +274,7 @@ bool MatchState::processCombinationContaining(const Point &elem)
         grid.clearCell(largestDirection);
         grid.put(origin, ContentT::StripedCandy, color, vc<hc ? Axis::Vertical : Axis::Horizontal);
         oneCombination = true;
-        level.updateScore(125);
+        dynamic_cast<Level*>(level)->updateScore(125);
 
     // More than 3 on both axis
     } else if (vc>=3 && vc<5 && hc>=3 && hc<5) {
@@ -285,7 +285,7 @@ bool MatchState::processCombinationContaining(const Point &elem)
         }
         grid.put(origin, ContentT::WrappedCandy, color);
         oneCombination = true;
-        level.updateScore(200);
+        dynamic_cast<Level*>(level)->updateScore(200);
 
     // 5 or more in one axis
     } else if (vc>=5 || hc>=5) {
@@ -293,7 +293,7 @@ bool MatchState::processCombinationContaining(const Point &elem)
         grid.clearCell(largestDirection);
         grid.put(origin, ContentT::ColourBomb);
         oneCombination = true;
-        level.updateScore(500);
+        dynamic_cast<Level*>(level)->updateScore(500);
     }
 
 
@@ -379,7 +379,7 @@ bool MatchState::isInCombination(const Point &point)
  * GridInitState
  *--------------------------------------------------------*/
 
-GridInitState::GridInitState(Level &level, Grid &grid, LevelData &data)
+GridInitState::GridInitState(View *level, Grid &grid, LevelData &data)
     : MatchState{level, grid}
 {
     putInitialContent(data);
@@ -388,7 +388,7 @@ GridInitState::GridInitState(Level &level, Grid &grid, LevelData &data)
 
 void GridInitState::draw()
 {
-    level.setState(std::make_shared<ReadyState>(level, grid));
+    dynamic_cast<Level*>(level)->setState(std::make_shared<ReadyState>(level, grid));
 }
 
 void GridInitState::putInitialContent(LevelData &data)
@@ -481,10 +481,10 @@ void GridInitState::fillEmptyCells()
 {
     for (auto &c: grid) {
         if (c.isEmpty()) {
-            grid.put(c.getIndex(), ContentT::StandardCandy, level.getRandomCandyColor());
+            grid.put(c.getIndex(), ContentT::StandardCandy, dynamic_cast<Level*>(level)->getRandomCandyColor());
             while (isInCombination(c.getIndex())) {
                 c.removeContent();
-                grid.put(c.getIndex(), ContentT::StandardCandy, level.getRandomCandyColor());
+                grid.put(c.getIndex(), ContentT::StandardCandy, dynamic_cast<Level*>(level)->getRandomCandyColor());
             }
         }
     }
@@ -494,7 +494,7 @@ void GridInitState::fillEmptyCells()
  * ReadyState
  *--------------------------------------------------------*/
 
-ReadyState::ReadyState(Level &level, Grid &grid, bool replaceGrid_) noexcept
+ReadyState::ReadyState(View *level, Grid &grid, bool replaceGrid_) noexcept
     : MatchState{level, grid}
 {
     std::cout << "Entering Ready state" << std::endl;
@@ -514,17 +514,17 @@ void ReadyState::draw()
             showHint();
     }
     if (!hasPossibleAction)
-        level.setState(std::make_shared<NoActionState>(level, grid));
+        dynamic_cast<Level*>(level)->setState(std::make_shared<NoActionState>(level, grid));
 }
 
 void ReadyState::replaceGrid()
 {
     for (auto &c: grid) {
         if (!c.isEmpty() && c.contentType() == ContentT::StandardCandy) {
-            grid.put(c.getIndex(), ContentT::StandardCandy, level.getRandomCandyColor());
+            grid.put(c.getIndex(), ContentT::StandardCandy, dynamic_cast<Level*>(level)->getRandomCandyColor());
             while (isInCombination(c.getIndex())) {
                 c.removeContent();
-                grid.put(c.getIndex(), ContentT::StandardCandy, level.getRandomCandyColor());
+                grid.put(c.getIndex(), ContentT::StandardCandy, dynamic_cast<Level*>(level)->getRandomCandyColor());
             }
         }
     }
@@ -657,7 +657,7 @@ void ReadyState::selectionChanged()
                 && grid.areNeighbours(selection.at(0), selection.at(1))
                 && grid.swapCellContent(selection)
            ) {
-            level.setState(std::make_shared<SwapState>(level, grid));
+            dynamic_cast<Level*>(level)->setState(std::make_shared<SwapState>(level, grid));
         }
     }
 }
@@ -707,7 +707,7 @@ bool FallState::makeFall(const Point &p)
     // TODO rework this part
     if (grid.at(p).isEmpty() && p.y == static_cast<int>(grid.rowCount()-1)) {
         Cell buffer{grid.at(p).getCenter() - Point{0, grid.getRowSize()}, 0, 0, {-1, -1}, grid};
-        buffer.setContent(std::make_shared<StandardCandy>(grid, &buffer, buffer.getCenter(), grid.getCellContentSide(), level.getRandomCandyColor()));
+        buffer.setContent(std::make_shared<StandardCandy>(grid, &buffer, buffer.getCenter(), grid.getCellContentSide(), dynamic_cast<Level*>(level)->getRandomCandyColor()));
         buffer.moveContentTo(grid.at(p));
         hasFallen = true;
     }
@@ -789,10 +789,10 @@ void FallState::gridAnimationFinished(const Point &p)
 
 
             if (isWaiting())
-                level.setState(std::make_shared<ClearState>(level, grid));
+                dynamic_cast<Level*>(level)->setState(std::make_shared<ClearState>(level, grid));
             else {
-                level.setState(std::make_shared<ReadyState>(level, grid));
-                level.update(Event::TurnEnd);
+                dynamic_cast<Level*>(level)->setState(std::make_shared<ReadyState>(level, grid));
+                level->update(Event::TurnEnd);
             }
         }
     }
@@ -826,12 +826,12 @@ void SwapState::gridAnimationFinished(const Point &p)
             grid.at(p).setLastSelected(false);
 
         if (isWaiting()) {
-            level.setState(std::make_shared<ClearState>(level, grid));
+            dynamic_cast<Level*>(level)->setState(std::make_shared<ClearState>(level, grid));
         } else if (!swapBack) {
             grid.swapCellContent(waitingList);
             swapBack = true;
         } else {
-            level.setState(std::make_shared<ReadyState>(level, grid));
+            dynamic_cast<Level*>(level)->setState(std::make_shared<ReadyState>(level, grid));
         }
     }
 }
@@ -851,6 +851,6 @@ void ClearState::gridAnimationFinished(const Point &p)
         for (auto &i: waitingList)
             grid.at(i).removeContent();
 
-        level.setState(std::make_shared<FallState>(level, grid));
+        dynamic_cast<Level*>(level)->setState(std::make_shared<FallState>(level, grid));
     }
 }

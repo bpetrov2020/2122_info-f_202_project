@@ -26,6 +26,8 @@ POBJ=\
 	grid.o\
 	main.o\
 	observer.o\
+	ls_view.o\
+	ls_state.o\
 	point.o\
 	shape.o
 

@@ -15,6 +15,8 @@ enum class Event {
     , SelectionChanged
     , HintAnimationFinished
     , PulseAnimationFinished
+    , LevelPassed
+    , LevelNotPassed
 };
 
 #endif

@@ -1,0 +1,6 @@
+Size 9
+ColorRange 6
+Goal Icing 20
+Wall a2
+SingleIcing c3
+DoubleIcing c4 c5 b4 b5

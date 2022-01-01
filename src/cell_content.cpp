@@ -159,6 +159,18 @@ MatchableCellContent::MatchableCellContent(
 { }
 
 /*----------------------------------------------------------
+ * TextContent
+ *--------------------------------------------------------*/
+
+TextContent::TextContent(Grid &grid, Cell *cell, const Point &center, int side, std::string text, int fontSize, Fl_Color textColor)
+    : CellContent {
+        grid,
+        cell,
+        std::make_shared<Text>(center, text, fontSize, textColor)
+    }
+{ }
+
+/*----------------------------------------------------------
  * Wall
  *--------------------------------------------------------*/
 

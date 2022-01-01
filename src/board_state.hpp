@@ -7,6 +7,7 @@
 
 class Grid;
 class Level;
+class View;
 /* enum class Color { */
 /*     Blue, */
 /*     Green, */
@@ -105,6 +106,17 @@ class Combination
         void removeHorizontalElems();
 };
 
+/* class GridState */
+/* { */
+/*     protected: */
+/*         Level &level; */
+/*         Grid &grid; */
+
+/*     public: */
+/*         BaseState(View &view, Grid &grid); */
+
+/* }; */
+
 /**
  * Base class to any state
  *
@@ -121,7 +133,7 @@ class Combination
 class State : public Interactive
 {
     protected:
-        Level &level;
+        View *level;
         Grid &grid;
 
         /**
@@ -130,7 +142,7 @@ class State : public Interactive
          */
         std::vector<Point> waitingList {};
     public:
-        State(Level &level, Grid &grid)
+        State(View *level, Grid &grid)
             :
                 level{level},
                 grid{grid}
@@ -183,7 +195,7 @@ class MessageState : public State, DrawableContainer
         // Function to be executed when the duration elapses
         virtual void onTimeout() = 0;
     public:
-        MessageState(Level &level, Grid &grid, std::string msg, int duration = 60) noexcept;
+        MessageState(View *level, Grid &grid, std::string msg, int duration = 60) noexcept;
 
         void draw() override;
         void gridAnimationFinished(const Point &) override { }
@@ -195,7 +207,7 @@ class NoActionState : public MessageState
     protected:
         void onTimeout() override;
     public:
-        NoActionState(Level &level, Grid &grid) noexcept;
+        NoActionState(View *level, Grid &grid) noexcept;
 };
 
 class LevelPassedState : public MessageState
@@ -203,7 +215,7 @@ class LevelPassedState : public MessageState
     protected:
         void onTimeout() override;
     public:
-        LevelPassedState(Level &level, Grid &grid) noexcept;
+        LevelPassedState(View *level, Grid &grid) noexcept;
 };
 
 class LevelNotPassedState : public MessageState
@@ -211,7 +223,7 @@ class LevelNotPassedState : public MessageState
     protected:
         void onTimeout() override;
     public:
-        LevelNotPassedState(Level &level, Grid &grid) noexcept;
+        LevelNotPassedState(View *level, Grid &grid) noexcept;
 };
 
 class EditState : public State
@@ -219,7 +231,7 @@ class EditState : public State
     private:
         void selectionChanged();
     public:
-        EditState(Level &level, Grid &grid) noexcept
+        EditState(View *level, Grid &grid) noexcept
             : State{level, grid}
         { }
 
@@ -253,7 +265,7 @@ class EditState : public State
 class MatchState : public State
 {
     public:
-        MatchState(Level &level, Grid &grid) noexcept
+        MatchState(View *level, Grid &grid) noexcept
             : State{level, grid}
         { }
 
@@ -270,7 +282,7 @@ class GridInitState : public MatchState
         void putInitialContent(LevelData &data);
         void fillEmptyCells();
     public:
-        GridInitState(Level &level, Grid &grid, LevelData &data);
+        GridInitState(View *level, Grid &grid, LevelData &data);
 
         void draw() override;
         void gridAnimationFinished(const Point &) override { }
@@ -304,7 +316,7 @@ class ReadyState : public MatchState
         static constexpr int hintInterval {120};
         int countToNextHint{hintInterval};
     public:
-        ReadyState(Level &level, Grid &grid, bool initG = false) noexcept;
+        ReadyState(View *level, Grid &grid, bool initG = false) noexcept;
 
         void draw() override;
 
@@ -353,7 +365,7 @@ class ReadyState : public MatchState
 class FallState : public MatchState
 {
     public:
-        FallState(Level &level, Grid &grid) noexcept
+        FallState(View *level, Grid &grid) noexcept
             : MatchState{level, grid}
         {
             fillGrid();
@@ -385,7 +397,7 @@ class SwapState : public MatchState
     private:
         bool swapBack{false};
     public:
-        SwapState(Level &level, Grid &grid) noexcept
+        SwapState(View *level, Grid &grid) noexcept
             : MatchState{level, grid}
         {
             std::cout << "Entering Swap" << std::endl;
@@ -408,7 +420,7 @@ class SwapState : public MatchState
 class ClearState : public State
 {
     public:
-        ClearState(Level &level, Grid &grid) noexcept
+        ClearState(View *level, Grid &grid) noexcept
             : State{level, grid}
         {
             std::cout << "Entering Clear" << std::endl;

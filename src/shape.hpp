@@ -190,7 +190,7 @@ class Text : public Shape
         void draw() override;
         bool contains(const Point& p) const override;
 
-        std::string getString() { return str; }
+        std::string getString() const { return str; }
         void setString(const std::string& newString) { str = newString; }
 
         int getFontSize() { return fontSize; }

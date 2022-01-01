@@ -18,6 +18,7 @@ enum class ContentT {
     WrappedCandy,
     ColourBomb,
     Wall,
+    TextContent,
     Icing
 };
 
@@ -56,6 +57,15 @@ class CellContent : public DrawableContainer
         /* bool isClearable() const { return std::dynamic_pointer_cast<ClearableCellContent>(this)} */
         /* bool isMovable() const { return movable; } */
         /* bool isMatchable() const { return matchable; } */
+};
+
+class TextContent : public CellContent
+{
+    public:
+        TextContent(Grid &grid, Cell *cell, const Point &center, int side, std::string text, int fontSize = 20, Fl_Color textColor = FL_WHITE);
+
+        ContentT getType() override { return ContentT::TextContent; }
+        std::string getString() const { return dynamic_pointer_cast<Text>(drawable)->getString(); }
 };
 
 class Wall : public CellContent
