@@ -66,7 +66,7 @@
 	colorlinks=true,
 		allcolors=iris
 }
-\attachfilesetup{color=iris, author=Boris Petrov}
+\attachfilesetup{color=iris}
 
 %-----------------------------------------------------------
 
@@ -139,8 +139,32 @@ Nous aborderons ensuite le calcul de notre score.
 % Pour toi Alec!
 
 \subsection{Classes}
+
+Étant donné le grand nombre de classes de notre projet, nous
+avons décidé de ne mettre que les plus importantes, celles
+nécessaires pour bien comprendre le fonctionnement.
+
+Nous avons également omis les méthodes intermédiaires
+nécessaires pour recevoir une information d'un objet
+\emph{C} depuis un objet \emph{B} telles que \verb@b.w()@ pour
+éviter \verb@b.getWindow().w()@.
+
+\addcode{code/game.hpp}{C++}{}{}
+
 \subsection{MVC}
 \subsection{Score}
+
+Les calcul du score est, contrairement au jeu original, plutôt simple.
+Il est mis à jour par certains évènement précis qui peuvent
+survenir lors d'une partie. Les suivants~:
+
+\begin{itemize}
+    \item suppression d'un bonbon [\textbf{50 pts}]~;
+    \item combinaison de 3 bonbons en ligne droite [\textbf{50 pts}]~;
+    \item combinaison de 4 bonbons en ligne droite [\textbf{125 pts}]~;
+    \item combinaison de 3 à 4 bonbons sur deux axes [\textbf{200 pts}]~;
+    \item combinaison de 5 bonbons ou plus en ligne droite [\textbf{500 pts}]~;
+\end{itemize}
 
 \section{Conclusion}
 
