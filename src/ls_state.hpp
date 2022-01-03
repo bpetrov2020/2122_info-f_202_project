@@ -7,6 +7,13 @@ class Grid;
 class Point;
 enum class Event;
 
+/**
+ * LevelSelectorState,
+ * State where we are able to select a level.
+ *
+ * @param levelSelector view of the level selector
+ * @param grid the grid the state is tied to
+ */
 class LevelSelectorState : public Interactive, public State
 {
 public:

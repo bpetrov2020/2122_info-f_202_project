@@ -14,6 +14,9 @@ class AnimatableShape;
  * Transformations
  *--------------------------------------------------------*/
 
+/**
+ * structure that will instantiate a translation.
+ */
 struct Translation {
     Translation(Point p) {
         fl_push_matrix();
@@ -24,6 +27,9 @@ struct Translation {
     }
 };
 
+/**
+ * structure that will instantiate a scaling.
+ */
 struct Scale {
     Scale(Point center, double factor) {
         fl_push_matrix();
@@ -36,6 +42,9 @@ struct Scale {
     }
 };
 
+/**
+ * structure that will instantiate a rotation.
+ */
 struct Rotation {
     Rotation(Point center, double angle) {
         fl_push_matrix();
@@ -52,6 +61,7 @@ struct Rotation {
  * Animations
  *--------------------------------------------------------*/
 
+/// enumerates the different possible animations.
 enum class AnimationT
 {
     StillAnimation

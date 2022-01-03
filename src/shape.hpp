@@ -43,6 +43,9 @@ class Shape
         void setFrameColor(const Fl_Color& c) { frameColor = c; }
 };
 
+/**
+ * extends the shape class to afford an animation
+ */
 class AnimatableShape : public Shape
 {
     protected:
@@ -90,6 +93,8 @@ enum class Axis
 
 /**
  * Striped rectangle
+ *
+ * shape of a stripped candy
  */
 class StripedRectangle : public Rectangle
 {
@@ -112,7 +117,9 @@ class StripedRectangle : public Rectangle
 };
 
 /**
- * Star shape for WrappedCandie
+ * Star shape
+ *
+ * used for a Wrapped Candy
  */
 class Star : public Rectangle
 {
@@ -157,7 +164,9 @@ class Circle : public AnimatableShape
 };
 
 /**
- * MulticolourCircle Shape for colour bomb
+ * MulticolourCircle Shape
+ *
+ * used for a colour bomb
  */
 class MulticolourCircle : public Circle
 {
