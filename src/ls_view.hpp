@@ -17,7 +17,7 @@ public:
     void mouseDrag(Point) override;
 
     void loadLevel(int);
-    void update(Event) {}
+    void update(Event) override {}
 
 private:
     DrawableContainer m_title;

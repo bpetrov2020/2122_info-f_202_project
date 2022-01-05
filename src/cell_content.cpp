@@ -559,21 +559,10 @@ void WrappedCandy::regularClear()
 {
     StandardCandy::clearWithoutAnimation();
 
-    constexpr static std::array<Point, 8> directionModifier {
-            Point{ 0, -1},  // South
-            Point{ 0,  1},  // North
-            Point{-1,  0},  // West
-            Point{ 1,  0},  // East
-            Point{-1, -1},  // SouthWest
-            Point{ 1, -1},  // SouthEast
-            Point{-1,  1},  // NorthWest
-            Point{ 1,  1}   // NorthEast
-    };
-
-    for (auto &p: directionModifier) {
-        try {
-            grid.clearCell(p+containerCell->getIndex());
-        } catch (const std::out_of_range& err) {}
+    for (auto &p: DirectionModifier) {
+        auto toClear {p+containerCell->getIndex()};
+        if (grid.isIndexValid(toClear))
+            grid.clearCell(toClear);
     }
 }
 

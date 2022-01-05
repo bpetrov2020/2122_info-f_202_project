@@ -7,7 +7,8 @@
 /* #include <fstream> */
 /* #include <sstream> */
 
-#include "observer.hpp" #include "common.hpp"
+#include "observer.hpp"
+#include "common.hpp"
 #include "shape.hpp"
 #include "grid.hpp"
 /* #include "level_goal.hpp" */

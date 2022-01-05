@@ -29,6 +29,34 @@ void LevelStatus::updateScore(int toAdd)
     m_scoreDrawable.setString(std::to_string(m_score));
 }
 
+int LevelStatus::scoreValueOf(Event event) const
+{
+    int value {0};
+
+    switch (event) {
+    case Event::CellCleared:
+        value = 50;
+        break;
+    case Event::ThreeMatch:
+        value = 50;
+        break;
+    case Event::StripedMatch:
+        value = 125;
+        break;
+    case Event::WrappedMatch:
+        value = 200;
+        break;
+    case Event::ColourBombMatch:
+        value = 500;
+        break;
+    default:
+        std::cerr << "No score value for this event";
+        break;
+    }
+
+    return value;
+}
+
 void LevelStatus::update(Event event)
 {
     switch (event) {
@@ -41,6 +69,13 @@ void LevelStatus::update(Event event)
     case Event::GoalChanged:
         m_movesLeftDrawable.setString(std::to_string(m_goal->movesLeft()));
         m_goalDrawable.setString(m_goal->progressToString());
+        break;
+    case Event::CellCleared:
+    case Event::ThreeMatch:
+    case Event::StripedMatch:
+    case Event::WrappedMatch:
+    case Event::ColourBombMatch:
+        updateScore(scoreValueOf(event));
         break;
     default:
         m_goal->update(event);

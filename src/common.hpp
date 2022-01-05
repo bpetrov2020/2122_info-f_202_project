@@ -86,4 +86,15 @@ enum class Direction {
     NorthEast
 };
 
+constexpr std::array<Point, 8> DirectionModifier {
+    Point{ 0, -1},  // South
+    Point{ 0,  1},  // North
+    Point{-1,  0},  // West
+    Point{ 1,  0},  // East
+    Point{-1, -1},  // SouthWest
+    Point{ 1, -1},  // SouthEast
+    Point{-1,  1},  // NorthWest
+    Point{ 1,  1}   // NorthEast
+};
+
 #endif

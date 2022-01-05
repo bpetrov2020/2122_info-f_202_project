@@ -25,6 +25,8 @@ private:
     Text m_goalLabelDrawable;
     Text m_goalDrawable;
 
+    int scoreValueOf(Event) const;
+
 public:
     LevelStatus(const Point &center, int width, int height, LevelData &data) noexcept;
 

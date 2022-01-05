@@ -120,7 +120,7 @@ void State::update(Event event)
     level->update(event);
     switch (event) {
         case Event::CellCleared:
-            dynamic_cast<Level*>(level)->updateScore(50);
+            level->update(Event::CellCleared);
             break;
         default:
             break;
@@ -264,7 +264,7 @@ bool MatchState::processCombinationContaining(const Point &elem)
         grid.clearCell(origin);
         grid.clearCell(largestDirection);
         oneCombination = true;
-        dynamic_cast<Level*>(level)->updateScore(50);
+        level->update(Event::ThreeMatch);
 
     // 4 in one axis
     } else if ((vc==4 && hc<3) || (hc==4 && vc<3)) {
@@ -274,7 +274,7 @@ bool MatchState::processCombinationContaining(const Point &elem)
         grid.clearCell(largestDirection);
         grid.put(origin, ContentT::StripedCandy, color, vc<hc ? Axis::Vertical : Axis::Horizontal);
         oneCombination = true;
-        dynamic_cast<Level*>(level)->updateScore(125);
+        level->update(Event::StripedMatch);
 
     // More than 3 on both axis
     } else if (vc>=3 && vc<5 && hc>=3 && hc<5) {
@@ -285,7 +285,7 @@ bool MatchState::processCombinationContaining(const Point &elem)
         }
         grid.put(origin, ContentT::WrappedCandy, color);
         oneCombination = true;
-        dynamic_cast<Level*>(level)->updateScore(200);
+        level->update(Event::WrappedMatch);
 
     // 5 or more in one axis
     } else if (vc>=5 || hc>=5) {
@@ -293,7 +293,8 @@ bool MatchState::processCombinationContaining(const Point &elem)
         grid.clearCell(largestDirection);
         grid.put(origin, ContentT::ColourBomb);
         oneCombination = true;
-        dynamic_cast<Level*>(level)->updateScore(500);
+        level->update(Event::ColourBombMatch);
+
     }
 
 
@@ -336,7 +337,7 @@ Combination MatchState::getCombinationContaining(const Point &origin, bool rec)
     for (auto &direction: {Direction::East, Direction::North, Direction::West, Direction::South}) {
         Point curr{origin};
         /* Point next{origin, direction}; TODO */
-        Point next{origin + Grid::directionModifier[static_cast<unsigned>(direction)]};
+        Point next{origin + DirectionModifier[static_cast<unsigned>(direction)]};
 
         while (grid.isIndexValid(next)
                 && !grid.isCellEmpty(next)
@@ -345,7 +346,7 @@ Combination MatchState::getCombinationContaining(const Point &origin, bool rec)
         {
             curr = next;
             ret.addElement(curr, direction);
-            next = Point{curr + Grid::directionModifier[static_cast<unsigned>(direction)]};
+            next = Point{curr + DirectionModifier[static_cast<unsigned>(direction)]};
         }
     }
 

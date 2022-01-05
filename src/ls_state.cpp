@@ -8,9 +8,9 @@ LevelSelectorState::LevelSelectorState(View *levelSelector, Grid &grid)
     : State {levelSelector, grid}
     , m_grid {grid}
 {
-    for (auto y{0}; y < m_grid.rowCount(); ++y)
-        for (auto x{0}; x < m_grid.colCount(); ++x)
-            m_grid.put(Point {x, y}, std::to_string(y*m_grid.colCount() + x+1));
+    for (unsigned y{0}; y < m_grid.rowCount(); ++y)
+        for (unsigned x{0}; x < m_grid.colCount(); ++x)
+            m_grid.put(Point {static_cast<int>(x), static_cast<int>(y)}, std::to_string(y*m_grid.colCount() + x+1));
 }
 
 void LevelSelectorState::draw()

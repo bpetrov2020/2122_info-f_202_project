@@ -280,7 +280,7 @@ Cell &Grid::at(const Point &p)
 
 Cell &Grid::at(const Point &p, Direction d)
 {
-    return at(p+directionModifier[static_cast<unsigned>(d)]);
+    return at(p+DirectionModifier[static_cast<unsigned>(d)]);
 }
 
 void Grid::select(const Point &p)
@@ -326,7 +326,7 @@ std::vector<Point> Grid::neighboursOf(const Point& p)
 {
     std::vector<Point> ret;
     for (int i = 0; i<4; ++i) {
-        Point idx{p+directionModifier[static_cast<unsigned>(i)]};
+        Point idx{p+DirectionModifier[static_cast<unsigned>(i)]};
         if (isIndexValid(idx)) {
             ret.push_back(idx);
         }
@@ -439,7 +439,7 @@ void Grid::put(const Point &point, std::string text)
 
 bool Grid::isIndexValid(const Point &p, Direction d) const
 {
-    return isIndexValid(p+directionModifier[static_cast<unsigned>(d)]);
+    return isIndexValid(p+DirectionModifier[static_cast<unsigned>(d)]);
 }
 
 bool Grid::isIndexValid(const Point &p) const

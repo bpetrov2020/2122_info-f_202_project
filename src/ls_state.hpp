@@ -7,19 +7,19 @@ class Grid;
 class Point;
 enum class Event;
 
-class LevelSelectorState : public Interactive, public State
+class LevelSelectorState : public State
 {
 public:
     LevelSelectorState(View *, Grid &);
 
-    void draw();
+    void draw() override;
     void mouseMove(Point) override;
     void mouseClick(Point) override;
     void mouseDrag(Point) override;
 
-    void update(Event);
+    void update(Event) override;
 
-    void gridAnimationFinished(const Point &) {}
+    void gridAnimationFinished(const Point &) override {}
 
 private:
     Grid m_grid;

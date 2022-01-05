@@ -148,6 +148,9 @@ class State : public Interactive
                 grid{grid}
         { }
 
+        State(const State &) = delete;
+        State operator=(const State &) = delete;
+
         virtual void draw() { }
 
         // No interactions by default

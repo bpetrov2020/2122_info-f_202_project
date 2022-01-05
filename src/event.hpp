@@ -17,6 +17,10 @@ enum class Event {
     , PulseAnimationFinished
     , LevelPassed
     , LevelNotPassed
+    , ThreeMatch
+    , StripedMatch
+    , WrappedMatch
+    , ColourBombMatch
 };
 
 #endif
