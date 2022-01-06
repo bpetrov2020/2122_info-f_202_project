@@ -176,7 +176,7 @@ NoActionState::NoActionState(View *level, Grid &grid) noexcept
 
 void NoActionState::onTimeout()
 {
-    level->update(Event::LevelNotPassed);
+    level->update(Event::NoMoreCombinations);
 }
 
 /*----------------------------------------------------------
@@ -416,16 +416,16 @@ void GridInitState::putInitialContent(LevelData &data)
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
 
     // Double striped
-    Point point{1, 1};
-    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue);
-    point = {2, 1};
-    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Vertical);
+    /* Point point{1, 1}; */
+    /* grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue); */
+    /* point = {2, 1}; */
+    /* grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Vertical); */
 
     // Striped with Wrapped
-    point = {4, 3};
-    grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue);
-    point = {5, 3};
-    grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Vertical);
+    /* point = {4, 3}; */
+    /* grid.put(point, ContentT::WrappedCandy, StandardCandy::Color::Blue); */
+    /* point = {5, 3}; */
+    /* grid.put(point, ContentT::StripedCandy, StandardCandy::Color::Blue, Axis::Vertical); */
 
     // Double wrapped
     /*Point point{1, 1};
@@ -435,8 +435,8 @@ void GridInitState::putInitialContent(LevelData &data)
 
     // ColourBomb with Standard
     /*Point point{1, 1};*/
-    point = {1, 1};
-    grid.put(point, ContentT::ColourBomb);
+    /* point = {1, 1}; */
+    /* grid.put(point, ContentT::ColourBomb); */
     /* point = {1, 2};*/
     /* grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);*/
 
@@ -615,9 +615,6 @@ bool ReadyState::isActionPossible()
 
 void ReadyState::gridAnimationFinished(const Point &)
 {
-    /* throw std::runtime_error("There should be no animations in ReadyState"); */
-    /* waitingList.push_back(p); */
-
     if (!isWaiting()) {
         countToNextHint = hintInterval;
     }

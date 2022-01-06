@@ -1,20 +1,10 @@
-/* #include <FL/Fl_Box.H> */
-/* #include <string> */
-/* #include <math.h> */
-/* #include <chrono> */
-/* #include <vector> */
-/* #include <iostream> */
-/* #include <random> */
-/* #include <array> */
+#include "game.hpp"
 
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 #include <FL/Fl_Double_Window.H>
 
 #include <time.h>
-
-/* #include "grid.hpp" */
-#include "game.hpp"
 
 const int windowWidth = 500;
 const int windowHeight = 600;
@@ -27,37 +17,36 @@ const int refreshPerSecond = 60;
 class MainWindow : public Fl_Window
 {
 private:
-        /* Grid game; */
-        Game game;
+        Game m_game;
 public:
     MainWindow()
         : Fl_Window(500, 500, windowWidth, windowHeight, "Candy Crush"),
-        game{*this}
+        m_game{*this}
     {
         Fl::add_timeout(1.0/refreshPerSecond, Timer_CB, this);
-        resizable(this);
+        /* resizable(this); */
     }
 
     void draw() override
     {
         Fl_Window::draw();
-        game.draw();
+        m_game.draw();
     }
 
     int handle(int event) override
     {
         switch (event) {
         case FL_MOVE:
-            game.mouseMove(Point{Fl::event_x(), Fl::event_y()});
+            m_game.mouseMove(Point{Fl::event_x(), Fl::event_y()});
             return 1;
         case FL_PUSH:
-            game.mouseClick(Point{Fl::event_x(), Fl::event_y()});
+            m_game.mouseClick(Point{Fl::event_x(), Fl::event_y()});
             return 1;
         case FL_DRAG:
-            game.mouseDrag(Point{Fl::event_x(), Fl::event_y()});
+            m_game.mouseDrag(Point{Fl::event_x(), Fl::event_y()});
             return 1;
         /* case FL_KEYDOWN: */
-        /*     game.keyPressed(Fl::event_key()); */
+        /*     m_game.keyPressed(Fl::event_key()); */
         /*     return 1; */
         }
         return 0;

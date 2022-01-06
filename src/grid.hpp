@@ -115,8 +115,8 @@ class Grid : public DrawableContainer, public Interactive
 
         std::shared_ptr<State> state;
     public:
-        Grid(Point center, int width, int height, LevelData &data);
-        Grid(Point center, int width, int height, int rows, int columns);
+        Grid(Point center, int width, int height, LevelData &data, Fl_Color color = FL_BLACK);
+        Grid(Point center, int width, int height, int rows, int columns, Fl_Color color = FL_BLACK);
 
         class Iterator {
             private:

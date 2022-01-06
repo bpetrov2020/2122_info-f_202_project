@@ -21,6 +21,7 @@ public:
 
 private:
     DrawableContainer m_title;
+    DrawableContainer m_bestScoreLabel;
     DrawableContainer m_bestScore;
 
     Grid m_levels;

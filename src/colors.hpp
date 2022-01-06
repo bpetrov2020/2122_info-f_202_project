@@ -1,6 +1,8 @@
 #ifndef COLORS_HPP
 #define COLORS_HPP
 
+#include <FL/Fl.H>
+
 // FLTK Colors in hex
 // used in cell_content and shape
 static constexpr Fl_Color flRelative[6] = {

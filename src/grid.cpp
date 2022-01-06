@@ -31,8 +31,6 @@ void Cell::update(Event e)
             if (!isEmpty())
                 content->update(e);
             break;
-        case Event::PulseAnimationFinished:
-            grid.update(Event::HintAnimationFinished);
         default:
             break;
 
@@ -188,7 +186,7 @@ bool Cell::hint()
 {
     assert(!isEmpty() && !hasContentAnimation());
 
-    content->addAnimation(std::make_shared<PulseAnimation>(20));
+    content->addAnimation(std::make_shared<HintAnimation>(20));
 
     return true;
 }
@@ -209,12 +207,12 @@ ContentT Cell::contentType() const
  *                      Grid
  *--------------------------------------------------------*/
 
-Grid::Grid(Point center, int width, int height, LevelData &data)
-    : Grid(center, width, height, data.getGridSize(), data.getGridSize())
+Grid::Grid(Point center, int width, int height, LevelData &data, Fl_Color color)
+    : Grid{center, width, height, data.getGridSize(), data.getGridSize(), color}
 { }
 
-Grid::Grid(Point center, int width, int height, int rows, int columns)
-    : DrawableContainer(std::make_shared<Rectangle>(center, width, height, FL_BLACK)),
+Grid::Grid(Point center, int width, int height, int rows, int columns, Fl_Color color)
+    : DrawableContainer(std::make_shared<Rectangle>(center, width, height, color, color)),
     colSize{width/columns},
     rowSize{height/rows},
     state{nullptr}//,
@@ -223,7 +221,7 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
     Point z = center - Point{width/2, -height/2};
 
     // Between cells
-    int space = 10; // PUT IN CONSTRUCTOR
+    int space = 10;
 
     // Dimentions of cells' backgrounds
     int w = colSize - space;
@@ -242,11 +240,6 @@ Grid::Grid(Point center, int width, int height, int rows, int columns)
     }
 
     cellContentSide = w>h ? h-20 : w-20; // TODO move to initialization list
-
-    /* setState(std::make_shared<ReadyState>(*this, true, data)); */
-    /* setState(std::make_shared<GridInitState>(*this, data)); */
-    /* setState(std::make_shared<MessageShower>(*this, "Start")); */
-    /* setState(std::make_shared<EditState>(*this)); */
 }
 
 void Grid::draw() {
@@ -337,14 +330,8 @@ std::vector<Point> Grid::neighboursOf(const Point& p)
 void Grid::update(Event event)
 {
     state->update(event);
-    /* switch (e) { */
-    /*     case Event::cellContentAnimationFinished: */
-    /*         state->update(Event::cellContentAnimationFinished); */
-    /*         break; */
-    /* } */
 }
 
-// TODO replace with update
 void Grid::cellContentAnimationFinished(const Point &p)
 {
     state->gridAnimationFinished(p);

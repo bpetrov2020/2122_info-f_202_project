@@ -1,12 +1,13 @@
 #ifndef ANIMATION_HPP
 #define ANIMATION_HPP
 
-#include <FL/fl_draw.H>
-#include <iostream>
-#include <memory>
-
 #include "point.hpp"
 #include "shape.hpp"
+
+#include <FL/fl_draw.H>
+
+#include <iostream>
+#include <memory>
 
 class AnimatableShape;
 
@@ -55,9 +56,9 @@ struct Rotation {
 enum class AnimationT
 {
     StillAnimation
-    , ScaleAnimation
+    , ClearAnimation
     , MoveAnimation
-    , PulseAnimation
+    , HintAnimation
 };
 
 /**
@@ -71,12 +72,12 @@ enum class AnimationT
 class Animation
 {
     protected:
-        std::shared_ptr<AnimatableShape> drawable;
-        int elapsed = 0;
-        int duration;
+        std::shared_ptr<AnimatableShape> m_drawable;
+        int m_elapsed {0};
+        int m_duration;
     public:
         Animation(int duration, std::shared_ptr<AnimatableShape> drawable = nullptr) noexcept
-            : drawable{drawable}, duration{duration} { }
+            : m_drawable{drawable}, m_duration{duration} { }
 
         Animation(const Animation& a) = delete;
         Animation operator=(const Animation& a) = delete;
@@ -87,12 +88,17 @@ class Animation
 
         bool isComplete() const
         {
-            return elapsed>duration;
+            return m_elapsed > m_duration;
         }
 
-        void attachTo(std::shared_ptr<AnimatableShape> drawable_)
+        bool isAttachedTo() const
         {
-            drawable = drawable_;
+            return static_cast<bool>(m_drawable);
+        }
+
+        void attachTo(std::shared_ptr<AnimatableShape> drawable)
+        {
+            m_drawable = drawable;
         }
 
         virtual AnimationT type() const = 0;
@@ -123,16 +129,16 @@ class StillAnimation : public Animation
  * @param drawable pointer to the drawable that has the animation
  * @param duration time during which the animation is active
  */
-class ScaleAnimation : public Animation
+class ClearAnimation : public Animation
 {
     private:
         double currentScale() const;
     public:
-        ScaleAnimation(int duration, std::shared_ptr<AnimatableShape> drawable = nullptr) noexcept
+        ClearAnimation(int duration, std::shared_ptr<AnimatableShape> drawable = nullptr) noexcept
             : Animation{duration, drawable} { }
 
         void draw() override;
-        AnimationT type() const override { return AnimationT::ScaleAnimation; }
+        AnimationT type() const override { return AnimationT::ClearAnimation; }
 };
 
 /**
@@ -146,35 +152,35 @@ class ScaleAnimation : public Animation
 class MoveAnimation : public Animation
 {
     private:
-        Point start;
-        Point end;
+        Point m_start;
+        Point m_end;
         Point currentTranslation() const;
     public:
         MoveAnimation(int duration, Point start, Point end, std::shared_ptr<AnimatableShape> drawable=nullptr) noexcept
-            : Animation{duration, drawable}, start{start}, end{end} { }
+            : Animation{duration, drawable}, m_start{start}, m_end{end} { }
 
         void draw() override;
         AnimationT type() const override { return AnimationT::MoveAnimation; }
 
-        Point getStart() const { return start; }
-        Point getEnd() const { return end; }
+        Point getStart() const { return m_start; }
+        Point getEnd() const { return m_end; }
 };
 
 /**
- * Pulse animation, for suggested moves
+ * Pulse animation, for hinted moves
  */
-class PulseAnimation : public Animation
+class HintAnimation : public Animation
 {
     private:
         double currentScale();
     public:
-        PulseAnimation(int duration, std::shared_ptr<AnimatableShape> drawable=nullptr) noexcept
+        HintAnimation(int duration, std::shared_ptr<AnimatableShape> drawable=nullptr) noexcept
             : Animation{duration, drawable}
         {
         }
 
         void draw() override;
-        AnimationT type() const override { return AnimationT::PulseAnimation; }
+        AnimationT type() const override { return AnimationT::HintAnimation; }
 };
 
 #endif

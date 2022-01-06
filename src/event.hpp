@@ -4,6 +4,7 @@
 enum class Event {
     GoalReached
     , NoMoreMoves
+    , NoMoreCombinations
     , GoalChanged
     , IcingCleared
     , CellCleared
@@ -14,7 +15,6 @@ enum class Event {
     , cellContentAnimationFinished
     , SelectionChanged
     , HintAnimationFinished
-    , PulseAnimationFinished
     , LevelPassed
     , LevelNotPassed
     , ThreeMatch

@@ -17,7 +17,9 @@ View::View(Fl_Window& win, Game& g)
         )
     },
     window{win},
-    game{g} { }
+    game{g}
+{
+}
 
 /*----------------------------------------------------------
  * Game
@@ -25,9 +27,8 @@ View::View(Fl_Window& win, Game& g)
 
 Game::Game(Fl_Window& win)
     : window{win}
-    , view{nullptr}//, "data/levels/level1.txt")}
+    , view{nullptr}
     , bestScore {-1}
-    /* view{std::make_shared<SplashScreen>(win, *this, "Authors", 15, 120)} { } TODO */
 {
     std::ifstream scoreSrc {"data/best_score.txt"};
     if (scoreSrc) {
@@ -36,7 +37,8 @@ Game::Game(Fl_Window& win)
             throw std::runtime_error("Game::Game: Wrong score formatting");
         }
     }
-    view = std::make_shared<LevelSelector>(win, *this);
+
+    view = std::make_shared<SplashScreen>(win, *this, "Alec & Boris", 15, 120);
 }
 
 
@@ -92,8 +94,8 @@ void SplashScreen::draw()
 {
     DrawableContainer::draw();  // draw the background
     author.draw();              // draw the author's name
-    /* if (toBeReplaced) */
-        /* game.loadView(std::make_shared<Level>(window, game, "data/levels/1.txt")); */
+    if (toBeReplaced)
+        game.loadView(std::make_shared<LevelSelector>(window, game));
 }
 
 void SplashScreen::animationFinished(AnimationT animationType)
@@ -160,6 +162,9 @@ void Level::playNextLevel()
 void Level::update(Event event)
 {
     switch (event) {
+        case Event::NoMoreCombinations:
+            setState(std::make_shared<ReadyState>(this, m_board, true));
+            break;
         case Event::GoalReached:
             game.updateScore(m_status.score());
             setState(std::make_shared<LevelPassedState>(this, m_board));

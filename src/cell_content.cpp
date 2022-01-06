@@ -18,11 +18,9 @@ CellContent::CellContent(
 
 void CellContent::animationFinished(AnimationT animationType)
 {
-    if (animationType == AnimationT::PulseAnimation) {
-        /* containerCell->update(Event::PulseAnimationFinished); */
+    if (animationType == AnimationT::HintAnimation) {
         m_isPulsing = false;
         m_pulseFinished = true;
-        /* grid.cellContentAnimationFinished(containerCell->getIndex()); */
     }
 }
 
@@ -67,13 +65,13 @@ void ClearableCellContent::draw()
 void ClearableCellContent::clearWithoutEffect()
 {
     m_isClearing = true;
-    addAnimation(std::make_shared<ScaleAnimation>(20));
+    addAnimation(std::make_shared<ClearAnimation>(20));
 }
 
 void ClearableCellContent::clear()
 {
     clearWithoutAnimation();
-    addAnimation(std::make_shared<ScaleAnimation>(20));
+    addAnimation(std::make_shared<ClearAnimation>(20));
 }
 
 void ClearableCellContent::clearWithoutAnimation()
@@ -83,7 +81,7 @@ void ClearableCellContent::clearWithoutAnimation()
 
 void ClearableCellContent::animationFinished(AnimationT animationType)
 {
-    if (animationType == AnimationT::ScaleAnimation) {
+    if (animationType == AnimationT::ClearAnimation) {
         clearFinished = true;
         m_isClearing = false;
     }

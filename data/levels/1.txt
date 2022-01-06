@@ -1,5 +1,3 @@
-Size 6
+Size 4
 Goal Icing 20
-Wall a2
-SingleIcing c3
-DoubleIcing c4 c5 b4 b5
+SingleIcing a1 b1 c1 d1

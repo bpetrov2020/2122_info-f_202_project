@@ -6,30 +6,30 @@
 
 void StillAnimation::draw()
 {
-    if (drawable) {
-        ++elapsed;
-        drawable->draw();
+    if (isAttachedTo()) {
+        ++m_elapsed;
+        m_drawable->draw();
     }
 }
 
 /*----------------------------------------------------------
- * ScaleAnimation
+ * ClearAnimation
  *--------------------------------------------------------*/
 
-double ScaleAnimation::currentScale() const
+double ClearAnimation::currentScale() const
 {
     if (!isComplete())
-        return 1-(0.95/duration * elapsed);
+        return 1-(0.95/m_duration * m_elapsed);
     else
         return 0;
 }
 
-void ScaleAnimation::draw()
+void ClearAnimation::draw()
 {
-    if (drawable) {
-        ++elapsed;
-        Scale s{drawable->getCenter(), currentScale()};
-        drawable->draw();
+    if (isAttachedTo()) {
+        ++m_elapsed;
+        Scale s{m_drawable->getCenter(), currentScale()};
+        m_drawable->draw();
     }
 }
 
@@ -40,41 +40,41 @@ void ScaleAnimation::draw()
 Point MoveAnimation::currentTranslation() const
 {
     if (!isComplete()) {
-        double x = (end.x-start.x)/static_cast<double>(duration) * elapsed;
-        double y = (end.y-start.y)/static_cast<double>(duration) * elapsed;
+        double x = (m_end.x-m_start.x)/static_cast<double>(m_duration) * m_elapsed;
+        double y = (m_end.y-m_start.y)/static_cast<double>(m_duration) * m_elapsed;
         return {static_cast<int>(x), static_cast<int>(y)};
     }
     else
-        return end-start;
+        return m_end-m_start;
 }
 
 void MoveAnimation::draw()
 {
-    if (drawable) {
-        ++elapsed;
-        drawable->setCenter(getStart()+currentTranslation());
+    if (isAttachedTo()) {
+        ++m_elapsed;
+        m_drawable->setCenter(getStart()+currentTranslation());
         /* Translation t{ currentTranslation() }; */
-        drawable->draw();
+        m_drawable->draw();
     }
 }
 
 /*----------------------------------------------------------
- * PulseAnimation
+ * HintAnimation
  *--------------------------------------------------------*/
 
-double PulseAnimation::currentScale()
+double HintAnimation::currentScale()
 {
     if (!isComplete())
-        return 1 + std::sin(std::numbers::pi*(static_cast<double>(elapsed)/duration))/4;
+        return 1 + std::sin(std::numbers::pi*(static_cast<double>(m_elapsed)/m_duration))/4;
     else
         return 0;
 }
 
-void PulseAnimation::draw()
+void HintAnimation::draw()
 {
-    if (drawable) {
-        ++elapsed;
-        Scale s{drawable->getCenter(), currentScale()};
-        drawable->draw();
+    if (isAttachedTo()) {
+        ++m_elapsed;
+        Scale s{m_drawable->getCenter(), currentScale()};
+        m_drawable->draw();
     }
 }

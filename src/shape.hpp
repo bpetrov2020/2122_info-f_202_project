@@ -1,16 +1,17 @@
 #ifndef SHAPE_HPP
 #define SHAPE_HPP
 
-#include <Fl/Fl.H>
-#include <FL/Fl_Box.H>
-#include <FL/fl_draw.H>
-#include <array>
-#include <cmath>
-#include <memory>
-
 #include "point.hpp"
 #include "animation.hpp"
 #include "colors.hpp"
+
+#include <Fl/Fl.H>
+#include <FL/Fl_Box.H>
+#include <FL/fl_draw.H>
+
+#include <array>
+#include <cmath>
+#include <memory>
 
 class Animation;
 
@@ -118,17 +119,11 @@ class Star : public Rectangle
 {
     private:
         bool secondPhase{ false };
-public:
-    Star(
-            Point center,
-            int width,
-            int height,
-            Fl_Color fillColor = FL_WHITE,
-            Fl_Color frameColor = FL_BLACK
-    );
+    public:
+        Star(Point center, int width, int height, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
 
-    void draw() override;
-    void setSecondPhase() { secondPhase = true; }
+        void draw() override;
+        void setSecondPhase() { secondPhase = true; }
 };
 
 /**
@@ -142,12 +137,7 @@ class Circle : public AnimatableShape
     private:
         int radius;
     public:
-        Circle(
-                Point center,
-                int radius,
-                Fl_Color fillColor = FL_WHITE,
-                Fl_Color frameColor = FL_BLACK
-                );
+        Circle(Point center, int radius, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
 
         void draw() override;
         bool contains(const Point& p) const override;
@@ -161,16 +151,13 @@ class Circle : public AnimatableShape
  */
 class MulticolourCircle : public Circle
 {
-protected:
-    int size;
-    void drawRectRotate(double angle = 0, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
-public:
-    MulticolourCircle(
-            Point center,
-            int size
-    );
+    protected:
+        int size;
+        void drawRectRotate(double angle = 0, Fl_Color fillColor = FL_WHITE, Fl_Color frameColor = FL_BLACK);
+    public:
+        MulticolourCircle(Point center, int size);
 
-    void draw() override;
+        void draw() override;
 };
 
 /**

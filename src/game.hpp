@@ -1,19 +1,15 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "common.hpp"
+#include "grid.hpp"
+#include "level_data.hpp"
+#include "level_status.hpp"
+#include "observer.hpp"
+#include "shape.hpp"
+
 #include <FL/Fl_Window.H>
 #include <memory>
-/* #include <iostream> */
-/* #include <fstream> */
-/* #include <sstream> */
-
-#include "observer.hpp"
-#include "common.hpp"
-#include "shape.hpp"
-#include "grid.hpp"
-/* #include "level_goal.hpp" */
-#include "level_status.hpp"
-#include "level_data.hpp"
 
 class Game;
 
@@ -52,6 +48,7 @@ class Game : public Interactive
     private:
         Fl_Window& window;
         std::shared_ptr<View> view;
+
         int bestScore;
         void writeScore();
         int numberOfLevels{9};
@@ -75,10 +72,6 @@ class Game : public Interactive
 };
 
 /**
- * The level selector view
- */
-
-/**
  * First screen shown to the player
  *
  * Lasts a few seconds before the main menu is loaded
@@ -97,55 +90,10 @@ class SplashScreen : public View
         void mouseDrag(Point) override { }
 
         void draw() override;
+        void update(Event) override {}
 
         void animationFinished(AnimationT a) override;
 };
-
-/**
- * Container for the data needed to initialize a level
- *
- * The data should be of the following format:
- *
- * <Category> <value(s)>
- *
- * The categories available are:
- * -   Size           "1"     int
- * [-] Wall           "1..*"  Point
- * [-] SingleIcing    "1..*"  Point
- * [-] DoubleIcing    "1..*"  Point
- *
- * Only the size is obligatory. And it should alway be the first one.
- */
-/* class LevelData */
-/* { */
-/*     private: */
-/*         std::string m_levelName; */
-
-/*         int gridSize {-1}; */
-/*         int colorRange {6}; */
-
-/*         std::string goalType {}; */
-
-/*         std::vector<Point> wallsPos{}; */
-/*         std::vector<Point> singleIcingPos{}; */
-/*         std::vector<Point> doubleIcingPos{}; */
-
-/*         // Functions used to fill the data from a file */
-/*         void extractDataFrom(std::string filename); */
-/*         void processLine(std::string line); */
-/*         void fillFrom(std::vector<Point> &vect, std::istream &is); */
-/*     public: */
-/*         LevelData(std::string filename); */
-
-/*         std::string levelName() const { return m_levelName; } */
-
-/*         int getGridSize() const { return gridSize; } */
-/*         int getColorRange() const { return colorRange; } */
-
-/*         const auto &getWallsPos() const { return wallsPos; } */
-/*         const auto &getSingleIncingPos() const { return singleIcingPos; } */
-/*         const auto &getDoubleIcingPos() const { return doubleIcingPos; } */
-/* }; */
 
 /**
  * A level in the game
@@ -157,8 +105,6 @@ class Level : public View, public Subject
         LevelStatus m_status;
         Grid m_board;
         std::shared_ptr<State> m_boardController {nullptr};
-
-        /* int m_candyRange */
 
         inline int gridSide(Fl_Window &win);
     public:

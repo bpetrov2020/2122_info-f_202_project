@@ -1,14 +1,12 @@
 #ifndef COMMON_HPP
 #define COMMON_HPP
 
-/* #include <ostream> */
 #include <memory>
 #include <cassert>
 
 #include "animation.hpp"
 
 class Shape;    // inclusion not needed, this is faster
-
 
 // Constants
 const int ANIM_TIME = 10;
@@ -20,9 +18,9 @@ struct Interactive
 {
     virtual ~Interactive() noexcept = default;
 
-    virtual void mouseMove(Point mouseLoc) = 0;
-    virtual void mouseClick(Point mouseLoc) = 0;
-    virtual void mouseDrag(Point mouseLoc) = 0;
+    virtual void mouseMove(Point) = 0;
+    virtual void mouseClick(Point) = 0;
+    virtual void mouseDrag(Point) = 0;
 };
 
 /**
@@ -48,13 +46,14 @@ class DrawableContainer
 
         /// Draws the content
         virtual void draw() {
-            if (animation)
+            if (hasAnimation())
                 animation->draw();
             else
                 drawable->draw();
-            if (animation && animation->isComplete()) {
+
+            if (hasAnimation() && animation->isComplete()) {
                 animationFinished(animation->type());
-                animation.reset();
+                removeAnimation();
             }
         }
 
@@ -64,8 +63,8 @@ class DrawableContainer
         {
             assert(std::dynamic_pointer_cast<AnimatableShape>(drawable));
             assert(!hasAnimation());
-            /* if (animation) throw std::runtime_error("Animation not empty"); */
-            animation.reset();
+
+            removeAnimation();
             newanim->attachTo(std::dynamic_pointer_cast<AnimatableShape>(drawable));
             animation = std::move(newanim);
         }

@@ -66,7 +66,7 @@ class View;
 /*         int getDarkValue(); */
 /* }; */
 
-/* CandyColor color{ "Blue" }; */
+/* CandyColor color{"Blue"}; */
 
 /* color.getFlNormal(); */
 /* color.getFlLight(); */
@@ -168,20 +168,6 @@ class State : public Interactive
         // TODO Place all events in one function
         /* void update(Event e); */
 };
-
-/* class LevelSelectorState : public Interactive */
-/* { */
-/*     private: */
-/*     public: */
-/*         LevelSelectorState::LevelSelectorState(LevelSelector &selector, Grid &grid) */
-/*         { */
-
-/*         } */
-
-/*         void mouseMove(Point) override { } */
-/*         void mouseClick(Point) override { } */
-/*         void mouseDrag(Point) override { } */
-/* }; */
 
 /**
  * Shows a message to the screen
@@ -345,8 +331,6 @@ class ReadyState : public MatchState
                 case Event::SelectionChanged:
                     selectionChanged();
                     break;
-                /* case Event::HintAnimationFinished: */
-                /*     countToNextHint = hintInterval; */
                 default:
                     break;
             }
