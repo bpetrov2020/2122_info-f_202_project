@@ -7,6 +7,7 @@ enum class Event {
     , NoMoreCombinations
     , GoalChanged
     , IcingCleared
+    , FruitCleared
     , CellCleared
     , TurnEnd
     , NeighbourMatched

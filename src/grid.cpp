@@ -354,6 +354,16 @@ bool Grid::clearCell(const Point &point)
     return clearedCell;
 }
 
+void Grid::put(const Point &point, Fruit::Type type)
+{
+    std::shared_ptr<CellContent> toPut;
+
+    toPut = std::make_shared<Fruit>(*this, &at(point), at(point).getCenter(), cellContentSide, type);
+
+    assert(toPut);
+    at(point).setContent(toPut);
+}
+
 void Grid::put(const Point &point, ContentT content)
 {
     std::shared_ptr<CellContent> toPut;

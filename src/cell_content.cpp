@@ -188,7 +188,6 @@ Wall::Wall(
 
 /*----------------------------------------------------------
  * Icing
-CellContent
  *--------------------------------------------------------*/
 
 Icing::Icing(
@@ -244,6 +243,75 @@ void Icing::update(Event e)
             if (layers>0 && !isClearing())
                 clear();
             break;
+        default:
+            break;
+    }
+}
+
+/*----------------------------------------------------------
+ * Fruit
+ *--------------------------------------------------------*/
+
+Fruit::Fruit(
+        Grid &grid,
+        Cell *cell,
+        const Point &center,
+        std::shared_ptr<AnimatableShape> shape
+)
+        :
+        CellContent{grid, cell, shape},
+        ClearableCellContent{grid, cell, shape, true},
+        MovableCellContent{grid, cell, shape}
+{ }
+
+Fruit::Fruit(
+        Grid &grid,
+        Cell *cell,
+        const Point &center,
+        int side,
+        Type type
+)
+        :
+        Fruit{
+        grid,
+        cell,
+        center,
+        std::make_shared<Circle>(center, side/2, flRelative[static_cast<int>(type)])
+        }
+{ }
+
+bool Fruit::isAtBottom() {
+    return containerCell->getIndex().y == 0;
+}
+
+void Fruit::draw()
+{
+    DrawableContainer::draw();
+    MovableCellContent::draw();
+    ClearableCellContent::draw();
+}
+
+void Fruit::animationFinished(AnimationT a)
+{
+    MovableCellContent::animationFinished(a);
+    ClearableCellContent::animationFinished(a);
+}
+
+void Fruit::clear()
+{
+    if (!isClearing() && isAtBottom()) {
+        ClearableCellContent::clear();
+        grid.update(Event::FruitCleared);
+    }
+}
+
+void Fruit::update(Event e)
+{
+    switch (e) {
+        case Event::FallStateEnd:
+            clear();
+            break;
+
         default:
             break;
     }
