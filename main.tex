@@ -1,0 +1,311 @@
+%! TeX program = xelatex
+%! TEX TS-program = xelatex
+\documentclass[11pt,a4paper]{article}
+
+% Language
+\usepackage{polyglossia}
+\setdefaultlanguage[frenchpart=false, frenchfootnote=true, frenchitemlabels=true]{french}
+\usepackage{numprint}
+
+% Fonts
+\usepackage{fontspec}
+\setmainfont{Times}
+\setsansfont{Helvetica}
+% \setmonofont{Linux Libertine Mono O}
+
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{attachfile2}
+
+\usepackage{fullpage}
+\usepackage[parfill]{parskip}
+
+\usepackage{xcolor}
+
+%-----------------------------------------------------------
+
+\newcommand{\up}[1]{\textsuperscript{#1}}
+\newcommand{\down}[1]{\textsubscript{#1}}
+
+\newcommand{\addcode}[3]{
+	\begin{figure}[H]
+		\centering
+		\lstinputlisting[language=#2, caption=\textattachfile{#1}{#1}, label=#3]{#1}
+	\end{figure}
+}
+
+\newcommand{\addimg}[4]{
+	\begin{figure}[H]
+		\centering
+		\includegraphics[#2]{#1}
+	\caption{#3}
+	\label{#4}
+	\end{figure}
+}
+
+\newcommand{\p}[1]{(p #1)}
+\newcommand{\e}[2]{#1 \p{#2}}
+
+%-----------------------------------------------------------
+
+\definecolor{base}{RGB}{250,245,237}
+\definecolor{subtle}{RGB}{110,107,135}
+\definecolor{love}{RGB}{181,99,122}
+\definecolor{gold}{RGB}{235,158,51}
+\definecolor{rose}{RGB}{214,130,125}
+\definecolor{pine}{RGB}{41,105,130}
+\definecolor{foam}{RGB}{87,148,158}
+\definecolor{iris}{RGB}{143,122,168}
+
+\hypersetup{
+	colorlinks=true,
+		allcolors=iris
+}
+\attachfilesetup{color=iris}
+
+%-----------------------------------------------------------
+
+\lstset{
+	% backgroundcolor=\color{white},        % background color
+		basicstyle=\ttfamily,                   % regular style
+		breakatwhitespace=true,                 % sets if automatic breaks should only happen at whitespace
+		breaklines=true,                        % sets automatic line breaking
+		captionpos=t,                           % caption-position
+		commentstyle=\itshape\color{subtle},    % comment style
+		% deletekeywords={...},                 % delete keywords from the given language
+		escapeinside={\%*}{*)},                 % if you want to add LaTeX within your code
+		firstnumber=1,                          % start line enumeration with line 1
+		frame=tb,                               % adds a frame around the code
+		keepspaces=true,                        % keeps spaces in text
+		keywordstyle=\color{pine},              % keyword style
+		language=C++,                           % language of the code
+		% morekeywords={*,...},                 % add more keywords to the set
+		numbers=left,                           % position of line-numbers; possible values are (none, left, right)
+		numbersep=15pt,                         % distance between line-numbers and the code
+		numberstyle=\scriptsize\ttfamily\color{subtle}, % style used for line-numbers
+		% rulecolor=\color{black},              % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+		showspaces=false,                       % show spaces everywhere
+		showstringspaces=false,                 % underline spaces within strings only
+		showtabs=false,                         % show tabs within strings
+		stepnumber=1,                           % step between two line-numbers
+		stringstyle=\color{love},               % string literal style
+		tabsize=4,	                          % default tabsize
+		% title=\lstname                        % show the filename
+}
+
+%-----------------------------------------------------------
+
+\title{Polygon Crush Saga}
+\author{Alec Weinhofer \and Boris Petrov}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+%-----------------------------------------------------------
+
+\section{Introduction}
+
+\emph{Candy Crush Saga}\footnote{\url{https://fr.wikipedia.org/wiki/Candy_Crush_Saga}}
+cumule à ce jour plus de 2,7 milliards de
+téléchargements. Un nombre faramineux. Cela le rend de fait
+un des jeux les plus populaires de ces dernières années et
+ce n'est évidemment pas dû au hasard. Derrière ce titre, se
+cache un concept simple mais intelligent qui consiste à
+former des combinaisons de bonbons pour les faire
+disparaître afin de remplir des objectifs divers.
+
+C'est donc ce concept simple sur papier (mais pas tellement
+dans les faits) que nous avons essayé de répliquer pour ce
+projet en utilisant des concepts d'orienté objet tels que
+l'encapsulation ou encore l'héritage.
+
+Pour ce qui est du rapport, nous allons d'abord commencer par donner un aperçu des
+fonctionnalités que nous avons réussi à implémenter avant de
+rentrer dans les détails d'implémentation.
+Nous aborderons ensuite le calcul de notre score.
+
+\section{Fonctionnalités}
+
+Commençons donc par faire le tour des fonctionnalités que notre jeu propose.
+Pour commencer, à son lancement, le jeu nous propose de choisir parmis un choix de neuf niveaux différents.
+Ces derniers sont de plus en plus interresants, mais donc aussi d'une difficulté progressive.
+
+Ensuite, en entrant dans un niveau, vous tomberez sur le plateau de jeu. 
+Il va de soi que vous aurez les fonctionnalités de base de \emph{Candy Crush Saga}, 
+c'est à dire les bonbons standards qui disparaissent en formant des lignes de même couleur.
+
+\subsection{Bonbons spéciaux}
+
+Nous vous proposons aussi de former certains bonbons spéciaux, grâce à une disposition spécifique à chaqu'un d'entre eux.
+
+\subsubsection{Stripped Candy}
+Le stripped candy, ou encore le bonbon rayé est un bonbon spécial qui quand il 
+explose, emporte toute la ligne avec lui, horizontale ou verticale selon l'orientation du bonbon.
+
+Afin de le faire apparaître, il vous faudra simplement aligner 4 bonbons de même couleur.
+Si cet alignement est horizontal, le bonbon rayé sera de type vertical et vice versa.
+
+\subsubsection{Wrapped Candy}
+Quand le wrapped candy, ou encore le bonbon emballé explose, il 
+fait exploser les 8 bonbons qui se trouvent autour de lui.
+
+Pour l'obtenir il faudra aligner 3 bonbons horizontalement ainsi que 3 bonbons 
+verticalement, le tout en un seul déplacement de bonbon, et il va de soi, de la même couleur.
+
+\subsubsection{Colour Bomb}
+La bombe de couleur est le bonbon spécial le plus puissant du jeu. Il réagit différament 
+selon le bonbon avec lequel il a été échangé. Pour l'obtenir, il suffit d'aligner 5 bonbons de même couleur.
+
+Voici comment réagit la bombe de couleur quand il est échangé avec :
+
+\begin{itemize}
+	\item un bonbon standard : Tous les bonbons standards de même couleur que le bonbon échangé exploseront.
+	\item un bonbon rayé : Tous les bonbons standards de même couleur que le bonbon échangé se transforment en bonbons rayés. Ensuite, tous les bonbons de cette couleur explosent, peu importe leur type.
+	\item un bonbon emballé : Idem qu'avec le bonbon rayé, mais avec des bonbons emballés.
+	\item une autre bombe de couleur : tous les bonbons du plateau explosent.
+\end{itemize}
+
+\subsection{Echange de bonbons spéciaux}
+
+Notre jeu propose, tout comme dans le jeu original, de créer des explosions 
+particulières quand deux bonbons spéciaux sont échangés :
+
+\begin{itemize}
+	\item Deux bonbons rayés : La ligne horizontale explose, ainsi que la verticale.
+	\item Deux bonbons emballés : Même effet que le bonbon emballé, mais où le rayon d'explosion est de deux cases au lieu d'une seule.
+	\item Un bonbon emballé et un rayé : Les 3 lignes horizontales ainsi que les 3 lignes verticales autour du point d'échange explosent.
+\end{itemize}
+
+\subsection{Autres fonctionnalités mineures}
+\begin{itemize}
+	\item La suppression et la chute des bonbons sont animées par une petite animation simpliste.
+	\item Notre jeu propose la possibilité d'avoir des murs fixes. Les bonbons pourront glisser pour se placer en dessous des murs.
+	\item L'échange de deux bonbons peut se faire de deux manières differentes. En effet on peut appuyer sur les deux bonbons en question, mais on peut également faire glisser le bonbon vers son voisin.
+	\item Le programme implémente le glaçage, qui permet de fixer des objectifs aux niveaux.
+	\item En jeu vous pourrez appercevoir votre score. Vous pouvez ainsi tenter de battre le meilleur score qui sera enregistré, même après fermeture du programme.
+	\item Si vous ne savez pas quoi jouer, notre jeu vous proposera une solution, grâce à son système de suggesion. La meilleure action vous sera suggèrée par une petite animation des cases consernées.
+	\item Si aucune action n'est possible, le jeu vous en fera part par un petit message è l'écran avant de remplacer tous les bonbons du plateau.
+\end{itemize}
+
+\section{Fonctionnalités non-implémentées}
+Notre jeu implémente quasiment toutes les tâches demandées dans l'énoncé du projet. 
+La seule chose qu'il n'implémente pas est l'éditeur de niveau. En effet, afin d'implémenter 
+l'éditeur de niveau il nous était nécessaire d'apporter des modifications majeures au code.
+Par manque de temps, à l'approche des examens de janvier, nous avons été forcé de prendre 
+la décision d'abandonner cette partie du projet.
+
+\section{Implémentation}
+\subsection{Logique}
+
+
+\subsection{Classes}
+
+Étant donné le grand nombre de classes de notre projet, nous
+avons décidé de ne mettre que les plus importantes, celles
+nécessaires pour bien comprendre le fonctionnement.
+
+Nous avons également omis les méthodes intermédiaires
+nécessaires pour recevoir une information d'un objet
+\emph{C} depuis un objet \emph{B} telles que \verb@b.w()@ pour
+éviter \verb@b.getWindow().w()@.
+
+Pour ce qui est de la partie visuelle de notre jeu, nous
+avons quelques classes de formes ainsi que des animations
+qui peuvent leur être attachées. Celles-ci étant
+principalement du code FLTK, nous avons décidé de ne pas les
+inclure ici.
+
+Les deux classes qui suivent sont la base de presque toutes
+les autres classes de notre projet. Les héritiers de la
+première sont interactifs et réagissent aux évènements
+qu'ils implémentent alors que ceux de la deuxième peuvent
+être dessinés sur l'écran. C'est un conteneur d'une forme et
+d'une éventuelle animation.
+
+\addcode{code/interactive.hpp}{C++}{}{}
+\addcode{code/drawableContainer.hpp}{C++}{}{}
+
+Deux autres classes basiques, sont celles implémentant le
+pattern de l'observateur. Nous avons ainsi \verb@Observer@
+et \verb@Subject@.
+
+Nous avons ensuite la classe \verb@Game@ qui est le point
+pivotant de notre programme. Elle décide quelle vue
+afficher et contient le meilleur score.
+
+Une vue dans notre programme est un écran que nous pouvons
+avoir dans notre jeu. Ce sera par exemple l'écran de
+chargement, le sélecteur de niveau ou encore un niveau
+individuel (en exemple ci-dessous).
+
+\addcode{code/game.hpp}{C++}{}{}
+
+\addcode{code/view.hpp}{C++}{}{}
+% \addcode{code/loadingScreen.hpp}{C++}{}{}
+\addcode{code/level.hpp}{C++}{}{}
+% \addcode{code/levelSelector.hpp}{C++}{}{}
+
+Un niveau contient donc les données du niveau, une grille
+et une barre de statut.
+
+Les données sont stockées dans une instance de la classe
+\verb@LevelData@. C'est en quelque sorte une classe
+conteneur qui initialise ses données lors de sa construction
+et possède des méthodes se limitant à des \emph{getters}.
+Les données ne sont pas sensées être changées après la
+construction.
+
+La barre de statut est, quant à elle, plus intéressante.
+Elle va se charger de deux aspects centraux de nos niveaux, le
+comptage du score et l'objectif à atteindre.
+
+
+\subsection{MVC}
+
+Nous n'avons pas un architecture MVC en tant que telle, avec
+les trois composants principaux, mais plutôt quelques éléments y
+faisant référence.
+
+Nous avons les états dans lesquels notre jeu
+peut être. Le \verb@ReadyState@ par exemple a
+lieu lorsqu'une action est attendue de la part du joueur, là
+où le \verb@FallState@ est actif lorsque des bonbons sont
+en train de tomber.
+
+Le propre de chaque état est de réagir de manière différente
+aux évènements tels que les clics de souris ou encore la
+terminaison des animations. Ainsi par exemple, les clics de souris ne devraient
+pas être considérés lorsque deux bonbons sont en train
+d'être échangés.
+
+Nous pouvons transposer les états du jeu aux Contrôleurs et la
+grille qu'il contrôlent à la Vue et au Modèle.
+Cette implémentation boiteuse vient principalement du fait
+que nous avions conçu notre architecture avant d'avoir vu le
+concept de MVC et nous avons essayé de l'implémenter trop
+tard.
+
+\subsection{Score}
+
+Les calcul du score est, contrairement au jeu original, plutôt simple.
+Il est mis à jour par certains évènement précis qui peuvent
+survenir lors d'une partie. Les suivants~:
+
+\begin{itemize}
+    \item suppression d'un bonbon [\textbf{50 pts}]~;
+    \item combinaison de 3 bonbons en ligne droite [\textbf{50 pts}]~;
+    \item combinaison de 4 bonbons en ligne droite [\textbf{125 pts}]~;
+    \item combinaison de 3 à 4 bonbons sur deux axes [\textbf{200 pts}]~;
+    \item combinaison de 5 bonbons ou plus en ligne droite [\textbf{500 pts}]~;
+\end{itemize}
+
+\section{Conclusion}
+
+\end{document}
