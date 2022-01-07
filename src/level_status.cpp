@@ -14,7 +14,7 @@ LevelStatus::LevelStatus(const Point &center, int width, int height, LevelData &
     , m_goal {data.goal()}
     , m_movesLeftLabelDrawable {Point {width/2, center.y - height/2 + height/3}, "Moves", height/6, FL_BLACK}
     , m_movesLeftDrawable {Point {width/2, center.y - height/2 + height/3*2}, "", height/5, FL_BLACK}
-    , m_goalLabelDrawable {Point {width/4*3, center.y - height/2 + height/3}, "Icing", height/6, FL_BLACK}
+    , m_goalLabelDrawable {Point {width/4*3, center.y - height/2 + height/3}, data.goalTypeString(), height/6, FL_BLACK}
     , m_goalDrawable {Point {width/4*3, center.y - height/2 + height/3*2}, "", height/5, FL_BLACK}
 {
     m_goal->registerObserver(this);
@@ -60,8 +60,6 @@ int LevelStatus::scoreValueOf(Event event) const
 void LevelStatus::update(Event event)
 {
     switch (event) {
-    /* case Event::scoreChange: */
-    /*     break; */
     case Event::GoalReached:
     case Event::NoMoreMoves:
         notifyObservers(event);

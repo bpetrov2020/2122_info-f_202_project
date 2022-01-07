@@ -29,8 +29,12 @@ void LevelData::extractDataFrom(std::string filename)
         throw std::runtime_error{"Goal cannot be empty"};  // for now
 
     if (m_goalType == "Icing") {
-        auto icingCount {2*getDoubleIcingPos().size() + getSingleIncingPos().size()};
+        auto icingCount {2*getDoubleIcingPos().size() + getSingleIcingPos().size()};
         m_goal = std::make_shared<EventOccurGoal>(m_movesToGoal, Event::IcingCleared, icingCount);
+
+    } else if (m_goalType == "Fruit") {
+        auto fruitCount {getCherryPos().size() + getHazelnutPos().size()};
+        m_goal = std::make_shared<EventOccurGoal>(m_movesToGoal, Event::FruitCleared, fruitCount);
     }
 }
 
@@ -54,7 +58,7 @@ void LevelData::processLine(std::string line)
 
     } else if (category == "Goal") {
         is >> m_goalType;
-        if (!is || (m_goalType != "Icing" && m_goalType != "Ingredient"))
+        if (!is || (m_goalType != "Icing" && m_goalType != "Fruit"))
             throw std::runtime_error{"LevelData: Wrong goal argument"};
 
         is >> m_movesToGoal;
@@ -69,6 +73,12 @@ void LevelData::processLine(std::string line)
 
     } else if (category == "DoubleIcing") {
         fillFrom(m_doubleIcingPos, is);
+
+    } else if (category == "Cherry") {
+        fillFrom(m_cherryPos, is);
+
+    } else if (category == "Hazelnut") {
+        fillFrom(m_hazelnutPos, is);
 
     } else {
         throw std::runtime_error{"LevelData: Unknow category used"};

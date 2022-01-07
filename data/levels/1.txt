@@ -1,3 +1,5 @@
 Size 4
-Goal Icing 20
+Goal Fruit 20
+Cherry a2
+Hazelnut b2
 SingleIcing a1 b1 c1 d1

@@ -173,8 +173,8 @@ class Fruit : public ClearableCellContent, public MovableCellContent
 {
 public:
     enum class Type {
-        cherry = 4,
-        hazelnut = 6
+        Cherry = 4,
+        Hazelnut = 6
     };
 
 protected:

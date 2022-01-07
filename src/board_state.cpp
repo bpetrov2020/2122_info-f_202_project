@@ -396,13 +396,17 @@ void GridInitState::putInitialContent(LevelData &data)
 {
     for (auto &pos: data.getWallsPos())
         grid.put(pos, ContentT::Wall);
-    for (auto &pos: data.getSingleIncingPos())
+    for (auto &pos: data.getSingleIcingPos())
         grid.put(pos, ContentT::Icing, 1);
     for (auto &pos: data.getDoubleIcingPos())
         grid.put(pos, ContentT::Icing, 2);
+    for (auto &pos: data.getHazelnutPos())
+        grid.put(pos, Fruit::Type::Hazelnut);
+    for (auto &pos: data.getCherryPos())
+        grid.put(pos, Fruit::Type::Cherry);
 
     // bunch of blue candies for damn bug
-    Point point = {1,1};
+    /* Point point = {1,1}; */
     /*grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
     point = {2,0};
     grid.put(point, ContentT::StandardCandy, StandardCandy::Color::Blue);
@@ -478,8 +482,8 @@ void GridInitState::putInitialContent(LevelData &data)
     grid.put(point, ContentT::Icing, StandardCandy::Color::Blue);*/
 
     // add a fruit
-    point = {3, 3};
-    grid.put(point, Fruit::Type::cherry);
+    /* point = {3, 3}; */
+    /* grid.put(point, Fruit::Type::Cherry); */
 }
 
 void GridInitState::fillEmptyCells()

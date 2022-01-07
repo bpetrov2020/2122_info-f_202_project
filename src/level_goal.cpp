@@ -46,7 +46,6 @@ void EventOccurGoal::update(Event event)
 
 bool EventOccurGoal::met() const
 {
-    /*std::cout << m_remaining << std::endl; */
     return m_remaining == 0;
 }
 
