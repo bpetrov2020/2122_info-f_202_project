@@ -8,72 +8,12 @@
 class Grid;
 class Level;
 class View;
-/* enum class Color { */
-/*     Blue, */
-/*     Green, */
-/*     Cyan, */
-/*     Magenta, */
-/*     Red, */
-/*     Yellow */
-/* }; */
 
-/* class CandyColor */
-/* { */
-/*     private: */
-/*         static constexpr unsigned colorCount{ 6 }; */
-
-/*         static constexpr std::array<std::string, colorCount> names { */
-/*             "Blue", */
-/*             "Green", */
-/*             "Cyan", */
-/*             "Magenta", */
-/*             "Red", */
-/*             "Yellow" */
-/*         }; */
-
-/*         static constexpr std::array<int, colorCount> normal { */
-/*             0x22a0fd00,  // Blue */
-/*             0x4ad81200,  // Green */
-/*             0xfe810200,  // Orange */
-/*             0xd31ded00,  // Purple */
-/*             0xe3010200,  // Red */
-/*             0xffff8a00   // Yellow */
-/*         }; */
-
-/*         unsigned colorIndex{ -1 }; */
-/*     public: */
-/*         Color(std::string name) */
-/*         { */
-/*             setFromName(name); */
-/*         } */
-
-/*         void setFromName(std::string name) */
-/*         { */
-/*             for (unsigned i=0; i<colorCount-1; ++i) { */
-/*                 if (names[i] == name) { */
-/*                     colorIndex = i; */
-/*                     break; */
-/*                 } */
-/*             } */
-/*         } */
-
-/*         bool isValid() { return colorIndex >= 0 && colorIndex < colorCount; } */
-
-/*         int getValue() const { return normal.at(colorIndex); }; */
-
-/*         std::string getName(); */
-/*         int getLightValue(); */
-/*         int getDarkValue(); */
-/* }; */
-
-/* CandyColor color{"Blue"}; */
-
-/* color.getFlNormal(); */
-/* color.getFlLight(); */
-/* color.getFlDark(); */
-
-/* color.getName(); */
-
+/**
+ * This class will contain a set of vertical and horizontal
+ * combination from an origin point. Does not make any type/color
+ * check besides an assert for the positions of the elements.
+ */
 class Combination
 {
     private:
@@ -105,17 +45,6 @@ class Combination
         void removeVerticalElems();
         void removeHorizontalElems();
 };
-
-/* class GridState */
-/* { */
-/*     protected: */
-/*         Level &level; */
-/*         Grid &grid; */
-
-/*     public: */
-/*         BaseState(View &view, Grid &grid); */
-
-/* }; */
 
 /**
  * Base class to any state
@@ -164,9 +93,6 @@ class State : public Interactive
         virtual void update(Event event);
 
         virtual void notifyCells(Event e);
-
-        // TODO Place all events in one function
-        /* void update(Event e); */
 };
 
 /**
@@ -191,6 +117,16 @@ class MessageState : public State, DrawableContainer
         void animationFinished(AnimationT animationType) override;
 };
 
+/**
+ * More specific state class that inherits
+ * from the MessageState class.
+ *
+ * This state is set when there are no more
+ * possible combinations on the grid.
+ *
+ * After the duration elapses, onTimeout
+ * will set up a new grid
+ */
 class NoActionState : public MessageState
 {
     protected:
@@ -199,6 +135,15 @@ class NoActionState : public MessageState
         NoActionState(View *level, Grid &grid) noexcept;
 };
 
+/**
+ * More specific state class that inherits
+ * from the MessageState class.
+ *
+ * This state is set when the objective has been reached.
+ *
+ * After the duration elapses, onTimeout
+ * will set up the next level.
+ */
 class LevelPassedState : public MessageState
 {
     protected:
@@ -207,6 +152,15 @@ class LevelPassedState : public MessageState
         LevelPassedState(View *level, Grid &grid) noexcept;
 };
 
+/**
+ * More specific state class that inherits
+ * from the MessageState class.
+ *
+ * This state is set when the player failed the objective.
+ *
+ * After the duration elapses, onTimeout
+ * will replay the level.
+ */
 class LevelNotPassedState : public MessageState
 {
     protected:
@@ -265,6 +219,12 @@ class MatchState : public State
 
 class LevelData;
 
+/**
+ * State that initialises a new grid.
+ *
+ * Uses the MatchState to verify that there
+ * are no combinations in the initial grid.
+ */
 class GridInitState : public MatchState
 {
     private:

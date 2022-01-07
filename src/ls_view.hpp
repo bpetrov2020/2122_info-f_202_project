@@ -1,11 +1,13 @@
 #pragma once
 
 #include "game.hpp"
-/* #include "ls_state.hpp" */
 
 enum class Event;
 class LevelSelectorState;
 
+/**
+ * Screen that allows us to select a level
+ */
 class LevelSelector : public View
 {
 public:

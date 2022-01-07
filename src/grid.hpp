@@ -101,6 +101,12 @@ class Cell : public DrawableContainer, public Interactive
         ContentT contentType() const;
 };
 
+/**
+ * Grid class,
+ * used to instantiate a game board.
+ *
+ * Contains a vector of vectors of pointers to cells.
+ */
 class Grid : public DrawableContainer, public Interactive
 {
     protected:
@@ -120,7 +126,7 @@ class Grid : public DrawableContainer, public Interactive
 
         class Iterator {
             private:
-                Grid* g; //TODO make shared
+                Grid* g;
                 Point coord;
             public:
                 Iterator(Grid* g, Point coord) : g{g}, coord{coord} { }

@@ -1,19 +1,3 @@
-/**
- * Container for the data needed to initialize a level
- *
- * The data should be of the following format:
- *
- * <Category> <value(s)>
- *
- * The categories available are:
- * -   Size           "1"     int
- * [-] Wall           "1..*"  Point
- * [-] SingleIcing    "1..*"  Point
- * [-] DoubleIcing    "1..*"  Point
- *
- * Only the size is obligatory. And it should alway be the first one.
- */
-
 #ifndef LEVEL_DATA_H
 #define LEVEL_DATA_H
 
@@ -24,6 +8,21 @@
 class Point;
 class LevelGoal;
 
+/**
+ * Container for the data needed to initialize a level
+ *
+ * The data should be of the following format:
+ *
+ * <Category> <value(s)>
+ *
+ * The categories available are:
+ *  -  Size           "1"     int
+ * [-] Wall           "1..*"  Point
+ * [-] SingleIcing    "1..*"  Point
+ * [-] DoubleIcing    "1..*"  Point
+ *
+ * Only the size is obligatory. And it should alway be the first one.
+ */
 class LevelData
 {
     private:

@@ -12,6 +12,7 @@
 class Grid;
 class Cell;
 
+/// enumerates all kinds of elements that a cell could contain
 enum class ContentT {
     StandardCandy,
     StripedCandy,
@@ -69,6 +70,11 @@ class TextContent : public CellContent
         std::string getString() const { return dynamic_pointer_cast<Text>(drawable)->getString(); }
 };
 
+/**
+ * Wall that can be contained in a cell.
+ *
+ * Is neither movable nor clearable.
+ */
 class Wall : public CellContent
 {
     public:
@@ -77,9 +83,13 @@ class Wall : public CellContent
         ContentT getType() override { return ContentT::Wall; }
 };
 
-// A CellContent object that is matchable should be
-// an instance of a derived class from MatchableCellContent.
-
+/**
+ * Class that implements the clearable
+ * part of a game element.
+ *
+ * All game elements that are clearable
+ * should inherit from this class
+ */
 class ClearableCellContent : public virtual CellContent
 {
     protected:
@@ -103,19 +113,13 @@ class ClearableCellContent : public virtual CellContent
         bool isClearing() { return m_isClearing; }
 
         void animationFinished(AnimationT a) override;
-
-        virtual void update(Event) override
-        {
-            /* switch (e) { */
-            /*     case Event::FallStateEnd: */
-            /*         if (clearAtFallEnd) { */
-            /*             clear(); */
-            /*         } */
-            /*         break; */
-            /* } */
-        }
 };
 
+/**
+ * Icing that can be contained in a cell.
+ *
+ * Is neither movable nor matchable, but is well clearable.
+ */
 class Icing : public ClearableCellContent
 {
     private:
@@ -135,6 +139,13 @@ class Icing : public ClearableCellContent
         ContentT getType() override { return ContentT::Icing; }
 };
 
+/**
+ * Class that implements the movable
+ * part of a game element.
+ *
+ * All game elements that are movable
+ * should inherit from this class
+ */
 class MovableCellContent : public virtual CellContent
 {
     protected:
@@ -244,6 +255,16 @@ class StandardCandy : public ClearableCellContent, public MovableCellContent, pu
         ContentT getType() override { return ContentT::StandardCandy; }
 };
 
+/**
+ * Stripped candy
+ *
+ * Uses the StrippedRectangle shape.
+ *
+ * Special type of candy,
+ * uses the basic methods of StandardCandy,
+ * but some others are overridden to make
+ * the candy act like he should be.
+ */
 class StripedCandy : public StandardCandy
 {
     protected:
@@ -268,6 +289,17 @@ class StripedCandy : public StandardCandy
         ContentT getType() override { return ContentT::StripedCandy; }
 };
 
+/**
+ * Wrapped candy
+ *
+ * Uses the Star shape.
+ * Has two phases, explodes twice.
+ *
+ * Special type of candy,
+ * uses the basic methods of StandardCandy,
+ * but some others are overridden to make
+ * the candy act like he should be.
+ */
 class WrappedCandy : public StandardCandy
 {
     private:
@@ -292,6 +324,15 @@ class WrappedCandy : public StandardCandy
         ContentT getType() override { return  ContentT::WrappedCandy; }
 };
 
+/**
+ * Colour Bomb
+ *
+ * Uses the MulticolourCircle shape.
+ *
+ * Special type of candy,
+ * will act differently depending on
+ * what candy he is switched with.
+ */
 class ColourBomb : public ClearableCellContent, public MovableCellContent
 {
     private:

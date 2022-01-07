@@ -7,18 +7,21 @@
 
 class LevelData;
 
+/**
+ * LevelStatus class,
+ *
+ * contains information about the being
+ * played level, score and goal status
+ */
 class LevelStatus : public DrawableContainer, public Subject, public Observer
 {
 private:
-    // TODO put all score additions in here
     int m_score {0};
     Text m_scoreLabelDrawable;
     Text m_scoreDrawable;
 
-    // TODO init from data
-    std::shared_ptr<LevelGoal> m_goal; // {std::make_shared<EventOccurGoal>(3, Event::IcingCleared, 3)};
+    std::shared_ptr<LevelGoal> m_goal;
 
-    // TODO init from data
     Text m_movesLeftLabelDrawable;
     Text m_movesLeftDrawable;
 

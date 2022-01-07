@@ -10,6 +10,11 @@
 #include <algorithm>
 #include <vector>
 
+/**
+ * Observer and subject class,
+ *
+ * Used to make objects communicate events with each others.
+ */
 class Observer
 {
 public:
