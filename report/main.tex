@@ -149,9 +149,82 @@ nécessaires pour recevoir une information d'un objet
 \emph{C} depuis un objet \emph{B} telles que \verb@b.w()@ pour
 éviter \verb@b.getWindow().w()@.
 
+Pour ce qui est de la partie visuelle de notre jeu, nous
+avons quelques classes de formes ainsi que des animations
+qui peuvent leur être attachées. Celles-ci étant
+principalement du code FLTK, nous avons décidé de ne pas les
+inclure ici.
+
+Les deux classes qui suivent sont la base de presque toutes
+les autres classes de notre projet. Les héritiers de la
+première sont interactifs et réagissent aux évènements
+qu'ils implémentent alors que ceux de la deuxième peuvent
+être dessinés sur l'écran. C'est un conteneur d'une forme et
+d'une éventuelle animation.
+
+\addcode{code/interactive.hpp}{C++}{}{}
+\addcode{code/drawableContainer.hpp}{C++}{}{}
+
+Deux autres classes basiques, sont celles implémentant le
+pattern de l'observateur. Nous avons ainsi \verb@Observer@
+et \verb@Subject@.
+
+Nous avons ensuite la classe \verb@Game@ qui est le point
+pivotant de notre programme. Elle décide quelle vue
+afficher et contient le meilleur score.
+
+Une vue dans notre programme est un écran que nous pouvons
+avoir dans notre jeu. Ce sera par exemple l'écran de
+chargement, le sélecteur de niveau ou encore un niveau
+individuel (en exemple ci-dessous).
+
 \addcode{code/game.hpp}{C++}{}{}
 
+\addcode{code/view.hpp}{C++}{}{}
+% \addcode{code/loadingScreen.hpp}{C++}{}{}
+\addcode{code/level.hpp}{C++}{}{}
+% \addcode{code/levelSelector.hpp}{C++}{}{}
+
+Un niveau contient donc les données du niveau, une grille
+et une barre de statut.
+
+Les données sont stockées dans une instance de la classe
+\verb@LevelData@. C'est en quelque sorte une classe
+conteneur qui initialise ses données lors de sa construction
+et possède des méthodes se limitant à des \emph{getters}.
+Les données ne sont pas sensées être changées après la
+construction.
+
+La barre de statut est, quant à elle, plus intéressante.
+Elle va se charger de deux aspects centraux de nos niveaux, le
+comptage du score et l'objectif à atteindre.
+
+
 \subsection{MVC}
+
+Nous n'avons pas un architecture MVC en tant que telle, avec
+les trois composants principaux, mais plutôt quelques éléments y
+faisant référence.
+
+Nous avons les états dans lesquels notre jeu
+peut être. Le \verb@ReadyState@ par exemple a
+lieu lorsqu'une action est attendue de la part du joueur, là
+où le \verb@FallState@ est actif lorsque des bonbons sont
+en train de tomber.
+
+Le propre de chaque état est de réagir de manière différente
+aux évènements tels que les clics de souris ou encore la
+terminaison des animations. Ainsi par exemple, les clics de souris ne devraient
+pas être considérés lorsque deux bonbons sont en train
+d'être échangés.
+
+Nous pouvons transposer les états du jeu aux Contrôleurs et la
+grille qu'il contrôlent à la Vue et au Modèle.
+Cette implémentation boiteuse vient principalement du fait
+que nous avions conçu notre architecture avant d'avoir vu le
+concept de MVC et nous avons essayé de l'implémenter trop
+tard.
+
 \subsection{Score}
 
 Les calcul du score est, contrairement au jeu original, plutôt simple.
