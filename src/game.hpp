@@ -80,7 +80,7 @@ class SplashScreen : public View
 {
     private:
         DrawableContainer author;
-        bool toBeReplaced = false;  // Whether or not the next screen should be loaded
+        bool toBeReplaced {false};  // Whether or not the next screen should be loaded
     public:
         SplashScreen(Fl_Window& window, Game& game, std::string author, int fontSize, int duration);
 
