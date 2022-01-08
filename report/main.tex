@@ -132,7 +132,105 @@ rentrer dans les détails d'implémentation.
 Nous aborderons ensuite le calcul de notre score.
 
 \section{Fonctionnalités}
-% Pour toi Alec!
+
+Commençons donc par faire le tour des fonctionnalités que notre jeu propose.
+À son lancement, le jeu nous propose de choisir parmi neuf niveaux différents.
+Ces derniers sont de plus en plus intéressants et donc
+aussi d'une difficulté accrue.
+
+Ensuite, en entrant dans un niveau, nous tombons sur le plateau de jeu.
+Il va de soi que nous avons les fonctionnalités de base de \emph{Candy Crush Saga},
+c'est-à-dire les bonbons standards qui disparaissent en
+formant des combinaisons de la même couleur.
+
+\subsection{Bonbons spéciaux}
+
+Nous proposons aussi de former certains bonbons
+spéciaux dans certaines conditions.
+
+\subsubsection{Bonbon rayé}
+Le bonbon rayé (ou \emph{stripped candy}) est un bonbon spécial qui, quand il
+explose, emporte toute la ligne avec lui, horizontale ou
+verticale selon son orientation.
+
+Afin de le faire apparaître, nous avons simplement besoin
+d'aligner 4 bonbons de même couleur.
+Si cet alignement est horizontal, le bonbon rayé sera
+d'orientation verticale et \emph{vice versa}.
+
+\subsubsection{Bonbon emballé}
+Quand le bonbon emballé (ou \emph{wrapped candy}) explose, il
+fait exploser les 8 bonbons qui se trouvent autour de lui.
+
+Pour l'obtenir il faudra aligner 3 (ou 4) bonbons
+horizontalement ainsi que 3 (ou 4) bonbons
+verticalement de la même couleur. Le tout en un seul
+déplacement.
+
+\subsubsection{Bombe de couleur}
+La bombe de couleur (ou \emph{colour bomb}) est le bonbon spécial le plus puissant
+du jeu. Il réagit différemment
+selon le bonbon avec lequel il a été échangé. Pour
+l'obtenir, il suffit d'aligner 5 bonbons de la même couleur
+horizontalement ou verticalement (la direction n'ayant ici aucune importance).
+
+Voici comment réagit la bombe de couleur quand elle est
+échangée avec :
+
+\begin{itemize}
+	\item un bonbon standard : tous les bonbons standards de
+        la même couleur que le bonbon échangé explosent ;
+	\item un bonbon rayé : tous les bonbons standards de
+        la même couleur que le bonbon échangé se transforment
+        en bonbons rayés. Ensuite, tous les bonbons de cette
+        couleur explosent, peu importe leur type ;
+	\item un bonbon emballé : idem qu'avec le bonbon rayé, mais avec des bonbons emballés ;
+	\item une autre bombe de couleur : tous les bonbons du plateau explosent.
+\end{itemize}
+
+\subsection{Échange de bonbons spéciaux}
+
+Notre jeu propose, tout comme dans le jeu original, de créer des explosions
+particulières quand deux bonbons spéciaux sont échangés :
+
+\begin{itemize}
+	\item deux bonbons rayés : la ligne horizontale et
+        verticale explosent~;
+	\item deux bonbons emballés : même effet que le bonbon
+        emballé, mais où le rayon d'explosion est de deux
+        cases au lieu d'une seule~;
+	\item un bonbon emballé et un rayé : les 3 lignes horizontales ainsi que les 3 lignes verticales autour du point d'échange explosent.
+\end{itemize}
+
+\subsection{Autres fonctionnalités}
+\begin{itemize}
+	\item L'échange, la suppression et la chute des bonbons sont
+        animés.
+	\item Notre jeu propose la possibilité d'avoir des murs,
+        immobiles et non supprimables.
+        Les bonbons peuvent glisser pour se placer en dessous des murs.
+	\item L'échange de deux bonbons peut se faire de deux
+        manières différentes. Soit nous appuyons sur les
+        deux bonbons en question, soit nous faisons glisser
+        le premier vers son voisin.
+	\item Notre programme implémente le glaçage et les
+        fruits, permettant de fixer des objectifs aux niveaux.
+	\item En jeu, nous pouvons apercevoir notre score. Nous
+        pouvons ainsi tenter de battre le meilleur score qui
+        sera enregistré, même après la fermeture du programme.
+	\item En cas d'incertitude quant au coup à jouer, notre
+        jeu nous proposera une solution grâce à son système
+        de suggestion. La meilleure action nous sera suggérée par une petite animation des cases concernées.
+	\item Si aucune action n'est possible, le jeu nous en
+        fait part grâce à un petit message sur l'écran avant
+        de remplacer tous les bonbons standards du plateau.
+\end{itemize}
+
+\section{Fonctionnalités non-implémentées}
+Notre jeu implémente presque toutes les fonctionnalités
+demandées.
+La seule chose qu'il n'implémente pas est l'éditeur de niveau.
+C'est principalement par manque de temps.
 
 \section{Implémentation}
 \subsection{Logique}
@@ -159,14 +257,14 @@ Les deux classes qui suivent sont la base de presque toutes
 les autres classes de notre projet. Les héritiers de la
 première sont interactifs et réagissent aux évènements
 qu'ils implémentent alors que ceux de la deuxième peuvent
-être dessinés sur l'écran. C'est un conteneur d'une forme et
+être dessinés sur l'écran. Cette dernière est une sorte conteneur d'une forme et
 d'une éventuelle animation.
 
 \addcode{code/interactive.hpp}{C++}{}{}
 \addcode{code/drawableContainer.hpp}{C++}{}{}
 
 Deux autres classes basiques, sont celles implémentant le
-pattern de l'observateur. Nous avons ainsi \verb@Observer@
+\emph{pattern} de l'observateur. Nous avons ainsi \verb@Observer@
 et \verb@Subject@.
 
 Nous avons ensuite la classe \verb@Game@ qui est le point
@@ -193,7 +291,8 @@ Les données sont stockées dans une instance de la classe
 conteneur qui initialise ses données lors de sa construction
 et possède des méthodes se limitant à des \emph{getters}.
 Les données ne sont pas sensées être changées après la
-construction.
+construction. Elle n'est pas nécessaire à la compréhension
+du fonctionnement de notre programme.
 
 La barre de statut est, quant à elle, plus intéressante.
 Elle va se charger de deux aspects centraux de nos niveaux, le
@@ -207,7 +306,7 @@ les trois composants principaux, mais plutôt quelques éléments y
 faisant référence.
 
 Nous avons les états dans lesquels notre jeu
-peut être. Le \verb@ReadyState@ par exemple a
+peut être. Le \verb@ReadyState@, par exemple, a
 lieu lorsqu'une action est attendue de la part du joueur, là
 où le \verb@FallState@ est actif lorsque des bonbons sont
 en train de tomber.
@@ -218,8 +317,8 @@ terminaison des animations. Ainsi par exemple, les clics de souris ne devraient
 pas être considérés lorsque deux bonbons sont en train
 d'être échangés.
 
-Nous pouvons transposer les états du jeu aux Contrôleurs et la
-grille qu'il contrôlent à la Vue et au Modèle.
+Nous pouvons d'une manière transposer les états du jeu aux Contrôleurs et la
+grille qu'ils contrôlent à la Vue et au Modèle.
 Cette implémentation boiteuse vient principalement du fait
 que nous avions conçu notre architecture avant d'avoir vu le
 concept de MVC et nous avons essayé de l'implémenter trop
