@@ -33,6 +33,8 @@ POBJ=\
 
 OBJ=$(addprefix $(OBJDIR)/, $(POBJ))
 
+all : main.out
+
 main.out : $(OBJ)
 	$(CC) -o $@ $^
 
