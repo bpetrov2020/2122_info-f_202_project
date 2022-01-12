@@ -33,10 +33,9 @@
 \newcommand{\down}[1]{\textsubscript{#1}}
 
 \newcommand{\addcode}[3]{
-	\begin{figure}[H]
-		\centering
+	\begin{center}
 		\lstinputlisting[language=#2, caption=\textattachfile{#1}{#1}, label=#3]{#1}
-	\end{figure}
+	\end{center}
 }
 
 \newcommand{\addimg}[4]{
@@ -275,15 +274,74 @@ Les données sont stockées dans une instance de la classe
 conteneur qui initialise ses données lors de sa construction
 et possède des méthodes se limitant à des \emph{getters}.
 Les données ne sont pas sensées être changées après la
-construction. Elle n'est pas nécessaire à la compréhension
+construction. Elle n'est pas strictement nécessaire à la compréhension
 du fonctionnement de notre programme.
 
 La barre de statut est, quant à elle, plus intéressante.
 Elle va se charger de deux aspects centraux de nos niveaux, le
 comptage du score et l'objectif à atteindre.
 
+Le score va être mis à jour lors de la réception de certains
+évènements (\emph{cfr.} \ref{score}). L'attribution du score
+à chaque évènement est fait par \verb@scoreValueOf()@ et mis
+à jour avec \verb@updateScore()@.
 
-\subsection{MVC}
+\addcode{code/levelStatus.hpp}{C++}{}{}
+
+\verb@LevelGoal@ est une classe abstraite extensible de \emph{but} que le
+joueur peut atteindre. Dans notre cas, nous n'avons qu'une
+seule implémentation, mais d'autres sont possibles (comme le
+prouve le jeu original avec des buts de collection de
+bonbons etc). 
+
+\addcode{code/levelGoal.hpp}{C++}{}{}
+\addcode{code/eventOccurGoal.hpp}{C++}{}{}
+
+Enfin, abordons la grille, le cœur de notre programme.
+Celle-ci n'est en réalité rien d'autre qu'une matrice de \verb@Cell@
+et quelques fonctions qui permettent d'agir sur celles-ci.
+
+\addcode{code/grid.hpp}{C++}{}{}
+
+Les \verb@Cell@s sont quant à elles de simples plateformes
+sur lesquelles peuvent résider des \verb@CellContent@.
+Elles en sont propriétaires et peuvent par exemple les
+animer, les supprimer ou encore échanger avec d'autres
+\verb@Cell@.
+
+\addcode{code/cell.hpp}{C++}{}{}
+
+Pour compléter le plateau de jeu, nous avons aussi tout ce
+qui peut aller sur les \verb@Cell@, c'est-à-dire les
+\verb@CellContent@s. Ces derniers peuvent aussi bien être
+des bonbons, des murs ou encore des fruits. Chacun ayant des
+des propriétés bien particulières, nous avons aussi trois
+sous-classes de \verb@CellContent@ qui définissent les
+actions pouvant être faites sur les \verb@CellContent@.
+Ainsi nous avons \verb@MovableCellContent@,
+\verb@ClearableCellContent@ et \verb@MatchableCellContent@.
+Les \verb@Fruit@ sont mis en exemple.
+
+\addcode{code/cellContent.hpp}{C++}{}{}
+\addcode{code/fruit.hpp}{C++}{}{}
+
+Enfin nous avons la famille de classes la plus importante et
+qui est pourtant invisible. C'est celle des états
+(\verb@State@) dans lesquels peut être notre grille.
+Ces derniers vont définir la manière de laquelle la grille
+qu'ils contrôlent réagit face à certains évènements.
+Les \verb@State@s seront expliqués plus en détail dans la
+section \ref{mvc}.
+
+\addcode{code/state.hpp}{C++}{}{}
+\addcode{code/readyState.hpp}{C++}{}{}
+
+% done interactive, drawableContainer, game, view, level, animation, shape, levelData, observer, point
+% todo board_state
+
+
+
+\subsection{MVC} \label{mvc}
 
 Nous n'avons pas un architecture MVC en tant que telle, avec
 les trois composants principaux, mais plutôt quelques éléments y
@@ -308,7 +366,7 @@ que nous avions conçu notre architecture avant d'avoir vu le
 concept de MVC et nous avons essayé de l'implémenter trop
 tard.
 
-\subsection{Score}
+\subsection{Score} \label{score}
 
 Les calcul du score est, contrairement au jeu original, plutôt simple.
 Il est mis à jour par certains évènement précis qui peuvent
@@ -323,5 +381,14 @@ survenir lors d'une partie. Les suivants~:
 \end{itemize}
 
 \section{Conclusion}
+
+Nous avons pu voir les différentes fonctionnalités que nous
+avons ainsi que la manière de les avoir accomplies à
+l'aide de l'héritage, l'encapsulation et le polymorphisme mais
+aussi de beaucoup d'autres concepts du C++ moderne comme les
+pointeurs intelligents ou les itérateurs. Ce fût une très
+bonne expérience enrichissante de recréer ce jeu mythique et de voir les
+différentes subtilités qu'il renferme ainsi que de trouver
+des solutions aux problèmes qui sont survenus.
 
 \end{document}
