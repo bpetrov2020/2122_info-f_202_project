@@ -5,7 +5,7 @@
 #include "animation.hpp"
 #include "colors.hpp"
 
-#include <Fl/Fl.H>
+#include <FL/Fl.H>
 #include <FL/Fl_Box.H>
 #include <FL/fl_draw.H>
 
