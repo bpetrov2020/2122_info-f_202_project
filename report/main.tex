@@ -188,7 +188,37 @@ C'est principalement par manque de temps.
 
 \section{Implémentation}
 \subsection{Logique}
-% Pour toi Alec!
+Voyons maintenant ce qu'il se passe précisement quand vous ouvrez le jeu, selectionnez un 
+niveau et jouez un coup. A l'exécution du jeu, une instance de \emph{Game} ne tarde pas à se créer. 
+A sa construction, elle fait une vérification de la sauvegarde du score, et ensuite crée une 
+instance de \emph{SplashScreen}. Cette instance est donc responsable 
+de l'écran de démarage que vous apercevez au lancement du jeu.
+
+Ensuite, quand le timer de \emph{SplashScreen} se termine, ce dernier chargera une instance 
+de \emph{LevelSelector}, qui sera contenue dans \emph{Game}. Cette instance affiche une 
+sélection de niveaux. Quand vous sélectionnez un niveau, une fonction \emph{mouseClick()} 
+est appelée par FLTK. Celle-ci est réecrite dans notre sélecteur de niveau pour pouvoir récupérer 
+le numero de niveau de la case qu'on a choisie. Dès lors qu'on a ce numéro, le sélecteur 
+peut charger le niveau en question dans \emph{Game}. Ainsi le niveau s'affiche, après une 
+récupération des informations du niveau.
+
+Maintenant que la grille de jeu est instanciée et prête, elle se met en attente d'une entrée 
+utilisateur. C'est-à-dire qu'aucun code ne s'exécute tant que l'utilisateur n'effectue pas une action.
+Quand l'utilisateur se décide à échanger deux bonbons, la grille vérifiera la validité de l'échange.
+Si l'échange ne crée aucune combinaison, la grille re-échange les deux bonbons. Notons qu'un échange 
+est suivi par l'exécution d'une animation (translation). 
+
+Si par contre l'échange crée une conbinaison, un fonction \emph{clear()} sera appelée sur chaque 
+bonbon composant la combinaison, et le plateau passe dans un état \emph{clearState}. Cette fonction 
+s'occupe de faire disparaître les bonbons concernés, mais va aussi instancier une animation de disparition. 
+Quand celle-ci est terminée, le plateau passe dans un état \emph{fallState} et des bonbons tomberont afin 
+de remplir le plateau. Les deux états que j'ai mentionnés, représentent une phase où le plateau subit des 
+modifications avec des animations. Ces états réécrivent les fonctions d'E/S utilisateur pour ne rien faire 
+si elles sont appelées. Ainsi, cela permet de désactiver les actions de l'utilisateur pendant que le plateau 
+fait ses modifications.
+
+Pour finir, à la fin des modifications, le plateau repasse en \emph{readyState}, un état qui permet au 
+joueur de jouer son coup.
 
 \subsection{Classes}
 
