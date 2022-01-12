@@ -133,7 +133,8 @@ Nous aborderons ensuite le calcul de notre score.
 
 \section{Fonctionnalités}
 
-Commençons donc par faire le tour des fonctionnalités que notre jeu propose.
+\subsection{Fonctionnalités de base}
+Commençons donc par faire le tour des fonctionnalités basique que notre jeu propose.
 À son lancement, le jeu nous propose de choisir parmi neuf niveaux différents.
 Ces derniers sont de plus en plus intéressants et donc
 aussi d'une difficulté accrue.
@@ -141,90 +142,43 @@ aussi d'une difficulté accrue.
 Ensuite, en entrant dans un niveau, nous tombons sur le plateau de jeu.
 Il va de soi que nous avons les fonctionnalités de base de \emph{Candy Crush Saga},
 c'est-à-dire les bonbons standards qui disparaissent en
-formant des combinaisons de la même couleur.
+formant des combinaisons de la même couleur. De plus, toute modification du plateau 
+sera accompagnée d'une animation.
+
+L'échange de deux bonbons peut se faire de deux manières différentes. Soit nous appuyons 
+sur les deux bonbons en question, soit nous faisons glisser le premier vers son voisin.
+
+\subsection{Fonctionnalités en jeu}
+
+Si aucune action n'est possible, le jeu nous en fait part grâce à un petit 
+message sur l'écran avant de remplacer tous les bonbons standards du plateau.
+
+Si par contre vous ne savez pas quoi faire, pas d'inquiétude, le jeu vous proposera 
+la meilleur action grâce à son système de suggestion.
+
+Le glaçage, les fruits, les murs sont des éléments de jeu que nous proposons 
+pour offrir une meilleur experience de jeu. Le glaçage se voit être détruit quand les bonbons 
+autour de lui sont détruits. Pour ce qui est d'un fruit, il faudra le faire parvenir tout-en-bas du 
+plateau afin de le faire disparraitre. Le glaçage et les fruits sont des objectifs, et doivent donc 
+être détruits pour gagner le niveau.
+
+Le programme nous permet de voir notre score en jeu.
+Sur l'écran d'accueil nous pourrons appercevoir notre meilleur score. Nous pouvons ainsi 
+tenter de battre le meilleur score qui sera enregistré, même après la fermeture du programme.
 
 \subsection{Bonbons spéciaux}
 
 Nous proposons aussi de former certains bonbons
-spéciaux dans certaines conditions.
-
-\subsubsection{Bonbon rayé}
-Le bonbon rayé (ou \emph{stripped candy}) est un bonbon spécial qui, quand il
-explose, emporte toute la ligne avec lui, horizontale ou
-verticale selon son orientation.
-
-Afin de le faire apparaître, nous avons simplement besoin
-d'aligner 4 bonbons de même couleur.
-Si cet alignement est horizontal, le bonbon rayé sera
-d'orientation verticale et \emph{vice versa}.
-
-\subsubsection{Bonbon emballé}
-Quand le bonbon emballé (ou \emph{wrapped candy}) explose, il
-fait exploser les 8 bonbons qui se trouvent autour de lui.
-
-Pour l'obtenir il faudra aligner 3 (ou 4) bonbons
-horizontalement ainsi que 3 (ou 4) bonbons
-verticalement de la même couleur. Le tout en un seul
-déplacement.
-
-\subsubsection{Bombe de couleur}
-La bombe de couleur (ou \emph{colour bomb}) est le bonbon spécial le plus puissant
-du jeu. Il réagit différemment
-selon le bonbon avec lequel il a été échangé. Pour
-l'obtenir, il suffit d'aligner 5 bonbons de la même couleur
-horizontalement ou verticalement (la direction n'ayant ici aucune importance).
-
-Voici comment réagit la bombe de couleur quand elle est
-échangée avec :
-
-\begin{itemize}
-	\item un bonbon standard : tous les bonbons standards de
-        la même couleur que le bonbon échangé explosent ;
-	\item un bonbon rayé : tous les bonbons standards de
-        la même couleur que le bonbon échangé se transforment
-        en bonbons rayés. Ensuite, tous les bonbons de cette
-        couleur explosent, peu importe leur type ;
-	\item un bonbon emballé : idem qu'avec le bonbon rayé, mais avec des bonbons emballés ;
-	\item une autre bombe de couleur : tous les bonbons du plateau explosent.
-\end{itemize}
-
-\subsection{Échange de bonbons spéciaux}
+spéciaux dans certaines conditions. En effet, comme dans le vrais jeu, 
+il nous est possible de faire certaines combinaisons de bonbons afin de faire apparaitre
+des bonbons rayés (ou \emph{stripped candy}), des bonbons emballés (ou \emph{wrapped candy}) 
+ou encore des bombes de couleur (ou \emph{colour bomb}). Ces derniers exploseront de la 
+même façon que dans \emph{Candy Crush Saga}.
 
 Notre jeu propose, tout comme dans le jeu original, de créer des explosions
-particulières quand deux bonbons spéciaux sont échangés :
+particulières quand deux bonbons spéciaux sont échangés. Vous touverez plus d'information 
+à propos de ces échanges sur \emph{le wiki du jeu}\footnote{\url{https://candycrush.fandom.com/wiki/Candy_Crush_Saga_Wiki}}.
 
-\begin{itemize}
-	\item deux bonbons rayés : la ligne horizontale et
-        verticale explosent~;
-	\item deux bonbons emballés : même effet que le bonbon
-        emballé, mais où le rayon d'explosion est de deux
-        cases au lieu d'une seule~;
-	\item un bonbon emballé et un rayé : les 3 lignes horizontales ainsi que les 3 lignes verticales autour du point d'échange explosent.
-\end{itemize}
-
-\subsection{Autres fonctionnalités}
-\begin{itemize}
-	\item L'échange, la suppression et la chute des bonbons sont
-        animés.
-	\item Notre jeu propose la possibilité d'avoir des murs,
-        immobiles et non supprimables.
-        Les bonbons peuvent glisser pour se placer en dessous des murs.
-	\item L'échange de deux bonbons peut se faire de deux
-        manières différentes. Soit nous appuyons sur les
-        deux bonbons en question, soit nous faisons glisser
-        le premier vers son voisin.
-	\item Notre programme implémente le glaçage et les
-        fruits, permettant de fixer des objectifs aux niveaux.
-	\item En jeu, nous pouvons apercevoir notre score. Nous
-        pouvons ainsi tenter de battre le meilleur score qui
-        sera enregistré, même après la fermeture du programme.
-	\item En cas d'incertitude quant au coup à jouer, notre
-        jeu nous proposera une solution grâce à son système
-        de suggestion. La meilleure action nous sera suggérée par une petite animation des cases concernées.
-	\item Si aucune action n'est possible, le jeu nous en
-        fait part grâce à un petit message sur l'écran avant
-        de remplacer tous les bonbons standards du plateau.
-\end{itemize}
 
 \section{Fonctionnalités non-implémentées}
 Notre jeu implémente presque toutes les fonctionnalités
