@@ -193,9 +193,9 @@ bool Cell::hint()
 
 bool Cell::hasSpecialCandy() const
 {
-    return content->getType() == ContentT::StripedCandy
+    return !isEmpty() && ( content->getType() == ContentT::StripedCandy
         || content->getType() == ContentT::WrappedCandy
-        || content->getType() == ContentT::ColourBomb;
+        || content->getType() == ContentT::ColourBomb);
 }
 
 ContentT Cell::contentType() const
