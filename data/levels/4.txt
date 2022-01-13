@@ -1,5 +1,5 @@
 Size 6
-ColorRange 6
-Goal Icing 20
-Wall a2
-DoubleIcing c4 c5 b4 b5 c3 b3 d3 d4 d5 e3 e4 e5
+ColorRange 5
+Goal Fruit 20
+Hazelnut a6 b6 e6 f6
+Cherry c6 d6
