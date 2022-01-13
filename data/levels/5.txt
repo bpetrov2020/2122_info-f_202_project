@@ -1,6 +1,4 @@
-Size 12
+Size 7
 ColorRange 6
 Goal Icing 20
-Wall a2
-SingleIcing c3
-DoubleIcing c4 c5 b4 b5
+DoubleIcing c6 c5 b6 b5 e5 e6 f5 f6 b2 b3 c2 c3 e2 e3 f2 f3

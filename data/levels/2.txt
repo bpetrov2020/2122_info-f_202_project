@@ -1,4 +1,4 @@
-Size 7
+Size 5
 ColorRange 6
 Goal Icing 20
 Wall a2
