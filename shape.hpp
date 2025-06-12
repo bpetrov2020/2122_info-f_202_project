@@ -1,7 +1,7 @@
 #ifndef SHAPE_HPP
 #define SHAPE_HPP
 
-#include <Fl/Fl.H>
+#include <FL/Fl.H>
 #include <FL/Fl_Box.H>
 #include <FL/fl_draw.H>
 #include <array>
